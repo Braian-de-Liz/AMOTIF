@@ -21,6 +21,9 @@
   "dependencies": {
     "br_standards_with_zod": "^1.1.2",
     "dotenv": "^17.2.4",
+    "fastify-plugin": "^5.1.0",
+    "@fastify/cors": "^11.1.0",
+    "@fastify/jwt": "^10.0.0",
     "fastify": "^5.7.4",
     "fastify-type-provider-zod": "^6.1.0",
     "zod": "^4.3.6"
