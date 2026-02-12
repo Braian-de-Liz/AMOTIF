@@ -3,29 +3,38 @@
   "version": "1.0.0",
   "type": "module",
   "description": "",
-  "main": "server.js",
+  "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
+    "build": "tsup src/server.ts --format esm --clean --minify --target node22 --external @prisma/client --external .prisma/client --shims",
     "start": "node dist/server.js",
-    "build": "tsc",
-    "verific": "tsc --noEmit"
+    "verific": "tsc --noEmit",
+    "db:migrate": "npx prisma migrate dev",
+    "db:generate": "npx prisma generate",
+    "db:studio": "npx prisma studio"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "devDependencies": {
-    "@types/node": "^25.2.2",
-    "tsx": "^4.21.0",
-    "typescript": "^5.9.3"
-  },
   "dependencies": {
-    "br_standards_with_zod": "^1.1.2",
-    "dotenv": "^17.2.4",
-    "fastify-plugin": "^5.1.0",
     "@fastify/cors": "^11.1.0",
     "@fastify/jwt": "^10.0.0",
+    "@prisma/client": "^7.3.0",
+    "br_standards_with_zod": "^1.1.2",
+    "dotenv": "^17.2.4",
     "fastify": "^5.7.4",
+    "fastify-plugin": "^5.1.0",
     "fastify-type-provider-zod": "^6.1.0",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@prisma/config": "^7.3.0",
+    "@types/bcrypt": "^6.0.0",
+    "@types/node": "^22.13.1",
+    "prisma": "^7.3.0",
+    "tsup": "^8.3.5",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
   }
 }
