@@ -29,6 +29,7 @@ Fastify.register(prisma_plugin);
 Fastify.register(cors, { origin: true });
 Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD });
 
+Fastify.register(User_register, {prefix: '/api'});
 
 
 const start = async () => {

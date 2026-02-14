@@ -1,6 +1,9 @@
+// src/lib/prisma.ts
 import fp from "fastify-plugin";
 import { FastifyPluginAsync } from "fastify";
 import { PrismaClient } from "@prisma/client";
+import dotenv from "dotenv";
+dotenv.config();
 
 declare module 'fastify' {
     interface FastifyInstance {
@@ -11,11 +14,11 @@ declare module 'fastify' {
 const prisma_plugin: FastifyPluginAsync = fp(async (fastify) => {
     const prisma = new PrismaClient({
         log: ['error', 'warn'],
+        datasourceUrl: process.env.DATABASE_URL,
     });
 
     try {
         await prisma.$connect();
-
         fastify.decorate('prisma', prisma);
 
         fastify.addHook('onClose', async (instance) => {
