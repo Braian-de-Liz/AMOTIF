@@ -1,7 +1,61 @@
+// Configuração do Gerador e Datasource
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+}
+
+model User {
+  id            String   @id @default(uuid())
+  nome_completo String
+  email         String   @unique
+  senha         String
+  cpf           String   @unique
+  bio           String?
+  instrumentos  String[] 
+  avatar_url    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  projetos_criados Projeto[] 
+  camadas_enviadas Camada[]  
+}
+
+model Projeto {
+  id          String   @id @default(uuid())
+  titulo      String
+  bpm         Int      @default(120)
+  escala      String?  
+  descricao   String?
+  audio_guia  String   
+  
+  userId      String
+  autor       User     @relation(fields: [userId], references: [id])
+
+  camadas     Camada[] 
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Camada {
+  id               String   @id @default(uuid())
+  nome_trilha      String   
+  audio_url        String   
+  instrumento_tag  String   
+  
+  delay_offset     Int      @default(0) 
+  volume_padrao    Float    @default(1.0)
+  
+  esta_aprovada    Boolean  @default(false) 
+
+  projetoId        String
+  projeto          Projeto  @relation(fields: [projetoId], references: [id])
+  
+  userId           String
+  autor            User     @relation(fields: [userId], references: [id])
+
+  createdAt        DateTime @default(now())
 }
