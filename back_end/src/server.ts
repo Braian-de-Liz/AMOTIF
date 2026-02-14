@@ -10,6 +10,8 @@ import fastify from 'fastify';
 import prisma_plugin from './lib/prisma.js';
 
 import { User_register } from './routers/user/cadastro.js';
+import { login_user } from './routers/user/login.js';
+import { health_route } from './routers/health/health.js';
 
 
 if (!process.env.JWT_PASSOWORD) {
@@ -30,6 +32,8 @@ Fastify.register(cors, { origin: true });
 Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD });
 
 Fastify.register(User_register, {prefix: '/api'});
+Fastify.register(login_user, {prefix: '/api'});
+Fastify.register(health_route)
 
 
 const start = async () => {

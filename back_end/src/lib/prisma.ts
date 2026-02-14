@@ -25,7 +25,7 @@ const prisma_plugin: FastifyPluginAsync = fp(async (fastify) => {
         await prisma.$connect();
 
         fastify.decorate('prisma', prisma);
-        console.log("NeonDB conectado via Adapter (Prisma 7)!");
+        console.log("NeonDB conectado via Adapter");
 
     } catch (error) {
         console.error("Erro:", error);
