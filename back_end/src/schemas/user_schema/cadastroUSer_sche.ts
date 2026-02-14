@@ -27,4 +27,4 @@ const schema_register = {
     }
 }
 
-export { schema_register }
+export { schema_register };

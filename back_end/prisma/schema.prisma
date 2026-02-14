@@ -1,14 +1,11 @@
 // Configuração do Gerador e Datasource
 generator client {
   provider = "prisma-client-js"
-  engineType = "library"
 }
 
 datasource db {
   provider = "postgresql"
-  // url      = env("DATABASE_URL")
 }
-
 model User {
   id            String   @id @default(uuid())
   nome_completo String

@@ -1,33 +1,28 @@
-// src/lib/prisma.ts
-import fp from "fastify-plugin";
-import { FastifyPluginAsync } from "fastify";
-import { PrismaClient } from "@prisma/client";
-import dotenv from "dotenv";
-dotenv.config();
-
-declare module 'fastify' {
-    interface FastifyInstance {
-        prisma: PrismaClient
-    }
-}
+import fp from "fastify-plugin"
+import { FastifyPluginAsync } from "fastify"
+import { PrismaClient } from '@prisma/client'
+import { PrismaPg } from '@prisma/adapter-pg'
+import pg from 'pg'
 
 const prisma_plugin: FastifyPluginAsync = fp(async (fastify) => {
-    const prisma = new PrismaClient({
-        log: ['error', 'warn'],
-        datasourceUrl: process.env.DATABASE_URL,
-    });
+
+    const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL })
+    
+    const adapter = new PrismaPg(pool)
+    
+    const prisma = new PrismaClient({ 
+        adapter,
+        log: ['error', 'warn'] 
+    })
 
     try {
         await prisma.$connect();
+
         fastify.decorate('prisma', prisma);
+        console.log("NeonDB conectado via Adapter (Prisma 7)!");
 
-        fastify.addHook('onClose', async (instance) => {
-            await instance.prisma.$disconnect();
-        });
-
-        console.log("NeonDB (Prisma) conectado com sucesso!");
     } catch (error) {
-        console.error("Erro ao conectar no Prisma:", error);
+        console.error("Erro:", error);
         process.exit(1);
     }
 });
