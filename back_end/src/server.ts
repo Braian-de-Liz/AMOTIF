@@ -34,6 +34,8 @@ Fastify.register(User_register, {prefix: '/api'});
 
 const start = async () => {
 
+    
+
     const port: number = Number(process.env.PORT) || 3333;
 
     try {
