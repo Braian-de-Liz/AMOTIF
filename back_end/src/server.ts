@@ -29,16 +29,13 @@ Fastify.setSerializerCompiler(serializerCompiler);
 Fastify.register(prisma_plugin);
 
 Fastify.register(cors, { origin: true });
-Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD });
-
-Fastify.register(User_register, {prefix: '/api'});
-Fastify.register(login_user, {prefix: '/api'});
+Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '7d' } });
+Fastify.register(User_register, { prefix: '/api' });
+Fastify.register(login_user, { prefix: '/api' });
 Fastify.register(health_route)
 
 
 const start = async () => {
-
-    
 
     const port: number = Number(process.env.PORT) || 3333;
 

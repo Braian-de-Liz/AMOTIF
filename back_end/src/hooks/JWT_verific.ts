@@ -1,3 +1,4 @@
+// back_end\src\hooks\JWT_verific.ts
 import { FastifyReply, FastifyRequest } from 'fastify';
 
 async function autenticarJWT(request: FastifyRequest, reply: FastifyReply) {
