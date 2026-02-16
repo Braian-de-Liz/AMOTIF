@@ -24,6 +24,12 @@ const prisma_plugin: FastifyPluginAsync = fp(async (fastify) => {
     try {
         await prisma.$connect();
 
+        fastify.addHook('onClose', async (instance) => {
+            await instance.prisma.$disconnect();
+            await pool.end(); 
+            console.log("Conexões com o banco encerradas com sucesso.");
+        });
+
         fastify.decorate('prisma', prisma);
         console.log("NeonDB conectado via Adapter");
 

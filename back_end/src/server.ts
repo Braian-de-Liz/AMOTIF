@@ -11,6 +11,7 @@ import prisma_plugin from './lib/prisma.js';
 
 import { User_register } from './routers/user/cadastro.js';
 import { login_user } from './routers/user/login.js';
+import { Deletar_user } from './routers/user/delete_user.js';
 import { health_route } from './routers/health/health.js';
 
 
@@ -30,9 +31,12 @@ Fastify.register(prisma_plugin);
 
 Fastify.register(cors, { origin: true });
 Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '7d' } });
+
 Fastify.register(User_register, { prefix: '/api' });
 Fastify.register(login_user, { prefix: '/api' });
-Fastify.register(health_route)
+Fastify.register(Deletar_user, { prefix: '/api' });
+
+Fastify.register(health_route);
 
 
 const start = async () => {
@@ -40,7 +44,7 @@ const start = async () => {
     const port: number = Number(process.env.PORT) || 3333;
 
     try {
-        await Fastify.listen({ port: port });
+        await Fastify.listen({ port: port, host: '0.0.0.0' });
         console.log("Server started on http://localhost:3333");
     }
     catch (erro) {

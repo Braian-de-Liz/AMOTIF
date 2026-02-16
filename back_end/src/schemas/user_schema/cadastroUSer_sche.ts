@@ -7,7 +7,7 @@ const schema_register = {
             nome_completo: z.string().min(6).max(87),
             email: z.string().email().min(8),
             senha: z.string().min(8).max(87),
-            cpf: zbr.cpf(),
+            cpf: zbr.cpf("cpf inválido"),
         }),
         response: {
             201: z.object({
