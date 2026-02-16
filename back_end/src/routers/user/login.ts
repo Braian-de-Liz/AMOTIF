@@ -32,7 +32,8 @@ const login_user: FastifyPluginAsyncZod = async (Fastify) => {
 
             const token = Fastify.jwt.sign({
                 id: check_user.id,
-                nome: check_user.nome_completo
+                nome: check_user.nome_completo,
+                email: check_user.email 
             });
 
             return reply.status(200).send({
@@ -40,7 +41,8 @@ const login_user: FastifyPluginAsyncZod = async (Fastify) => {
                 token,
                 usuario: {
                     id: check_user.id,
-                    nome: check_user.nome_completo
+                    nome: check_user.nome_completo,
+                    email: check_user.email
                 }
             });
         }

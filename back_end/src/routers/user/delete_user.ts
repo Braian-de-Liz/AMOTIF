@@ -8,6 +8,15 @@ const Deletar_user: FastifyPluginAsyncZod = async (Fastify) => {
         const { id } = request.params;
         const { senha } = request.body;
 
+        const usuarioLogadoId = request.user.id;
+
+        if (id !== usuarioLogadoId) {
+            return reply.status(403).send({
+                status: 'erro',
+                mensagem: 'Você não tem permissão para deletar esta conta.'
+            });
+        }
+
         try {
             const encontrar_user = await Fastify.prisma.user.findUnique({ where: { id } });
 
