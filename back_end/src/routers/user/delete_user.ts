@@ -1,5 +1,6 @@
+// back_end\src\routers\deletar_user.ts
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import bcrypt from "bcrypt";
+import argon2 from "argon2"; 
 import { Schema_del_user } from "../../schemas/user_schema/delete_user_schema.js";
 
 const Deletar_user: FastifyPluginAsyncZod = async (Fastify) => {
@@ -29,8 +30,7 @@ const Deletar_user: FastifyPluginAsyncZod = async (Fastify) => {
                 });
             }
 
-
-            const senha_true = await bcrypt.compare(senha, encontrar_user.senha);
+            const senha_true = await argon2.verify(encontrar_user.senha, senha);
 
             if (!senha_true) {
                 Fastify.log.error("senha incorreta");
@@ -41,7 +41,6 @@ const Deletar_user: FastifyPluginAsyncZod = async (Fastify) => {
                 });
             }
 
-
             await Fastify.prisma.user.delete({ where: { id } });
 
             return reply.status(202).send({
@@ -49,7 +48,6 @@ const Deletar_user: FastifyPluginAsyncZod = async (Fastify) => {
                 mensagem: 'usuário deletado com sucesso'
             });
         }
-
         catch (erro) {
             Fastify.log.warn("problema interno no servidor ou na validação " + erro);
 
@@ -58,7 +56,6 @@ const Deletar_user: FastifyPluginAsyncZod = async (Fastify) => {
                 mensagem: 'problema interno no servidor ou na validação'
             })
         }
-
     });
 }
 

@@ -1,6 +1,6 @@
 // back_end\src\routers\cadastro.ts
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import bcrypt from "bcrypt";
+import argon2 from "argon2";
 import { schema_register } from "../../schemas/user_schema/cadastroUSer_sche.js";
 
 const User_register: FastifyPluginAsyncZod = async (Fastify, options) => {
@@ -20,13 +20,14 @@ const User_register: FastifyPluginAsyncZod = async (Fastify, options) => {
 
             if (check_user) {
                 Fastify.log.warn("Tentativa de cadastro com email/cpf já existente");
+                
                 return reply.status(400).send({
                     status: 'erro',
                     mensagem: 'E-mail ou CPF já cadastrado no sistema'
                 });
             }
 
-            const senha_hash = await bcrypt.hash(senha, 6);
+            const senha_hash = await argon2.hash(senha);
 
             const user = await Fastify.prisma.user.create({
                 data: {

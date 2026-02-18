@@ -1,5 +1,5 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import bcrypt from "bcrypt";
+import argon2 from "argon2"; 
 import { schema_login } from "../../schemas/user_schema/schema_login.js";
 
 const login_user: FastifyPluginAsyncZod = async (Fastify) => {
@@ -20,7 +20,7 @@ const login_user: FastifyPluginAsyncZod = async (Fastify) => {
                 });
             }
 
-            const senhaValida = await bcrypt.compare(senha, check_user.senha);
+            const senhaValida = await argon2.verify(check_user.senha, senha);
 
             if (!senhaValida) {
                 Fastify.log.error("Dados incorretos");
@@ -48,7 +48,7 @@ const login_user: FastifyPluginAsyncZod = async (Fastify) => {
         }
 
         catch (erro) {
-            Fastify.log.warn("erro interno no servidor, ou validação negada" + erro);
+            Fastify.log.warn("erro interno no servidor, ou validação negada: " + erro);
 
             return reply.status(500).send({
                 status: 'erro',
