@@ -6,6 +6,7 @@ import { schema_register } from "../../schemas/user_schema/cadastroUSer_sche.js"
 const User_register: FastifyPluginAsyncZod = async (Fastify, options) => {
 
     Fastify.post("/usuario", schema_register, async (request, reply) => {
+        
         const { nome_completo, email, senha, cpf } = request.body;
 
         try {
@@ -27,7 +28,12 @@ const User_register: FastifyPluginAsyncZod = async (Fastify, options) => {
                 });
             }
 
-            const senha_hash = await argon2.hash(senha);
+            const senha_hash = await argon2.hash(senha, {
+                type: argon2.argon2id,
+                memoryCost: 2 ** 15, 
+                timeCost: 2,         
+                parallelism: 1
+            });
 
             const user = await Fastify.prisma.user.create({
                 data: {

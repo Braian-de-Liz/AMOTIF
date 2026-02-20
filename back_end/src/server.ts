@@ -13,6 +13,7 @@ import { User_register } from './routers/user/cadastro.js';
 import { login_user } from './routers/user/login.js';
 import { Deletar_user } from './routers/user/delete_user.js';
 import { health_route } from './routers/health/health.js';
+import { Get_user } from './routers/user/get_user.js';
 
 
 if (!process.env.JWT_PASSOWORD) {
@@ -35,6 +36,7 @@ Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '7d' } 
 Fastify.register(User_register, { prefix: '/api' });
 Fastify.register(login_user, { prefix: '/api' });
 Fastify.register(Deletar_user, { prefix: '/api' });
+Fastify.register(Get_user, { prefix: '/api' });
 
 Fastify.register(health_route);
 
