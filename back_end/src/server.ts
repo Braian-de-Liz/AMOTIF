@@ -14,7 +14,7 @@ import { login_user } from './routers/user/login.js';
 import { Deletar_user } from './routers/user/delete_user.js';
 import { health_route } from './routers/health/health.js';
 import { Get_user } from './routers/user/get_user.js';
-
+import { Patch_bio } from './routers/user/post_bio.js';
 
 if (!process.env.JWT_PASSOWORD) {
     console.error("ERRO FATAL: A variável de ambiente JWT_PASSOWORD não foi definida.");
@@ -23,7 +23,7 @@ if (!process.env.JWT_PASSOWORD) {
 
 const JWT_PASSOWORD: string = process.env.JWT_PASSOWORD;
 
-const Fastify: FastifyInstance = fastify().withTypeProvider<ZodTypeProvider>();
+const Fastify: FastifyInstance = fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
 
 Fastify.setValidatorCompiler(validatorCompiler);
 Fastify.setSerializerCompiler(serializerCompiler);
@@ -37,6 +37,7 @@ Fastify.register(User_register, { prefix: '/api' });
 Fastify.register(login_user, { prefix: '/api' });
 Fastify.register(Deletar_user, { prefix: '/api' });
 Fastify.register(Get_user, { prefix: '/api' });
+Fastify.register(Patch_bio, { prefix: '/api' });
 
 Fastify.register(health_route);
 
