@@ -10,7 +10,17 @@ const Get_user: FastifyPluginAsyncZod = async (Fastify) => {
 
         try {
 
-            const check_user = await Fastify.prisma.user.findUnique({ where: { id } });
+            const check_user = await Fastify.prisma.user.findUnique({
+                where: { id },
+                select: {
+                    id: true,
+                    nome_completo: true,
+                    email: true,
+                    bio: true,
+                    instrumentos: true,
+                    createdAt: true,
+                }
+            });
 
             if (!check_user) {
                 Fastify.log.error("usuário não enocntrado");

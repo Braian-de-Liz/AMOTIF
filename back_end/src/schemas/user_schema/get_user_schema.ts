@@ -17,7 +17,6 @@ const schema_get_user = {
                     bio: z.string().nullable(),
                     instrumentos: z.array(z.string()), 
                     createdAt: z.any(),
-                    cpf: z.string(),
                 })
             }),
             404: z.object({

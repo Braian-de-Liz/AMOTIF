@@ -22,6 +22,10 @@ const instrumentos_schema = {
             400: z.object({
                 status: z.string(),
                 mensagem: z.string()
+            }),
+            403: z.object({
+                status: z.string(),
+                mensagem: z.string()
             })
         }
     }

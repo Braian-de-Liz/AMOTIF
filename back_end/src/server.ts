@@ -15,6 +15,7 @@ import { Deletar_user } from './routers/user/delete_user.js';
 import { health_route } from './routers/health/health.js';
 import { Get_user } from './routers/user/get_user.js';
 import { Patch_bio } from './routers/user/post_bio.js';
+import { Patch_Instrumentos } from './routers/user/instrumentos.js';
 
 if (!process.env.JWT_PASSOWORD) {
     console.error("ERRO FATAL: A variável de ambiente JWT_PASSOWORD não foi definida.");
@@ -38,6 +39,7 @@ Fastify.register(login_user, { prefix: '/api' });
 Fastify.register(Deletar_user, { prefix: '/api' });
 Fastify.register(Get_user, { prefix: '/api' });
 Fastify.register(Patch_bio, { prefix: '/api' });
+Fastify.register(Patch_Instrumentos, { prefix: '/api' });
 
 Fastify.register(health_route);
 
