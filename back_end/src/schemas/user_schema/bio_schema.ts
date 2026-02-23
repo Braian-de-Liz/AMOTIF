@@ -2,7 +2,7 @@ import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 
 const schema_bio = {
-    preHeandler: [autenticarJWT],
+    preHandler: [autenticarJWT],
     schema: {
         body: z.object({
             bio: z.string().nullable()
@@ -16,5 +16,5 @@ const schema_bio = {
     }
 }
 
-
+''
 export { schema_bio };
