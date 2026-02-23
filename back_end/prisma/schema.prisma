@@ -6,55 +6,63 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
 model User {
-  id            String   @id @default(uuid())
+  id            String   @id @default(uuid()) @db.Uuid
   nome_completo String
   email         String   @unique
   senha         String
   cpf           String   @unique
   bio           String?
-  instrumentos  String[] 
+  instrumentos  String[]
   avatar_url    String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  projetos_criados Projeto[] 
-  camadas_enviadas Camada[]  
+  projetos_criados Projeto[]
+  camadas_enviadas Camada[]
 }
 
+
 model Projeto {
-  id          String   @id @default(uuid())
-  titulo      String
-  bpm         Int      @default(120)
-  escala      String?  
-  descricao   String?
-  audio_guia  String   
-  
-  userId      String
-  autor       User     @relation(fields: [userId], references: [id])
+  id         String   @id @default(uuid()) @db.Uuid
+  titulo     String
+  bpm        Int      @default(120)
+  escala     String?
+  descricao  String?
+  audio_guia String
 
-  camadas     Camada[] 
+  userId     String   @db.Uuid
+  autor      User     @relation(fields: [userId], references: [id])
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  camadas    Camada[]
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model Camada {
-  id               String   @id @default(uuid())
-  nome_trilha      String   
-  audio_url        String   
-  instrumento_tag  String   
-  
-  delay_offset     Int      @default(0) 
-  volume_padrao    Float    @default(1.0)
-  
-  esta_aprovada    Boolean  @default(false) 
+  id              String   @id @default(uuid()) @db.Uuid
+  nome_trilha     String
+  audio_url       String
+  instrumento_tag String
 
-  projetoId        String
-  projeto          Projeto  @relation(fields: [projetoId], references: [id])
-  
-  userId           String
-  autor            User     @relation(fields: [userId], references: [id])
+  delay_offset    Int      @default(0)
+  volume_padrao   Float    @default(1.0)
+  esta_aprovada   Boolean  @default(false)
 
-  createdAt        DateTime @default(now())
+  projetoId       String   @db.Uuid
+  projeto         Projeto  @relation(fields: [projetoId], references: [id])
+
+  userId          String   @db.Uuid
+  autor           User     @relation(fields: [userId], references: [id])
+
+  createdAt       DateTime @default(now())
+
+  @@index([projetoId])
+  @@index([userId])
+  @@index([createdAt])
 }
