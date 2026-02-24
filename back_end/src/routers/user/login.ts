@@ -4,7 +4,7 @@ import { schema_login } from "../../schemas/user_schema/schema_login.js";
 
 const login_user: FastifyPluginAsyncZod = async (Fastify) => {
 
-    Fastify.post("/usuario_login", schema_login, async (request, reply) => {
+    Fastify.post("/usuario/login", schema_login, async (request, reply) => {
 
         const { email, senha } = request.body;
 

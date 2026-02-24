@@ -6,7 +6,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsup src/**/*.ts --format esm --clean --minify --target node24 --shims --no-splitting",
+    "build": "tsup src/**/*.ts --format esm --clean --minify --target esnext --shims --no-splitting",
     "start": "node dist/server.js",
     "verific": "tsc --noEmit",
     "conectDB": "npx prisma validate",
@@ -23,6 +23,7 @@
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
     "argon2": "^0.44.0",
+    "bcrypt": "^6.0.0",
     "br_standards_with_zod": "^1.1.2",
     "dotenv": "^17.3.1",
     "fastify": "^5.7.4",
