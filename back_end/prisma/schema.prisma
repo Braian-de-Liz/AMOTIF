@@ -1,6 +1,7 @@
 // Configuração do Gerador e Datasource
 generator client {
   provider = "prisma-client-js"
+  // binaryTargets = ["native", "debian-openssl-3.0.x"] //APENAS NO DEPLOY
 }
 
 datasource db {
