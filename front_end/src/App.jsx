@@ -1,4 +1,6 @@
 import './App.css';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Login } from './pages/login';
 import { URL_API, URL_API_TESTE } from './utility/url_apis';
 
 function App() {
@@ -6,7 +8,15 @@ function App() {
 
   return (
     <>
-      <h1>Várzea Pura</h1>
+
+    <h1>vazea pura</h1>
+      <Router>
+
+        <Routes>
+          <Route path='/' element={<Login />}></Route>
+        </Routes>
+
+      </Router>
     </>
   )
 }
