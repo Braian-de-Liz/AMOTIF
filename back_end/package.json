@@ -6,7 +6,7 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsup src/**/*.ts --format esm --clean --minify --target esnext --shims --no-splitting",
+    "build": "tsup src/server.ts --format esm --clean --minify --target esnext --shims",
     "start": "node dist/server.js",
     "verific": "tsc --noEmit",
     "conectDB": "npx prisma validate",
