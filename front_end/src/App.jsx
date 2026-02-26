@@ -9,7 +9,6 @@ function App() {
   return (
     <>
 
-    <h1>vazea pura</h1>
       <Router>
 
         <Routes>
