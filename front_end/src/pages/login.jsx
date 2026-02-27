@@ -1,4 +1,8 @@
+// front_end\src\pages\login.jsx
 import { useState } from 'react';
+import { validar_email } from '../utility/validar_email';
+import { validar_cpf } from '../utility/validar_cpf';
+import { Link } from 'react-router-dom';
 import { URL_API, URL_API_TESTE } from '../utility/url_apis'
 
 function Login() {
@@ -6,8 +10,19 @@ function Login() {
     const [email, Setemail] = useState('');
     const [senha, Setsenha] = useState('');
 
+    
     async function request_log(e) {
         e.preventDefault();
+
+        if (!validar_email(email)) {
+            alert("email inválido");
+            return false;
+        }
+    
+        if (senha.length < 8) {
+            alert("A senha deve ter pelo menos 8 caracteres.");
+            return false;
+        }
 
         class dados_para_logar {
             constructor(email, senha) {
@@ -19,7 +34,7 @@ function Login() {
         try {
             const dados_login = new dados_para_logar(email, senha);
 
-            const try_login = await fetch(`${URL_API_TESTE}/api/usuario/login`, {
+            const try_login = await fetch(`${URL_API_TESTE}/usuario/login`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json; charset=utf-8'
@@ -41,6 +56,8 @@ function Login() {
             localStorage.setItem("usuario_nome", data.usuario.nome_completo);
 
             alert("Login realizado com sucesso!");
+
+            // window.location.href='/home';
         }
         catch (erro) {
             console.error('Erro no login:', erro);
@@ -57,20 +74,22 @@ function Login() {
                 <div>
                     <label>Email</label>
                     <br />
-                    {/* Conectando o input ao Estado do React */}
-                    <input type="email" value={email} onChange={(e) => Setemail(e.target.value)}/>
+                    <input type="email" value={email} onChange={(e) => Setemail(e.target.value)} />
                 </div>
 
                 <div>
                     <label>Senha</label>
                     <br />
-                    <input type="password" value={senha} onChange={(e) => Setsenha(e.target.value)}/>
+                    <input type="password" value={senha} onChange={(e) => Setsenha(e.target.value)} />
                 </div>
 
-                {/* No formulário, o botão deve ser do tipo submit */}
                 <button type="submit" id='btn_envia'>Entrar</button>
             </form>
 
+            <div style={{ marginTop: '5px' }}>
+                <p>Não tem uma conta?</p>
+                <Link to="/cadastro">Cadastrar-se</Link>
+            </div>
         </>
     )
 }
