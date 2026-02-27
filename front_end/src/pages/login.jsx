@@ -1,12 +1,13 @@
 // front_end\src\pages\login.jsx
 import { useState } from 'react';
 import { validar_email } from '../utility/validar_email';
-import { validar_cpf } from '../utility/validar_cpf';
+import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
 import { URL_API, URL_API_TESTE } from '../utility/url_apis'
 
 function Login() {
 
+    const navigate = useNavigate(); 
     const [email, Setemail] = useState('');
     const [senha, Setsenha] = useState('');
 
@@ -57,7 +58,7 @@ function Login() {
 
             alert("Login realizado com sucesso!");
 
-            // window.location.href='/home';
+            navigate("/home");
         }
         catch (erro) {
             console.error('Erro no login:', erro);
