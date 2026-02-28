@@ -1,8 +1,10 @@
+// back_end\src\schemas\user_schema\delete_user_schema.ts
 import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js"
+import { verificar_permissao } from "../../hooks/verificar_permicao.js";
 
 const Schema_del_user = {
-    preHandler: [autenticarJWT],
+    preHandler: [autenticarJWT, verificar_permissao],
     schema: {
         params: z.object({
             id: z.string().uuid({ message: "O ID fornecido não é um UUID válido" })

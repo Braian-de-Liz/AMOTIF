@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
+import { verificar_permissao } from "../../hooks/verificar_permicao.js";
 
 const instrumentos_schema = {
-    preHandler: [autenticarJWT],
+    preHandler: [autenticarJWT, verificar_permissao],
     schema: {
         body: z.object({
             instrumentos: z.array(z.string())

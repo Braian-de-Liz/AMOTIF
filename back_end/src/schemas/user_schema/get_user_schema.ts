@@ -1,8 +1,8 @@
 import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
-
+import {verificar_permissao} from "../../hooks/verificar_permicao.js"
 const schema_get_user = {
-    preHandler: [autenticarJWT],
+    preHandler: [autenticarJWT, verificar_permissao],
     schema: {
         params: z.object({
             id: z.string().uuid({ message: "O formato do ID é inválido" })

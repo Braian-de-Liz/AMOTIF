@@ -28,7 +28,7 @@ if (!process.env.JWT_PASSOWORD) {
 
 const JWT_PASSOWORD: string = process.env.JWT_PASSOWORD;
 
-const Fastify: FastifyInstance = fastify({logger: true}).withTypeProvider<ZodTypeProvider>();
+const Fastify: FastifyInstance = fastify(/* {logger: true} */).withTypeProvider<ZodTypeProvider>();
 
 Fastify.setValidatorCompiler(validatorCompiler);
 Fastify.setSerializerCompiler(serializerCompiler);
