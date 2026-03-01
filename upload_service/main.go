@@ -1,9 +1,37 @@
 package main
 
 import (
-	"fmt"
+	"log"
+	"amotif-upload-service/config"
+	"amotif-upload-service/handlers"
+	"amotif-upload-service/service"
+
 	"github.com/gofiber/fiber/v2"
-	"os"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
+func main() {
+	cfg := config.LoadConfig()
 
+	storageSvc := service.NewStorageService(cfg)
+	
+	uploadHdl := handlers.NewUploadHandler(storageSvc)
+
+	app := fiber.New(fiber.Config{
+		BodyLimit: 40 * 1024 * 1024, 
+	})
+
+	app.Use(logger.New())
+
+	app.Get("/health", func(c *fiber.Ctx) error {
+		return c.Status(200).JSON(fiber.Map{
+			"status":  "online",
+			"service": "amotif-upload-service",
+		})
+	})
+
+	app.Post("/upload", uploadHdl.HandleUpload)
+
+	log.Printf("AMOTIF Upload Service rodando na porta %s", cfg.Port)
+	log.Fatal(app.Listen(":" + cfg.Port))
+}
