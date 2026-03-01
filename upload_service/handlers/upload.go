@@ -40,3 +40,17 @@ func (h *UploadHandler) HandleUpload(c *fiber.Ctx) error {
 		"path":    path,
 	})
 }
+
+func (h *UploadHandler) HandleDownload(c *fiber.Ctx) error {
+
+	fileName := c.Params("filename")
+
+	stream, err := h.storage.GetAudioStream(fileName)
+	if err != nil {
+		return c.Status(404).JSON(fiber.Map{"error": "Áudio não encontrado"})
+	}
+	
+	c.Set("Content-Type", "audio/mpeg") 
+
+	return c.SendStream(stream)
+}

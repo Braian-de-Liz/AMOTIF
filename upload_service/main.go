@@ -31,6 +31,8 @@ func main() {
 	})
 
 	app.Post("/upload", uploadHdl.HandleUpload)
+	app.Get("/download/:filename", uploadHdl.HandleDownload)
+
 
 	log.Printf("AMOTIF Upload Service rodando na porta %s", cfg.Port)
 	log.Fatal(app.Listen(":" + cfg.Port))

@@ -48,3 +48,32 @@ func (s *StorageService) UploadAudio(fileName string, fileBody io.Reader, conten
 
 	return fileName, nil
 }
+
+func (s *StorageService) GetAudioStream(fileName string) (io.ReadCloser, error) {
+	url := fmt.Sprintf("%s/storage/v1/object/authenticated/%s/%s", 
+		s.cfg.SupabaseURL, 
+		s.cfg.StorageBucket, 
+		fileName,
+	)
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Set("Authorization", "Bearer "+s.cfg.SupabaseKey)
+	req.Header.Set("apikey", s.cfg.SupabaseKey)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		resp.Body.Close()
+		return nil, fmt.Errorf("erro ao buscar arquivo: status %d", resp.StatusCode)
+	}
+
+	return resp.Body, nil
+}
