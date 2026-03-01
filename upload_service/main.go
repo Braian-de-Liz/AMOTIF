@@ -1,3 +1,4 @@
+// upload_service\main.go
 package main
 
 import (
@@ -5,7 +6,7 @@ import (
 	"amotif-upload-service/config"
 	"amotif-upload-service/handlers"
 	"amotif-upload-service/service"
-
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
@@ -22,6 +23,12 @@ func main() {
 	})
 
 	app.Use(logger.New())
+
+	app.Use(cors.New(cors.Config{
+        AllowOrigins: "*", 
+        AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+        AllowMethods: "GET, POST",
+    }))
 
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.Status(200).JSON(fiber.Map{
