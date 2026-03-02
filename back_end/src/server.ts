@@ -9,7 +9,7 @@ import fastify from 'fastify';
 
 import prisma_plugin from './lib/prisma.js';
 
-// user routes
+// user routes user
 import { User_register } from './routers/user/cadastro.js';
 import { login_user } from './routers/user/login.js';
 import { Deletar_user } from './routers/user/delete_user.js';
@@ -18,8 +18,9 @@ import { Get_user } from './routers/user/get_user.js';
 import { Patch_bio } from './routers/user/post_bio.js';
 import { Patch_Instrumentos } from './routers/user/instrumentos.js';
 
-// projetos routes
+// projetos routes projects
 import { post_project } from './routers/projetos/create_project.js';
+import { del_project } from './routers/projetos/delete_project.js';
 
 if (!process.env.JWT_PASSOWORD) {
     console.error("ERRO FATAL: A variável de ambiente JWT_PASSOWORD não foi definida.");
@@ -48,15 +49,18 @@ Fastify.register(Patch_Instrumentos, { prefix: '/api' });
 Fastify.register(health_route);
 
 Fastify.register(post_project, { prefix: '/api' });
+Fastify.register(del_project, { prefix: '/api' });
 
 const start = async () => {
 
     const port: number = Number(process.env.PORT) || 3333;
 
     try {
+
         await Fastify.listen({ port: port, host: '0.0.0.0' });
         console.log("Server started on http://localhost:3333");
     }
+
     catch (erro) {
         console.error("Erro no servidor: " + erro);
         process.exit(1);
