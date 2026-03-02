@@ -21,6 +21,7 @@ import { Patch_Instrumentos } from './routers/user/instrumentos.js';
 // projetos routes projects
 import { post_project } from './routers/projetos/create_project.js';
 import { del_project } from './routers/projetos/delete_project.js';
+import { Get_projects_user } from './routers/projetos/get_projects.js';
 
 if (!process.env.JWT_PASSOWORD) {
     console.error("ERRO FATAL: A variável de ambiente JWT_PASSOWORD não foi definida.");
@@ -50,6 +51,7 @@ Fastify.register(health_route);
 
 Fastify.register(post_project, { prefix: '/api' });
 Fastify.register(del_project, { prefix: '/api' });
+Fastify.register(Get_projects_user, { prefix: '/api' });
 
 const start = async () => {
 
