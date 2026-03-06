@@ -3,6 +3,9 @@ import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod
 import type { FastifyInstance } from 'fastify';
 import cors from "@fastify/cors";
 import fastifyJwt from "@fastify/jwt";
+import swagger from '@fastify/swagger';
+import swaggerUi from '@fastify/swagger-ui';
+import { jsonSchemaTransform } from 'fastify-type-provider-zod';
 import dotenv from 'dotenv';
 dotenv.config();
 import fastify from 'fastify';
@@ -34,6 +37,30 @@ const Fastify: FastifyInstance = fastify(/* {logger: true} */).withTypeProvider<
 
 Fastify.setValidatorCompiler(validatorCompiler);
 Fastify.setSerializerCompiler(serializerCompiler);
+
+Fastify.register(swagger, {
+    openapi: {
+        info: {
+            title: 'AMOTIF API',
+            description: 'Documentação da plataforma de colaboração musical AMOTIF',
+            version: '1.0.0',
+        },
+        components: {
+            securitySchemes: {
+                bearerAuth: {
+                    type: 'http',
+                    scheme: 'bearer',
+                    bearerFormat: 'JWT',
+                },
+            },
+        },
+    },
+    transform: jsonSchemaTransform, 
+});
+
+Fastify.register(swaggerUi, {
+    routePrefix: '/docs',
+});
 
 Fastify.register(prisma_plugin);
 
