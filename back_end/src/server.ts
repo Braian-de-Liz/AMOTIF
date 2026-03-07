@@ -42,7 +42,7 @@ Fastify.register(swagger, {
     openapi: {
         info: {
             title: 'AMOTIF API',
-            description: 'Documentação da plataforma de colaboração musical AMOTIF',
+            description: "Documentação da plataforma de colaboração musical AMOTIF, API documentada através do plugin oficial do Swagger para Fastify",
             version: '1.0.0',
         },
         components: {
@@ -55,7 +55,7 @@ Fastify.register(swagger, {
             },
         },
     },
-    transform: jsonSchemaTransform, 
+    transform: jsonSchemaTransform,
 });
 
 Fastify.register(swaggerUi, {
