@@ -1,63 +1,64 @@
 # 🎸 AMOTIF - Colaboração Musical Assíncrona
 
-O **AMOTIF** é uma plataforma digital de colaboração musical assíncrona que permite a criação coletiva de obras musicais através da contribuição estruturada de camadas instrumentais independentes.
+O **AMOTIF** é uma plataforma digital de colaboração musical que viabiliza a criação coletiva de obras através da contribuição estruturada de camadas instrumentais independentes.
 
 ## 🎯 Conceito e Objetivos
 
-Diferente das redes sociais tradicionais voltadas para a publicação de conteúdo finalizado, o AMOTIF foi projetado para atuar **durante o processo criativo**. A plataforma permite que músicos participem na construção de uma música mesmo sem contacto direto entre si, removendo barreiras geográficas e logísticas.
+Diferente de redes sociais voltadas ao conteúdo finalizado, o AMOTIF atua **durante o processo criativo**. A plataforma permite que músicos participem na construção de uma obra sem a necessidade de contato direto ou simultâneo, eliminando barreiras geográficas e logísticas.
 
-* **Projetos Musicais Partilhados:** Cada projeto é uma composição em desenvolvimento com informações técnicas fundamentais: andamento (BPM), tonalidade e uma faixa guia inicial.
-* **Camadas Independentes (Layers):** Cada contribuição (vocais, guitarra, bateria, etc.) é registada como uma camada separada, preservando o histórico criativo e permitindo a rastreabilidade de autoria.
-* **Controlo Artístico:** O criador do projeto detém o mecanismo de aprovação, decidindo quais as contribuições que passam a integrar oficialmente a composição.
-* **Versionamento Criativo:** Inspirado em conceitos de versionamento distribuído, o sistema permite que a obra evolua progressivamente através de uma linha do tempo transparente.
+* **Projetos Musicais Estruturados:** Cada projeto é uma composição em desenvolvimento contendo parâmetros técnicos fundamentais: andamento (**BPM**), **escala/tonalidade** e uma faixa guia de referência.
+* **Camadas Independentes (Layers):** Cada contribuição é registrada como uma trilha isolada, preservando o histórico criativo e garantindo a rastreabilidade de autoria.
+* **Controle Artístico e Curadoria:** O criador do projeto detém o mecanismo de aprovação, decidindo quais contribuições integram oficialmente a linha do tempo da composição.
+* **Versionamento Criativo:** Inspirado em conceitos de controle de versão, o sistema permite que a obra evolua progressivamente através de uma árvore de contribuições transparente.
 
 ---
 
 ## 🛠️ Stack Tecnológica
 
-A arquitetura do AMOTIF utiliza uma abordagem de **microsserviços híbridos** para garantir que a manipulação de ficheiros pesados não comprometa a lógica de negócio do sistema.
+A arquitetura utiliza uma abordagem de **microsserviços híbridos**, garantindo que o processamento de grandes volumes de dados de áudio não comprometa a estabilidade da lógica de negócio.
 
-| Peça | Tecnologia | Motivação |
-| :--- | :--- | :--- |
-| **Backend Principal** | **Fastify (Node.js)** | Gestão de rotas, permissões, autenticação e validação rigorosa de esquemas de dados. |
-| **Serviço de Upload** | **Go (Fiber)** | Microsserviço especializado no tráfego de binários de áudio com latência mínima e alta eficiência de recursos. |
-| **ORM** | **Prisma** | Abstração da base de dados para garantir integridade e agilidade no desenvolvimento entre TypeScript e PostgreSQL. |
-| **Validação** | **Zod** | Garantia de que os metadados técnicos (BPM, CPF, etc.) e limites de ficheiros são respeitados. |
-| **Storage** | **Supabase Storage** | Armazenamento físico dos ficheiros (.mp3/.wav), otimizando custos e entrega. |
+| Componente | Tecnologia | Logo | Motivação |
+| :--- | :--- | :---: | :--- |
+| **Backend API** | **Fastify (Node.js)** | ![Fastify](https://img.shields.io/badge/fastify-%23000000.svg?style=for-the-badge&logo=fastify&logoColor=white) | Gestão de rotas e permissões com validação rigorosa via **Zod Type Provider**. |
+| **Upload Service** | **Go (Fiber)** | ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white) | Microsserviço especializado em tráfego de áudio com latência mínima e concorrência nativa. |
+| **Banco de Dados** | **PostgreSQL** | ![PostgreSQL](https://img.shields.io/badge/postgresql-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white) | Persistência relacional robusta e integridade de dados. |
+| **ORM** | **Prisma** | ![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white) | Abstração de banco de dados para garantir agilidade entre TypeScript e SQL. |
+| **Frontend** | **React 19** | ![React](https://img.shields.io/badge/react-%2320232a.svg?style=for-the-badge&logo=react&logoColor=%2361DAFB) | Interface de alta performance utilizando o novo **React Compiler**. |
+| **Cloud Storage** | **Supabase** | ![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white) | Infraestrutura para armazenamento físico e entrega global de arquivos binários. |
 
 ---
 
-## 🏗️ Arquitetura de Processamento de Áudio (Go)
+## 🏗️ Engenharia de Processamento de Áudio (Go)
 
-Para suportar múltiplos uploads simultâneos sem "engarrafar" o servidor principal, foi implementado um serviço dedicado em **Go**.
+Para suportar múltiplos uploads simultâneos sem sobrecarregar o *Event Loop* do backend principal, implementamos um serviço dedicado em **Go**:
 
 * **Concorrência Nativa (Goroutines):** Processamento paralelo de ficheiros com consumo insignificante de CPU e RAM.
-* **Eficiência de Streaming:** O sistema utiliza *pipes* para canalizar o áudio diretamente para o Storage à medida que os dados chegam, evitando o carregamento total do ficheiro na memória RAM.
-* **Segurança Zero Trust:** O serviço valida o **JWT (JSON Web Token)** partilhado com o backend principal, garantindo que apenas utilizadores autorizados realizem uploads.
+* **Eficiência de Streaming:** Utilização de *pipes* para canalizar o áudio diretamente para o Storage à medida que os dados chegam, evitando o carregamento total do binário na memória RAM (*Zero-RAM loading*).
+* **Segurança Zero Trust:** O serviço valida a assinatura do **JWT (JSON Web Token)** gerado pelo backend principal.
 
 
 
 ---
 
-## 🔄 Fluxo de Dados e Camadas
+## 🔄 Fluxo de Dados e Pilares Técnicos
 
-O ecossistema de dados do AMOTIF está dividido em três pilares técnicos:
+O ecossistema de dados está estruturado em três pilares fundamentais:
 
 ### A. Utilizador (A Identidade)
-* **Identificação:** Nome completo para créditos autorais e CPF para segurança e validação de identidade real.
-* **Perfil Técnico:** Bio e lista de instrumentos para facilitar a descoberta por outros produtores.
+* **Identificação:** Créditos autorais vinculados à identidade real, com validação de CPF e perfis técnicos.
 
 ### B. Projeto (A Estrutura)
-* **Metadados Técnicos:** Título, BPM (o "relógio" da música) e Escala/Tom (ex: Dó Maior), garantindo que todos os colaboradores gravem em sintonia.
-* **Áudio Guia:** A base inicial que serve de referência para todas as camadas subsequentes.
+* **Metadados Técnicos:** Definição do BPM e tonalidade para garantir sincronia absoluta entre colaboradores.
+* **Documentação Interativa:** Documentação automática das rotas via **Swagger** ![Swagger](https://img.shields.io/badge/-Swagger-%23C1E1C1?style=for-the-badge&logo=swagger&logoColor=black).
 
 ### C. Camadas (As Contribuições)
-* **Sincronização:** Cada camada possui um registo de **Delay/Offset** em milissegundos para garantir o alinhamento perfeito com a faixa guia.
-* **Ficheiro de Áudio:** Armazenamento via URL segura apontando para o binário processado no Supabase.
+* **Sincronização:** Registro de **Delay/Offset** em milissegundos para compensar latências de gravação.
+* **Persistência:** Mapeamento de URLs seguras para os objetos processados no Cloud Storage.
 
 
 
 ---
 
 ## 🌟 Valor do Ecossistema
-O AMOTIF estabelece um ambiente que valoriza a autoria e a cooperação, permitindo que músicos de diferentes locais contribuam para uma mesma obra de forma organizada, técnica e segura, evoluindo a música desde um simples rascunho até uma composição multipessoal.
+
+O AMOTIF estabelece um ambiente que valoriza a autoria e a cooperação técnica. Ao transformar o processo de gravação em um fluxo assíncrono e organizado, a plataforma permite que músicos evoluam uma ideia desde um rascunho solitário até uma composição multipessoal complexa.
