@@ -10,6 +10,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 import fastify from 'fastify';
 
+
 import prisma_plugin from './lib/prisma.js';
 
 // user routes user
