@@ -4,19 +4,20 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Login } from './pages/login';
 import { Cadastro } from './pages/cadastro';
 import { Home } from './pages/home';
+import { UserPage } from './pages/user';
 
 function App() {
 
 
   return (
     <>
-
       <Router>
 
         <Routes>
           <Route path='/' element={<Login />}></Route>
-          <Route path='/cadastro' element={<Cadastro/>}></Route>
-          <Route path='/home' element={<Home/>}></Route>
+          <Route path='/cadastro' element={<Cadastro />}></Route>
+          <Route path='/home' element={<Home />}></Route>
+          <Route path='/usuario' element={<UserPage />}></Route>
         </Routes>
 
       </Router>
