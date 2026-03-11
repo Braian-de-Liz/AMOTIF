@@ -5,24 +5,37 @@ import { Login } from './pages/login';
 import { Cadastro } from './pages/cadastro';
 import { Home } from './pages/home';
 import { UserPage } from './pages/user';
+import { ProtectedRoute } from './components/ProtectedRoute'; // Importe aqui
 
 function App() {
-
-
   return (
-    <>
-      <Router>
+    <Router>
+      <Routes>
 
-        <Routes>
-          <Route path='/' element={<Login />}></Route>
-          <Route path='/cadastro' element={<Cadastro />}></Route>
-          <Route path='/home' element={<Home />}></Route>
-          <Route path='/usuario' element={<UserPage />}></Route>
-        </Routes>
+        <Route path='/' element={<Login />} />
+        <Route path='/cadastro' element={<Cadastro />} />
 
-      </Router>
-    </>
-  )
+        <Route path='/home' element={
+          <ProtectedRoute>
+            <Home />
+          </ProtectedRoute>
+        } />
+
+        <Route path='/usuario' element={
+          <ProtectedRoute>
+            <UserPage />
+          </ProtectedRoute>
+        } />
+
+        <Route path='/studio' element={
+          <ProtectedRoute>
+            <div>Página do Studio</div>
+          </ProtectedRoute>
+        } />
+
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
