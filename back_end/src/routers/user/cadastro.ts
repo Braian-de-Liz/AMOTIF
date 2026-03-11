@@ -6,7 +6,7 @@ import { schema_register } from "../../schemas/user_schema/cadastroUSer_sche.js"
 const User_register: FastifyPluginAsyncZod = async (Fastify, options) => {
 
     Fastify.post("/usuario", schema_register, async (request, reply) => {
-        
+
         const { nome_completo, email, senha, cpf } = request.body;
 
         try {
@@ -21,7 +21,7 @@ const User_register: FastifyPluginAsyncZod = async (Fastify, options) => {
 
             if (check_user) {
                 Fastify.log.warn("Tentativa de cadastro com email/cpf já existente");
-                
+
                 return reply.status(400).send({
                     status: 'erro',
                     mensagem: 'E-mail ou CPF já cadastrado no sistema'
@@ -30,8 +30,8 @@ const User_register: FastifyPluginAsyncZod = async (Fastify, options) => {
 
             const senha_hash = await argon2.hash(senha, {
                 type: argon2.argon2id,
-                memoryCost: 2 ** 15, 
-                timeCost: 2,         
+                memoryCost: 2 ** 15,
+                timeCost: 2,
                 parallelism: 1
             });
 

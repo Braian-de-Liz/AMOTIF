@@ -1,5 +1,5 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import argon2 from "argon2"; 
+import argon2 from "argon2";
 import { schema_login } from "../../schemas/user_schema/schema_login.js";
 
 const login_user: FastifyPluginAsyncZod = async (Fastify) => {
@@ -33,7 +33,7 @@ const login_user: FastifyPluginAsyncZod = async (Fastify) => {
             const token = Fastify.jwt.sign({
                 id: check_user.id,
                 nome: check_user.nome_completo,
-                email: check_user.email 
+                email: check_user.email
             });
 
             return reply.status(200).send({

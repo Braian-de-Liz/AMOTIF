@@ -26,6 +26,7 @@ import { Patch_Instrumentos } from './routers/user/instrumentos.js';
 import { post_project } from './routers/projetos/create_project.js';
 import { del_project } from './routers/projetos/delete_project.js';
 import { Get_projects_user } from './routers/projetos/get_projects.js';
+import { searth_feed } from './routers/projetos/get_feed.js';
 
 if (!process.env.JWT_PASSOWORD) {
     console.error("ERRO FATAL: A variável de ambiente JWT_PASSOWORD não foi definida.");
@@ -34,7 +35,7 @@ if (!process.env.JWT_PASSOWORD) {
 
 const JWT_PASSOWORD: string = process.env.JWT_PASSOWORD;
 
-const Fastify: FastifyInstance = fastify(/* {logger: true} */).withTypeProvider<ZodTypeProvider>();
+const Fastify: FastifyInstance = fastify().withTypeProvider<ZodTypeProvider>();
 
 Fastify.setValidatorCompiler(validatorCompiler);
 Fastify.setSerializerCompiler(serializerCompiler);
@@ -80,6 +81,7 @@ Fastify.register(health_route);
 Fastify.register(post_project, { prefix: '/api' });
 Fastify.register(del_project, { prefix: '/api' });
 Fastify.register(Get_projects_user, { prefix: '/api' });
+Fastify.register(searth_feed, { prefix: '/api' });
 
 const start = async () => {
 
