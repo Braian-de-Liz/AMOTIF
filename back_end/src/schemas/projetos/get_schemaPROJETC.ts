@@ -3,10 +3,10 @@ import { verificar_permissao } from "../../hooks/verificar_permicao.js";
 import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 
 const get_schemaPROJETC = {
-    preHandler: [verificar_permissao, verificar_dono_projeto],
+    preHandler: [verificar_permissao],
     schema: {
         params: z.object({
-
+            id: z.string().uuid()
         }),
 
         response: {
@@ -19,7 +19,7 @@ const get_schemaPROJETC = {
                         titulo: z.string(),
                         descricao: z.string().nullable(),
                         bpm: z.number(),
-                        escala: z.string().nullable(), 
+                        escala: z.string().nullable(),
                         createdAt: z.date(),
                     })
                 )
@@ -30,7 +30,15 @@ const get_schemaPROJETC = {
             }),
             404: z.object({
                 status: z.string(),
-                mensagem: z.string()
+                mensagem: z.string(),
+                projetos: z.array(z.object({
+                    id: z.string().uuid(),
+                    titulo: z.string(),
+                    descricao: z.string().nullable(),
+                    bpm: z.number(),
+                    escala: z.string().nullable(),
+                    createdAt: z.date(),
+                }))
             }),
             403: z.object({
                 status: z.string(),

@@ -18,23 +18,27 @@ const Get_projects_user: FastifyPluginAsyncZod = async (Fastify) => {
                 }
             });
 
-            if (!projetos){
+            if (projetos.length === 0) {
                 Fastify.log.error("erro usuário não possui projetos");
 
                 return reply.status(404).send({
                     status: 'erro',
-                    mensagem: 'usuário não possui projetos'
+                    mensagem: 'usuário não possui projetos',
+                    projetos: []
                 })
             }
 
             return reply.status(200).send({
                 status: 'sucesso',
                 mensagem: 'projetos encontrado',
-                projetos
+                projetos: []
             })
 
         }
         catch (erro) {
+            console.log("\n ERRO DETECTADO NA ROTA GET_PROJECTS:");
+            console.error(erro);
+            console.log("------------------------------------------\n");
             Fastify.log.error(erro);
 
             return reply.status(500).send({
