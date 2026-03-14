@@ -13,7 +13,7 @@ function Nav() {
         <nav>
             <ul>
                 <li>
-                    <Link to="/home">Feed Global</Link>
+                    <Link to="/home">Home</Link>
                 </li>
                 <li>
                     <Link to="/usuario">Meu Perfil</Link>
