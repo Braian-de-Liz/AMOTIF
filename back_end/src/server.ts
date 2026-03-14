@@ -31,7 +31,6 @@ import { searth_feed } from './routers/projetos/get_feed.js';
 
 // layers routes
 import { create_Layer } from './routers/layers/create_layer.js';
-import { tr } from 'zod/locales';
 
 if (!process.env.JWT_PASSOWORD) {
     console.error("ERRO FATAL: A variável de ambiente JWT_PASSOWORD não foi definida.");

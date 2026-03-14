@@ -31,7 +31,7 @@ const Get_projects_user: FastifyPluginAsyncZod = async (Fastify) => {
             return reply.status(200).send({
                 status: 'sucesso',
                 mensagem: 'projetos encontrado',
-                projetos: []
+                projetos
             })
 
         }

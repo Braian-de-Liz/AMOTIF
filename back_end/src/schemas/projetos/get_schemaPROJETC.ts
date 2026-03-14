@@ -1,9 +1,9 @@
 import { z } from "zod";
 import { verificar_permissao } from "../../hooks/verificar_permicao.js";
-import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
+import { autenticarJWT } from "../../hooks/JWT_verific.js";
 
 const get_schemaPROJETC = {
-    preHandler: [verificar_permissao],
+    preHandler: [autenticarJWT, verificar_permissao],
     schema: {
         params: z.object({
             id: z.string().uuid()
