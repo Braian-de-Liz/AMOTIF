@@ -2,19 +2,26 @@
 package service
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
+	"time"
 	"amotif-upload-service/config"
 )
 
-
 type StorageService struct {
-	cfg *config.Config
+	cfg    *config.Config
+	client *http.Client 
 }
 
 func NewStorageService(cfg *config.Config) *StorageService {
-	return &StorageService{cfg: cfg}
+	return &StorageService{
+		cfg: cfg,
+		client: &http.Client{
+			Timeout: 30 * time.Second, 
+		},
+	}
 }
 
 func (s *StorageService) UploadAudio(fileName string, fileBody io.Reader, contentType string) (string, error) {
@@ -24,7 +31,7 @@ func (s *StorageService) UploadAudio(fileName string, fileBody io.Reader, conten
 		fileName,
 	)
 
-	req, err := http.NewRequest("POST", url, fileBody)
+	req, err := http.NewRequestWithContext(context.Background(), "POST", url, fileBody)
 	if err != nil {
 		return "", fmt.Errorf("erro ao criar request: %v", err)
 	}
@@ -33,13 +40,11 @@ func (s *StorageService) UploadAudio(fileName string, fileBody io.Reader, conten
 	req.Header.Set("apikey", s.cfg.SupabaseKey)
 	req.Header.Set("Content-Type", contentType)
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := s.client.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("erro na conexão com Supabase: %v", err)
 	}
 	defer resp.Body.Close()
-
 
 	if resp.StatusCode != http.StatusOK {
 		errBody, _ := io.ReadAll(resp.Body)
@@ -56,7 +61,7 @@ func (s *StorageService) GetAudioStream(fileName string) (io.ReadCloser, error) 
 		fileName,
 	)
 
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(context.Background(), "GET", url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -64,8 +69,7 @@ func (s *StorageService) GetAudioStream(fileName string) (io.ReadCloser, error) 
 	req.Header.Set("Authorization", "Bearer "+s.cfg.SupabaseKey)
 	req.Header.Set("apikey", s.cfg.SupabaseKey)
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
+	resp, err := s.client.Do(req)
 	if err != nil {
 		return nil, err
 	}
