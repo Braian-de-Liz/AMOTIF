@@ -3,6 +3,7 @@ import { delete_lay_schema } from "../../schemas/layers/delete_a_layer.js";
 
 
 const delete_layer: FastifyPluginAsyncZod = async (Fastify) => {
+
     Fastify.delete("/layer/:id", delete_lay_schema, async (request, reply) => {
 
         try {
@@ -15,15 +16,25 @@ const delete_layer: FastifyPluginAsyncZod = async (Fastify) => {
                 include: { projeto: true }
             });
 
-            if (!camada) return reply.status(404).send({ status: "erro", mensagem: "Camada inexistente" });
+            if (!camada) return reply.status(404).send({
+                status: "erro",
+                mensagem: "Camada inexistente"
+            });
 
             if (camada.userId !== usuarioId && camada.projeto.userId !== usuarioId) {
-                return reply.status(403).send({ status: "erro", mensagem: "Sem permissão para deletar." });
+                Fastify.log.warn("usuário não autorizável");
+                return reply.status(403).send({
+                    status: "erro",
+                    mensagem: "Sem permissão para deletar."
+                });
             }
 
             await Fastify.prisma.camada.delete({ where: { id } });
 
-            return reply.status(200).send({ status: "sucesso", mensagem: "Camada removida" });
+            return reply.status(200).send({
+                status: "sucesso",
+                mensagem: "Camada removida"
+            });
         }
 
         catch (erro) {

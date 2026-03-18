@@ -4,7 +4,7 @@ import { get_feed_schema } from "../../schemas/projetos/get_explorer.js";
 
 const searth_feed: FastifyPluginAsyncZod = async (Fastify) => {
 
-    Fastify.get("/projetos", get_feed_schema, async (request, reply) => {
+    Fastify.get("/projetos/feed", get_feed_schema, async (request, reply) => {
 
         try {
             const projetos = await Fastify.prisma.projeto.findMany({

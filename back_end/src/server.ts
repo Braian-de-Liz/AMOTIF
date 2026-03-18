@@ -11,27 +11,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 import fastify from 'fastify';
 
-
 import prisma_plugin from './lib/prisma.js';
-
-// user routes user
-import { User_register } from './routers/user/cadastro.js';
-import { login_user } from './routers/user/login.js';
-import { Deletar_user } from './routers/user/delete_user.js';
+import { Plugin_Routes } from './routers/plugin_routes.js';
 import { health_route } from './routers/health/health.js';
-import { Get_user } from './routers/user/get_user.js';
-import { Patch_bio } from './routers/user/post_bio.js';
-import { Patch_Instrumentos } from './routers/user/instrumentos.js';
 
-// projetos routes projects
-import { post_project } from './routers/projetos/create_project.js';
-import { del_project } from './routers/projetos/delete_project.js';
-import { Get_projects_user } from './routers/projetos/get_projects.js';
-import { searth_feed } from './routers/projetos/get_feed.js';
-import { Get_a_project } from './routers/projetos/get_project_details.js';
-
-// layers routes
-import { create_Layer } from './routers/layers/create_layer.js';
 
 if (!process.env.JWT_PASSOWORD) {
     console.error("ERRO FATAL: A variável de ambiente JWT_PASSOWORD não foi definida.");
@@ -65,31 +48,16 @@ Fastify.register(swagger, {
     transform: jsonSchemaTransform,
 });
 
-Fastify.register(swaggerUi, {
-    routePrefix: '/docs',
-});
+Fastify.register(swaggerUi, {routePrefix: '/docs',});
 
 Fastify.register(prisma_plugin);
 
 Fastify.register(cors, { origin: true });
 Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '2d' } });
 
-Fastify.register(User_register, { prefix: '/api' });
-Fastify.register(login_user, { prefix: '/api' });
-Fastify.register(Deletar_user, { prefix: '/api' });
-Fastify.register(Get_user, { prefix: '/api' });
-Fastify.register(Patch_bio, { prefix: '/api' });
-Fastify.register(Patch_Instrumentos, { prefix: '/api' });
-
+Fastify.register(Plugin_Routes);
 Fastify.register(health_route);
 
-Fastify.register(post_project, { prefix: '/api' });
-Fastify.register(del_project, { prefix: '/api' });
-Fastify.register(Get_projects_user, { prefix: '/api' });
-Fastify.register(searth_feed, { prefix: '/api' });
-Fastify.register(Get_a_project, { prefix: '/api' });
-
-Fastify.register(create_Layer, { prefix: '/api' });
 
 const start = async () => {
 
@@ -98,7 +66,7 @@ const start = async () => {
     try {
         await Fastify.listen({ port: port, host: '0.0.0.0' });
         const memoriaUsada = process.memoryUsage().heapUsed / 1024 / 1024;
-        console.log(`Uso de memória RAM: ${memoriaUsada.toFixed(2)} MB`);
+        console.log(`Uso de memória RAM: ${memoriaUsada.toFixed(2)} MB`);3
     }
 
     catch (erro) {

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { verificar_permissao } from "../../hooks/verificar_permicao.js";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 
+
 const get_schemaPROJETC = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {

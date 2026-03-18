@@ -1,8 +1,9 @@
 import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
+import { verificar_permissao_layer } from "../../hooks/verificar_dono_layer.js";
 
 const delete_lay_schema = {
-    preHandler: [autenticarJWT],
+    preHandler: [autenticarJWT, verificar_permissao_layer],
     schema: {
         params: z.object({ id: z.string().uuid() }),
         response: {

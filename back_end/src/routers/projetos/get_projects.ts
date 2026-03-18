@@ -36,9 +36,6 @@ const Get_projects_user: FastifyPluginAsyncZod = async (Fastify) => {
 
         }
         catch (erro) {
-            console.log("\n ERRO DETECTADO NA ROTA GET_PROJECTS:");
-            console.error(erro);
-            console.log("------------------------------------------\n");
             Fastify.log.error(erro);
 
             return reply.status(500).send({
