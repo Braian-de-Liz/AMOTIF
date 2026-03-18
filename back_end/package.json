@@ -5,7 +5,7 @@
   "description": "",
   "main": "dist/server.js",
   "scripts": {
-    "dev": "tsx watch src/server.ts",
+    "dev": "bun --watch src/server.ts",
     "build": "tsup src/server.ts --format esm --clean --minify --target esnext --shims",
     "start": "node dist/server.js",
     "verific": "tsc --noEmit",
@@ -40,7 +40,6 @@
     "prisma": "^7.4.0",
     "tsup": "^8.3.5",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.3",
-    "vitest": "^3.0.5"
+    "typescript": "^5.7.3"
   }
 }

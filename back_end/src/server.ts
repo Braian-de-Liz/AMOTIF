@@ -40,7 +40,7 @@ if (!process.env.JWT_PASSOWORD) {
 
 const JWT_PASSOWORD: string = process.env.JWT_PASSOWORD;
 
-const Fastify: FastifyInstance = fastify({ logger: true }).withTypeProvider<ZodTypeProvider>();
+const Fastify: FastifyInstance = fastify(/* { logger: true } */).withTypeProvider<ZodTypeProvider>();
 
 Fastify.setValidatorCompiler(validatorCompiler);
 Fastify.setSerializerCompiler(serializerCompiler);
@@ -98,8 +98,6 @@ const start = async () => {
     try {
         await Fastify.listen({ port: port, host: '0.0.0.0' });
         const memoriaUsada = process.memoryUsage().heapUsed / 1024 / 1024;
-        console.log(`Server started on http://localhost:3333`);
-        console.log("Server started on http://localhost:3333");
         console.log(`Uso de memória RAM: ${memoriaUsada.toFixed(2)} MB`);
     }
 
