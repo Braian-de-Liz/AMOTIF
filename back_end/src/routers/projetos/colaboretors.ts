@@ -28,10 +28,32 @@ const colaborators: FastifyPluginAsyncZod = async (Fastify) => {
                         }
                     }
                 }
+            });
+
+
+            if (!cooll) {
+                Fastify.log.warn("Projeto não encontrado");
+
+                return reply.status(404).send({
+                    status: "erro",
+                    mensagem: "Projeto não encontrado"
+                });
+            }
+
+            return reply.status(200).send({
+                status: 'sucesso',
+                mensagem: 'colaboradores do projeto encontrados',
+                colaborators: cooll
             })
+
         }
         catch (erro) {
+            Fastify.log.error(erro);
 
+            return reply.status(500).send({
+                status : 'erro',
+                mensagem : 'erro interno do servidot'
+            })
         }
 
     });

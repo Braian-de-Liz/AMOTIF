@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_permissao } from "../../hooks/verificar_permicao.js";
+import { Error_schema } from "../error/erro_schema.js";
 
 const schema_bio = {
     preHandler: [autenticarJWT, verificar_permissao],
@@ -12,18 +13,7 @@ const schema_bio = {
             id: z.string().uuid({ message: "O formato do ID é inválido" })
         }),
         response: {
-            403: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            500: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            200: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            })
+            ...Error_schema
         }
     }
 }

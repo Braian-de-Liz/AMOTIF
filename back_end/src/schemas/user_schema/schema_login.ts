@@ -1,5 +1,6 @@
 // back_end\src\schemas\user_schema\schema_login.ts
 import { z } from "zod";
+import { Error_schema } from "../error/erro_schema.js";
 
 const schema_login = {
     schema: {
@@ -17,14 +18,7 @@ const schema_login = {
                     email: z.string().email()
                 })
             }),
-            401: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            500: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            })
+            ...Error_schema
         }
     }
 }

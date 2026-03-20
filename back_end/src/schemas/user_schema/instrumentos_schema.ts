@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_permissao } from "../../hooks/verificar_permicao.js";
+import { Error_schema } from "../error/erro_schema.js";
 
 const instrumentos_schema = {
     preHandler: [autenticarJWT, verificar_permissao],
@@ -16,18 +17,7 @@ const instrumentos_schema = {
                 status: z.string(),
                 mensagem: z.string()
             }),
-            500: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            400: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            403: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            })
+            ...Error_schema
         }
     }
 }

@@ -1,6 +1,7 @@
 // back_end\src\schemas\layers\create_schema_lyr.ts
 import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
+import { Error_schema } from "../error/erro_schema.js";
 
 const schema_layer = {
     preHandler: [autenticarJWT],
@@ -32,15 +33,7 @@ const schema_layer = {
                     createdAt: z.date()
                 })
             }),
-            404: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-
-            500: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
+            ...Error_schema
         }
     }
 };

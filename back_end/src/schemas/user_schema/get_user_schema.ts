@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
-import {verificar_permissao} from "../../hooks/verificar_permicao.js"
+import { verificar_permissao } from "../../hooks/verificar_permicao.js"
+import { Error_schema } from "../error/erro_schema.js";
 const schema_get_user = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
@@ -15,18 +16,11 @@ const schema_get_user = {
                     nome_completo: z.string(),
                     email: z.string().email(),
                     bio: z.string().nullable(),
-                    instrumentos: z.array(z.string()), 
+                    instrumentos: z.array(z.string()),
                     createdAt: z.any(),
                 })
             }),
-            404: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            500: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            })
+            ...Error_schema
         }
     }
 };

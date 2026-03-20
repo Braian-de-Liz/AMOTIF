@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
+import { Error_schema } from "../error/erro_schema.js";
 
 const get_feed_schema = {
     preHandler: [autenticarJWT],
@@ -23,10 +24,7 @@ const get_feed_schema = {
                     })
                 )
             }),
-            500: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            })
+            ...Error_schema
         }
     }
 };

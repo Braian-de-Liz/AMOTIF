@@ -8,16 +8,25 @@ const schema_colaboretors = {
             id: z.string().uuid({ message: "ID do projeto inválido" })
         }),
         response: {
-            200: z.array(
-                z.object({
-                    id: z.string().uuid(),
-                    nome: z.string(),
-                    email: z.string().email(),
-                    avatar_url: z.string().url().optional(),
-                    instrumentos: z.array(z.string()),
-                    joined_at: z.string().datetime()
+            200: z.object({
+                status: z.string(),
+                mensagem: z.string(),
+                colaborators: z.object({
+                    colaboradores: z.array(
+                        z.object({
+                            cargo: z.string().nullable(),
+                            joinedAt: z.coerce.string(), 
+                            usuario: z.object({
+                                id: z.string().uuid(),
+                                nome_completo: z.string(),
+                                email: z.string().email(),
+                                avatar_url: z.string().nullable().optional(),
+                                instrumentos: z.array(z.string())
+                            })
+                        })
+                    )
                 })
-            ),
+            }),
             404: z.object({
                 status: z.string(),
                 mensagem: z.string()

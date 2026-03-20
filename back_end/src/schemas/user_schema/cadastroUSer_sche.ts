@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import { zbr } from 'br_standards_with_zod'
+import { Error_schema } from '../error/erro_schema.js';
 
 const schema_register = {
     schema: {
@@ -15,14 +16,7 @@ const schema_register = {
                 mensagem: z.string(),
                 userId: z.string().uuid()
             }),
-            400: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            500: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            })
+            ...Error_schema
         }
     }
 }

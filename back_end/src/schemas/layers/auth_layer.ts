@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
+import { Error_schema } from "../error/erro_schema.js";
 
 const schema_auth_layer = {
     preHandler: [autenticarJWT],
@@ -11,18 +12,7 @@ const schema_auth_layer = {
                 status: z.string(),
                 mensagem: z.string()
             }),
-            403: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            404: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            500: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            })
+            ... Error_schema
         }
     }
 }

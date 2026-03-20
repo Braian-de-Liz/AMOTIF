@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Error_schema } from '../error/erro_schema.js'
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 
 const schema_details_project = {
@@ -37,14 +38,7 @@ const schema_details_project = {
                     }))
                 })
             }),
-            404: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            500: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            })
+            ... Error_schema
         }
     }
 };
