@@ -21,10 +21,11 @@ import { list_invite } from "./colaboration/list_invite.js";
 
 import { create_Layer } from "./layers/create_layer.js";
 import { delete_layer } from "./layers/delete_layer.js";
+import { patch_layer_status } from "./layers/autorizar_layer.js";
 
+import { follow_user } from "./follows/follow_user.js";
 
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
-
 
     Fastify.register(User_register, { prefix: '/api' });
     Fastify.register(login_user, { prefix: '/api' });
@@ -46,7 +47,9 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     
     Fastify.register(delete_layer, { prefix: '/api' });
     Fastify.register(create_Layer, { prefix: '/api' });
-
+    Fastify.register(patch_layer_status, { prefix: '/api' });
+    
+    Fastify.register(follow_user, { prefix: '/api' });
 }
 
 

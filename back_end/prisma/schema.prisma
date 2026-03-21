@@ -20,9 +20,26 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  projetos_criados     Projeto[]      @relation("DonoDoProjeto")
+  projetos_criados     Projeto[]     @relation("DonoDoProjeto")
   camadas_enviadas     Camada[]
   projetos_colaborados Colaborador[]
+
+  seguidores Follows[] @relation("UserBeingFollowed")
+  seguindo   Follows[] @relation("UserFollowing")
+}
+
+model Follows {
+  followerId  String @db.Uuid
+  follower    User   @relation("UserFollowing", fields: [followerId], references: [id], onDelete: Cascade)
+  
+  followingId String @db.Uuid
+  following   User   @relation("UserBeingFollowed", fields: [followingId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+
+  @@id([followerId, followingId])
+  @@index([followerId])
+  @@index([followingId])
 }
 
 model Projeto {
@@ -36,7 +53,6 @@ model Projeto {
   autor         User          @relation("DonoDoProjeto", fields: [userId], references: [id], onDelete: Cascade)
   camadas       Camada[]
   colaboradores Colaborador[]
-  
   convites      Convite[]
 
   createdAt     DateTime      @default(now())
@@ -45,6 +61,7 @@ model Projeto {
   @@index([userId])
   @@index([createdAt])
 }
+
 model Convite {
   id                 String   @id @default(uuid()) @db.Uuid
   projetoId          String   @db.Uuid
@@ -62,33 +79,30 @@ model Convite {
 
 model Colaborador {
   id        String   @id @default(uuid()) @db.Uuid
-  
   userId    String   @db.Uuid
   usuario   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
   projetoId String   @db.Uuid
   projeto   Projeto  @relation(fields: [projetoId], references: [id], onDelete: Cascade)
 
-  cargo     String   @default("membro") 
-  joinedAt  DateTime @default(now())
+  cargo    String   @default("membro")
+  joinedAt DateTime @default(now())
 
-  @@unique([userId, projetoId]) 
+  @@unique([userId, projetoId])
   @@index([projetoId])
 }
 
 model Camada {
-  id              String  @id @default(uuid()) @db.Uuid
+  id              String   @id @default(uuid()) @db.Uuid
   nome_trilha     String
   audio_url       String
   instrumento_tag String
-
-  delay_offset    Int     @default(0)
-  volume_padrao   Float   @default(1.0)
-  esta_aprovada   Boolean @default(false)
-  projetoId       String  @db.Uuid
-  projeto         Projeto @relation(fields: [projetoId], references: [id], onDelete: Cascade)
-  userId          String  @db.Uuid
-  autor           User    @relation(fields: [userId], references: [id])
+  delay_offset    Int      @default(0)
+  volume_padrao   Float    @default(1.0)
+  esta_aprovada   Boolean  @default(false)
+  projetoId       String   @db.Uuid
+  projeto         Projeto  @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  userId          String   @db.Uuid
+  autor           User     @relation(fields: [userId], references: [id])
 
   createdAt       DateTime @default(now())
 

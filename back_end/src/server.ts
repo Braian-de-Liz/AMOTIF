@@ -1,4 +1,5 @@
 // back_end\src\server.ts
+import fastify from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
 import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
 import type { FastifyInstance } from 'fastify';
@@ -9,7 +10,6 @@ import swaggerUi from '@fastify/swagger-ui';
 import { jsonSchemaTransform } from 'fastify-type-provider-zod';
 import dotenv from 'dotenv';
 dotenv.config();
-import fastify from 'fastify';
 
 import prisma_plugin from './lib/prisma.js';
 import { Plugin_Routes } from './routers/plugin_routes.js';
