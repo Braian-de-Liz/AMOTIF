@@ -6,6 +6,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const schema_bio = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
+        security: [{ bearerAuth: [] }],
         body: z.object({
             bio: z.string().nullable()
         }),

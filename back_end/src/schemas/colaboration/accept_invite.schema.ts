@@ -6,6 +6,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const aceitar_convite_schema = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
+        security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.string().uuid({ message: "ID do projeto inválido" })
         }),

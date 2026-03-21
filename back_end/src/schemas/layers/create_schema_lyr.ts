@@ -6,6 +6,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const schema_layer = {
     preHandler: [autenticarJWT],
     schema: {
+        security: [{ bearerAuth: [] }],
         params: z.object({
             projetoId: z.string().uuid({ message: "ID do projeto inválido" })
         }),

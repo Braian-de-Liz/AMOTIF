@@ -6,6 +6,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const instrumentos_schema = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
+        security: [{ bearerAuth: [] }],
         body: z.object({
             instrumentos: z.array(z.string())
         }),

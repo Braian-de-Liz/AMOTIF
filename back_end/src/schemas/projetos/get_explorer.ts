@@ -5,6 +5,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const get_feed_schema = {
     preHandler: [autenticarJWT],
     schema: {
+        security: [{ bearerAuth: [] }],
         response: {
             200: z.object({
                 status: z.string(),

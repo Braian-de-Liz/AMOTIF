@@ -6,6 +6,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const delete_lay_schema = {
     preHandler: [autenticarJWT, verificar_permissao_layer],
     schema: {
+        security: [{ bearerAuth: [] }],
         params: z.object({ id: z.string().uuid() }),
         response: {
             200: z.object({

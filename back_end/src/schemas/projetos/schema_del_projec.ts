@@ -7,6 +7,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const schema_del_project = {
     preHandler: [verificar_permissao, verificar_dono_projeto],
     schema: {
+        security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.string().uuid({ message: "ID do projeto inválido." })
         }),

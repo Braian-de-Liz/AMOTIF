@@ -5,6 +5,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 const schema_details_project = {
     preHandler: [autenticarJWT],
     schema: {
+        security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.string().uuid({ message: "ID do projeto inválido" })
         }),

@@ -13,9 +13,11 @@ import { del_project } from "./projetos/delete_project.js";
 import { Get_projects_user } from "./projetos/get_projects.js";
 import { Get_a_project } from "./projetos/get_project_details.js";
 import { searth_feed } from "./projetos/get_feed.js";
-import { convite_project } from "./projetos/convite_project.js";
-import { colaborators } from "./projetos/colaboretors.js";
-import { Accept_invite } from "./projetos/accept_invite.js";
+
+import { convite_project } from "./colaboration/convite_project.js";
+import { colaborators } from "./colaboration/colaboretors.js";
+import { Accept_invite } from "./colaboration/accept_invite.js";
+import { list_invite } from "./colaboration/list_invite.js";
 
 import { create_Layer } from "./layers/create_layer.js";
 import { delete_layer } from "./layers/delete_layer.js";
@@ -36,9 +38,11 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(Get_projects_user, { prefix: '/api' });
     Fastify.register(searth_feed, { prefix: '/api' });
     Fastify.register(Get_a_project, { prefix: '/api' });
+
     Fastify.register(convite_project, { prefix: '/api' });
     Fastify.register(Accept_invite, { prefix: '/api' });
     Fastify.register(colaborators, { prefix: '/api' });
+    Fastify.register(list_invite, { prefix: '/api' });
     
     Fastify.register(delete_layer, { prefix: '/api' });
     Fastify.register(create_Layer, { prefix: '/api' });

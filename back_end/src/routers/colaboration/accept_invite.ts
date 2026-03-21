@@ -1,9 +1,9 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import { aceitar_convite_schema } from "../../schemas/projetos/accept_invite.schema.js";
+import { aceitar_convite_schema } from "../../schemas/colaboration/accept_invite.schema.js";
 
 const Accept_invite: FastifyPluginAsyncZod = async (Fastify) => {
 
-    Fastify.post("/projects/:id/accept", aceitar_convite_schema, async (request, reply) => {
+    Fastify.post("/colaboration/:id/accept", aceitar_convite_schema, async (request, reply) => {
         const { id: projetoId } = request.params;
         const { token_convite } = request.body;
         const userId = request.user.id;

@@ -7,6 +7,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const Schema_del_user = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
+        security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.string().uuid({ message: "O ID fornecido não é um UUID válido" })
         }),

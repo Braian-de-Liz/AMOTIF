@@ -64,8 +64,9 @@ const start = async () => {
     const port: number = Number(process.env.PORT) || 3333;
 
     try {
+        await Fastify.listen({ port: port, host: '0.0.0.0' });
         const memoriaUsada = process.memoryUsage().heapUsed / 1024 / 1024;
-        console.log(`Servidor rodando em http://localhost:${port}`);
+        Fastify.log.info(`Servidor rodando em http://localhost:${port}`);
         console.log(`Uso de RAM: ${memoriaUsada.toFixed(2)} MB`);
     }
 

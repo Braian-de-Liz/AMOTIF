@@ -1,9 +1,11 @@
 import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
+import { Error_schema } from "../error/erro_schema.js";
 
 const schema_colaboretors = {
     preHandler: [autenticarJWT],
     schema: {
+        security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.string().uuid({ message: "ID do projeto inválido" })
         }),
@@ -27,14 +29,7 @@ const schema_colaboretors = {
                     )
                 })
             }),
-            404: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            500: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            })
+            ...Error_schema
         }
     }
 };

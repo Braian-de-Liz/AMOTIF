@@ -1,10 +1,10 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import { schema_convite } from "../../schemas/projetos/schema_convite.js";
+import { schema_convite } from "../../schemas/colaboration/schema_convite.js";
 
 
 const convite_project: FastifyPluginAsyncZod = async (Fastify) => {
 
-    Fastify.post("/projects/:id/invite", schema_convite, async (request, reply) => {
+    Fastify.post("/colaboration/:id/invite", schema_convite, async (request, reply) => {
         const { id } = request.params;
         const { email_destinatario, cargo, mensagem } = request.body
 

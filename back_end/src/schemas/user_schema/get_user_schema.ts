@@ -5,6 +5,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const schema_get_user = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
+        security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.string().uuid({ message: "O formato do ID é inválido" })
         }),

@@ -1,10 +1,10 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import { schema_colaboretors } from "../../schemas/projetos/colaboretors_schema.js";
+import { schema_colaboretors } from "../../schemas/colaboration/colaboretors_schema.js";
 
 
 const colaborators: FastifyPluginAsyncZod = async (Fastify) => {
 
-    Fastify.get("/projects/:id/collaborators", schema_colaboretors, async (request, reply) => {
+    Fastify.get("/colaboration/:id", schema_colaboretors, async (request, reply) => {
 
         const { id } = request.params;
 
