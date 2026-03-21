@@ -13,6 +13,7 @@ const Error_schema = {
     405: DefaultError, 
     408: DefaultError, 
     409: DefaultError, 
+    410: DefaultError, 
     413: DefaultError, 
     415: DefaultError,
     500: DefaultError, 

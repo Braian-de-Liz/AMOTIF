@@ -26,22 +26,38 @@ model User {
 }
 
 model Projeto {
-  id         String   @id @default(uuid()) @db.Uuid
-  titulo     String
-  bpm        Int      @default(120)
-  escala     String?
-  descricao  String?
-  audio_guia String
-  userId     String   @db.Uuid
-  autor      User     @relation("DonoDoProjeto", fields: [userId], references: [id], onDelete: Cascade)
+  id            String        @id @default(uuid()) @db.Uuid
+  titulo        String
+  bpm           Int           @default(120)
+  escala        String?
+  descricao     String?
+  audio_guia    String
+  userId        String        @db.Uuid
+  autor         User          @relation("DonoDoProjeto", fields: [userId], references: [id], onDelete: Cascade)
   camadas       Camada[]
   colaboradores Colaborador[]
+  
+  convites      Convite[]
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 
   @@index([userId])
   @@index([createdAt])
+}
+model Convite {
+  id                 String   @id @default(uuid()) @db.Uuid
+  projetoId          String   @db.Uuid
+  projeto            Projeto  @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  email_destinatario String
+  cargo              String   @default("membro")
+  mensagem           String?
+  token_convite      String   @unique @default(uuid())
+  expira_em          DateTime
+  createdAt          DateTime @default(now())
+
+  @@index([projetoId])
+  @@index([email_destinatario])
 }
 
 model Colaborador {

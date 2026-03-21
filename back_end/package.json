@@ -8,7 +8,7 @@
     "dev": "bun --watch src/server.ts",
     "build": "tsup src/server.ts --format esm --clean --minify --target esnext --shims",
     "start": "node dist/server.js",
-    "verific": "tsc --noEmit",
+    "check": "tsc --noEmit",
     "conectDB": "pnpx prisma validate",
     "db:migrate": "pnpx prisma migrate dev",
     "db:generate": "pnpx prisma generate",
