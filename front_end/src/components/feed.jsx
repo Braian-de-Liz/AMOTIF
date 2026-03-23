@@ -15,7 +15,7 @@ function Feed() {
                     headers['Authorization'] = `Bearer ${token}`;
                 }
 
-                const response = await fetch(`${URL_API_TESTE}/projetos`, {
+                const response = await fetch(`${URL_API_TESTE}/projetos/feed`, {
                     headers
                 });
 
