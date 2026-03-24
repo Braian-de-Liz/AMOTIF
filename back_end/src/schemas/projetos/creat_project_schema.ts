@@ -6,6 +6,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const schema_post_project = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
+        tags: ['projeto'],
         security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.uuid()

@@ -6,12 +6,13 @@ import { Error_schema } from "../error/erro_schema.js";
 const schema_convite = {
     preHandler: [autenticarJWT, verificar_dono_projeto],
     schema: {
+        tags: ['convite'],
         security: [{ bearerAuth: [] }],
         params: z.object({
-            id: z.string().uuid({ message: "ID do projeto inválido" })
+            id: z.uuid({ message: "ID do projeto inválido" })
         }),
         body: z.object({
-            email_destinatario: z.string().email({ message: "E-mail inválido" }),
+            email_destinatario: z.email({ message: "E-mail inválido" }),
             cargo: z.string().min(2, "O cargo deve ter pelo menos 2 caracteres").max(30),
             mensagem: z.string().max(255).optional()
         }),

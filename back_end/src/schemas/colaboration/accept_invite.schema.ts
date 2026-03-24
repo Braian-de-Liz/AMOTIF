@@ -6,12 +6,13 @@ import { Error_schema } from "../error/erro_schema.js";
 const aceitar_convite_schema = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
+        tags: ['convite'],
         security: [{ bearerAuth: [] }],
         params: z.object({
-            id: z.string().uuid({ message: "ID do projeto inválido" })
+            id: z.uuid({ message: "ID do projeto inválido" })
         }),
         body: z.object({
-            token_convite: z.string().uuid({ message: "Token de convite inválido" })
+            token_convite: z.uuid({ message: "Token de convite inválido" })
         }),
         response: {
             201: z.object({

@@ -5,13 +5,14 @@ import { Error_schema } from "../error/erro_schema.js";
 const get_feed_schema = {
     preHandler: [autenticarJWT],
     schema: {
+        tags: ['projeto'],
         security: [{ bearerAuth: [] }],
         response: {
             200: z.object({
                 status: z.string(),
                 projetos: z.array(
                     z.object({
-                        id: z.string().uuid(),
+                        id: z.uuid(),
                         titulo: z.string(),
                         bpm: z.number(),
                         escala: z.string().nullable(),

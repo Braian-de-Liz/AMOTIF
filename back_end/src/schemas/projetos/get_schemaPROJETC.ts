@@ -6,9 +6,10 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 const get_schemaPROJETC = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
+        tags: ['projeto'],
         security: [{ bearerAuth: [] }],
         params: z.object({
-            id: z.string().uuid()
+            id: z.uuid()
         }),
 
         response: {

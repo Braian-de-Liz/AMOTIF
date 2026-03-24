@@ -5,8 +5,9 @@ import { Error_schema } from "../error/erro_schema.js";
 const schema_auth_layer = {
     preHandler: [autenticarJWT],
     schema: {
+        tags: ['camada'],
         security: [{ bearerAuth: [] }],
-        params: z.object({ layerId: z.string().uuid() }),
+        params: z.object({ layerId: z.uuid() }),
         body: z.object({ aprovada: z.boolean() }),
         response: {
             200: z.object({

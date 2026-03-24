@@ -7,12 +7,13 @@ import { Error_schema } from "../error/erro_schema.js";
 const schema_del_project = {
     preHandler: [verificar_permissao, verificar_dono_projeto],
     schema: {
+        tags: ['projeto'],
         security: [{ bearerAuth: [] }],
         params: z.object({
-            id: z.string().uuid({ message: "ID do projeto inválido." })
+            id: z.uuid({ message: "ID do projeto inválido." })
         }),
         body: z.object({
-            senha: z.string().min(1, "A senha é obrigatória para confirmar a exclusão.")
+            senha: z.string().min(8, "A senha é obrigatória para confirmar a exclusão.")
         }),
         response: {
             202: z.object({

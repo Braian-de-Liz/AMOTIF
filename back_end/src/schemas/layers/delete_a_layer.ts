@@ -6,8 +6,9 @@ import { Error_schema } from "../error/erro_schema.js";
 const delete_lay_schema = {
     preHandler: [autenticarJWT, verificar_permissao_layer],
     schema: {
+        tags: ['camada'],
         security: [{ bearerAuth: [] }],
-        params: z.object({ id: z.string().uuid() }),
+        params: z.object({ id: z.uuid() }),
         response: {
             200: z.object({
                 status: z.string(),

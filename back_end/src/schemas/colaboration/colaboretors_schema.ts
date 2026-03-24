@@ -5,9 +5,10 @@ import { Error_schema } from "../error/erro_schema.js";
 const schema_colaboretors = {
     preHandler: [autenticarJWT],
     schema: {
+        tags: ['convite'],
         security: [{ bearerAuth: [] }],
         params: z.object({
-            id: z.string().uuid({ message: "ID do projeto inválido" })
+            id: z.uuid({ message: "ID do projeto inválido" })
         }),
         response: {
             200: z.object({

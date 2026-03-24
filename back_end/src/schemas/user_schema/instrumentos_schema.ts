@@ -6,12 +6,13 @@ import { Error_schema } from "../error/erro_schema.js";
 const instrumentos_schema = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
+        tags: ['usuario'],
         security: [{ bearerAuth: [] }],
         body: z.object({
             instrumentos: z.array(z.string())
         }),
         params: z.object({
-            id: z.string().uuid({ message: "O formato do ID é inválido" })
+            id: z.uuid({ message: "O formato do ID é inválido" })
         }),
         response: {
             200: z.object({

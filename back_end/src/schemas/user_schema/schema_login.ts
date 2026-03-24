@@ -4,6 +4,7 @@ import { Error_schema } from "../error/erro_schema.js";
 
 const schema_login = {
     schema: {
+        tags: ['usuario'],
         body: z.object({
             email: z.string().email({ message: "E-mail inválido" }),
             senha: z.string().min(8, { message: "A senha deve ter no mínimo 8 caracteres" })
@@ -13,9 +14,9 @@ const schema_login = {
                 status: z.string(),
                 token: z.string(),
                 usuario: z.object({
-                    id: z.string().uuid(),
+                    id: z.uuid(),
                     nome: z.string(),
-                    email: z.string().email()
+                    email: z.email()
                 })
             }),
             ...Error_schema

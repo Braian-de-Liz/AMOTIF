@@ -5,6 +5,7 @@ import { Error_schema } from '../error/erro_schema.js';
 const follow_schema = {
     preHandler: [autenticarJWT],
     schema: {
+        tags: ['seguidores'],
         security: [{ bearerAuth: [] }],
         params: z.object({
             followingId: z.uuid({ message: "ID do músico inválido" })

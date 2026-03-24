@@ -24,6 +24,7 @@ import { delete_layer } from "./layers/delete_layer.js";
 import { patch_layer_status } from "./layers/autorizar_layer.js";
 
 import { follow_user } from "./follows/follow_user.js";
+import { Unfollow_route } from "./follows/unfollow_user.js";
 
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
@@ -50,6 +51,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(patch_layer_status, { prefix: '/api' });
     
     Fastify.register(follow_user, { prefix: '/api' });
+    Fastify.register(Unfollow_route, { prefix: '/api' });
 }
 
 

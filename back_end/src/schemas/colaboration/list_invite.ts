@@ -7,6 +7,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const List_invite_schema = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
+        tags: ['convite'],
         description: 'Lista todos os convites de um projeto específico',
         security: [{ bearerAuth: [] }], 
         params: z.object({
