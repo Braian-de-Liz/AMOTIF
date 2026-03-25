@@ -7,6 +7,7 @@ const schema_convite = {
     preHandler: [autenticarJWT, verificar_dono_projeto],
     schema: {
         tags: ['convite'],
+        description: 'Cria e envia um convite para um usuário participar de um projeto',
         security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.uuid({ message: "ID do projeto inválido" })

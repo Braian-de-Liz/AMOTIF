@@ -7,6 +7,7 @@ const instrumentos_schema = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
         tags: ['usuario'],
+        description: 'Atualiza os instrumentos tocados pelo usuário',
         security: [{ bearerAuth: [] }],
         body: z.object({
             instrumentos: z.array(z.string())

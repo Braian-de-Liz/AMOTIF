@@ -6,6 +6,8 @@ import { Error_schema } from "../error/erro_schema.js";
 const update_layer_schema = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
+        tags: ['camada'],
+        description: 'Atualiza os dados de uma camada musical existente',
         security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.uuid({ message: "ID do projeto inválido" })

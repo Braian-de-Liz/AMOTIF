@@ -7,6 +7,7 @@ const schema_post_project = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
         tags: ['projeto'],
+        description: 'Cria um novo projeto musical',
         security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.uuid()

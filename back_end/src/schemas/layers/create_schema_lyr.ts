@@ -7,6 +7,7 @@ const schema_layer = {
     preHandler: [autenticarJWT],
     schema: {
         tags: ['camada'],
+        description: 'Cria uma nova camada (trilha de áudio) em um projeto',
         security: [{ bearerAuth: [] }],
         params: z.object({
             projetoId: z.string().uuid({ message: "ID do projeto inválido" })

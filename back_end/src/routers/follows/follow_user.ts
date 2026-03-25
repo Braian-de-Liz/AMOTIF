@@ -3,7 +3,7 @@ import { follow_schema } from "../../schemas/follows/follow_user_schema.js";
 
 const follow_user: FastifyPluginAsyncZod = async (Fastify) => {
 
-    Fastify.post("follow/:id", follow_schema, async (request, reply) => {
+    Fastify.post("/follow/:id", follow_schema, async (request, reply) => {
 
         const { followingId } = request.params;
         const followerId = request.user.id;

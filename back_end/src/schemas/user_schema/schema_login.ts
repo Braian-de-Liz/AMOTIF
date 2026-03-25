@@ -5,6 +5,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const schema_login = {
     schema: {
         tags: ['usuario'],
+        description: 'Autentica um usuário e retorna um token JWT',
         body: z.object({
             email: z.string().email({ message: "E-mail inválido" }),
             senha: z.string().min(8, { message: "A senha deve ter no mínimo 8 caracteres" })

@@ -6,6 +6,7 @@ const schema_get_user = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
         tags: ['usuario'],
+        description: 'Retorna os dados do perfil de um usuário específico',
         security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.uuid({ message: "O formato do ID é inválido" })

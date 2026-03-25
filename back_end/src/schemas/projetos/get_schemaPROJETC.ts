@@ -7,6 +7,7 @@ const get_schemaPROJETC = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
         tags: ['projeto'],
+        description: 'Retorna os projetos do usuário logado',
         security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.uuid()

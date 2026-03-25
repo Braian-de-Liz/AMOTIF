@@ -6,6 +6,7 @@ const follow_schema = {
     preHandler: [autenticarJWT],
     schema: {
         tags: ['seguidores'],
+        description: 'Segue um usuário (músico) pelo ID',
         security: [{ bearerAuth: [] }],
         params: z.object({
             followingId: z.uuid({ message: "ID do músico inválido" })

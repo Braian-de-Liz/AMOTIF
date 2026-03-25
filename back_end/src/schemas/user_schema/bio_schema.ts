@@ -7,6 +7,7 @@ const schema_bio = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
         tags: ['usuario'],
+        description: 'Atualiza a biografia do perfil do usuário',
         security: [{ bearerAuth: [] }],
         body: z.object({
             bio: z.string().nullable()

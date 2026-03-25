@@ -6,6 +6,7 @@ const get_feed_schema = {
     preHandler: [autenticarJWT],
     schema: {
         tags: ['projeto'],
+        description: 'Retorna um feed/explorador público de projetos',
         security: [{ bearerAuth: [] }],
         response: {
             200: z.object({

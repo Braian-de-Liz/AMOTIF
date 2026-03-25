@@ -8,6 +8,7 @@ const schema_del_project = {
     preHandler: [verificar_permissao, verificar_dono_projeto],
     schema: {
         tags: ['projeto'],
+        description: 'Exclui um projeto existente, exigindo confirmação de senha',
         security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.uuid({ message: "ID do projeto inválido." })

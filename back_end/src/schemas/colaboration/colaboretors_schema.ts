@@ -6,6 +6,7 @@ const schema_colaboretors = {
     preHandler: [autenticarJWT],
     schema: {
         tags: ['convite'],
+        description: 'Lista todos os colaboradores de um projeto com seus respectivos cargos',
         security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.uuid({ message: "ID do projeto inválido" })

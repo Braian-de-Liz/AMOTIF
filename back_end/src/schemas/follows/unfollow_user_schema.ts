@@ -6,6 +6,7 @@ const unfollow_schema = {
     preHandler: [autenticarJWT],
     schema: {
         tags: ['seguidores'],
+        description: 'Para de seguir um usuário (músico) pelo ID',
         security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.uuid({ error: 'formato inválido' })

@@ -6,6 +6,7 @@ const schema_auth_layer = {
     preHandler: [autenticarJWT],
     schema: {
         tags: ['camada'],
+        description: 'Autoriza ou desautoriza uma camada de um projeto',
         security: [{ bearerAuth: [] }],
         params: z.object({ layerId: z.uuid() }),
         body: z.object({ aprovada: z.boolean() }),

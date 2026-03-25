@@ -6,6 +6,7 @@ const schema_details_project = {
     preHandler: [autenticarJWT],
     schema: {
         tags: ['projeto'],
+        description: 'Retorna os detalhes completos de um projeto específico',
         security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.uuid({ message: "ID do projeto inválido" })

@@ -8,6 +8,7 @@ const Schema_del_user = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
         tags: ['usuario'],
+        description: 'Exclui a conta do usuário logado',
         security: [{ bearerAuth: [] }],
         params: z.object({
             id: z.uuid({ message: "O ID fornecido não é um UUID válido" })

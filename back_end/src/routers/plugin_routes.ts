@@ -22,6 +22,7 @@ import { list_invite } from "./colaboration/list_invite.js";
 import { create_Layer } from "./layers/create_layer.js";
 import { delete_layer } from "./layers/delete_layer.js";
 import { patch_layer_status } from "./layers/autorizar_layer.js";
+import { update_layer } from "./layers/update_layers.js";
 
 import { follow_user } from "./follows/follow_user.js";
 import { Unfollow_route } from "./follows/unfollow_user.js";
@@ -45,11 +46,12 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(Accept_invite, { prefix: '/api' });
     Fastify.register(colaborators, { prefix: '/api' });
     Fastify.register(list_invite, { prefix: '/api' });
-    
+
     Fastify.register(delete_layer, { prefix: '/api' });
     Fastify.register(create_Layer, { prefix: '/api' });
     Fastify.register(patch_layer_status, { prefix: '/api' });
-    
+    Fastify.register(update_layer, { prefix: '/api' });
+
     Fastify.register(follow_user, { prefix: '/api' });
     Fastify.register(Unfollow_route, { prefix: '/api' });
 }

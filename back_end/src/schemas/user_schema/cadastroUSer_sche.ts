@@ -5,6 +5,7 @@ import { Error_schema } from '../error/erro_schema.js';
 const schema_register = {
     schema: {
         tags: ['usuario'],
+        description: 'Registra um novo usuário no sistema',
         body: z.object({
             nome_completo: z.string().min(6).max(87),
             email: z.email().min(8),

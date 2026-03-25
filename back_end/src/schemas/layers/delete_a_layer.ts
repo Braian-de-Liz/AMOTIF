@@ -7,6 +7,7 @@ const delete_lay_schema = {
     preHandler: [autenticarJWT, verificar_permissao_layer],
     schema: {
         tags: ['camada'],
+        description: 'Remove uma camada musical de um projeto',
         security: [{ bearerAuth: [] }],
         params: z.object({ id: z.uuid() }),
         response: {
