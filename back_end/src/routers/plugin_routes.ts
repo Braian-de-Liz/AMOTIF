@@ -18,6 +18,7 @@ import { convite_project } from "./colaboration/convite_project.js";
 import { colaborators } from "./colaboration/colaboretors.js";
 import { Accept_invite } from "./colaboration/accept_invite.js";
 import { list_invite } from "./colaboration/list_invite.js";
+import { Delete_Colab } from "./colaboration/delete_colab.js";
 
 import { create_Layer } from "./layers/create_layer.js";
 import { delete_layer } from "./layers/delete_layer.js";
@@ -26,6 +27,9 @@ import { update_layer } from "./layers/update_layers.js";
 
 import { follow_user } from "./follows/follow_user.js";
 import { Unfollow_route } from "./follows/unfollow_user.js";
+
+import { search_user_by_instruments } from "./search/search_by_instrument.js";
+import { search_project } from "./search/search_project.js";
 
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
@@ -46,11 +50,15 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(Accept_invite, { prefix: '/api' });
     Fastify.register(colaborators, { prefix: '/api' });
     Fastify.register(list_invite, { prefix: '/api' });
+    Fastify.register(Delete_Colab, { prefix: '/api' });
 
     Fastify.register(delete_layer, { prefix: '/api' });
     Fastify.register(create_Layer, { prefix: '/api' });
     Fastify.register(patch_layer_status, { prefix: '/api' });
     Fastify.register(update_layer, { prefix: '/api' });
+
+    Fastify.register(search_project, { prefix: '/api' });
+    Fastify.register(search_user_by_instruments, { prefix: '/api' });
 
     Fastify.register(follow_user, { prefix: '/api' });
     Fastify.register(Unfollow_route, { prefix: '/api' });

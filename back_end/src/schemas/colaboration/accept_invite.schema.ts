@@ -6,7 +6,7 @@ import { Error_schema } from "../error/erro_schema.js";
 const aceitar_convite_schema = {
     preHandler: [autenticarJWT, verificar_permissao],
     schema: {
-        tags: ['convite'],
+        tags: ['colaboração'],
         description: 'Aceita um convite para participar de um projeto usando um token de convite',
         security: [{ bearerAuth: [] }],
         params: z.object({
