@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "bun --watch src/server.ts",
     "build": "tsup src/server.ts --format esm --clean --minify --target esnext --shims",
-    "build_bun": "bun build ./src/server.ts --compile --minify --outfile dist/server",
+    "build_exe": "bun build ./src/server.ts --compile --minify --outfile dist/server",
+    "build_deploy":"bun build ./src/server.ts --compile --minify --target=bun-linux-x64 --outfile dist/server-linux",
     "start": "node dist/server.js",
     "check": "tsc --noEmit",
     "conectDB": "pnpx prisma validate",
