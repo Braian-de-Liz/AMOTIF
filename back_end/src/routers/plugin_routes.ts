@@ -31,6 +31,9 @@ import { Unfollow_route } from "./follows/unfollow_user.js";
 import { search_user_by_instruments } from "./search/search_by_instrument.js";
 import { search_project } from "./search/search_project.js";
 
+import { get_notifications } from "./notification/get_notifications.js";
+import { read_all_notifications } from "./notification/read_all.js";
+
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(User_register, { prefix: '/api' });
@@ -62,6 +65,9 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(follow_user, { prefix: '/api' });
     Fastify.register(Unfollow_route, { prefix: '/api' });
+
+    Fastify.register(get_notifications, { prefix: '/api' });
+    Fastify.register(read_all_notifications, { prefix: '/api' });
 }
 
 

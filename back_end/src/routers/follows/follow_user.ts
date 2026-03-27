@@ -3,9 +3,9 @@ import { follow_schema } from "../../schemas/follows/follow_user_schema.js";
 
 const follow_user: FastifyPluginAsyncZod = async (Fastify) => {
 
-    Fastify.post("/follow/:id", follow_schema, async (request, reply) => {
+    Fastify.post("/follow/:followingId", follow_schema, async (request, reply) => {
 
-        const { followingId } = request.params;
+        const { followingId } = request.params
         const followerId = request.user.id;
 
         if (followerId === followingId) {
@@ -49,6 +49,20 @@ const follow_user: FastifyPluginAsyncZod = async (Fastify) => {
                 }
             });
 
+            try {
+                await Fastify.prisma.notification.create({
+                    data: {
+                        userId: followingId,
+                        actorId: followerId,
+                        tipo: "NEW_FOLLOWER",
+                        mensagem: `${request.user.nome} começou a seguir você!`
+                    }
+                });
+            } catch (notifError) {
+
+                Fastify.log.error("Erro ao criar notificação de follow:" + notifError);
+            }
+
             return reply.status(200).send({
                 status: "sucesso",
                 mensagem: "Agora você está seguindo este músico!",
@@ -56,18 +70,14 @@ const follow_user: FastifyPluginAsyncZod = async (Fastify) => {
             });
 
         }
-
         catch (erro) {
             Fastify.log.error(erro);
-
             return reply.status(500).send({
                 status: "erro",
                 mensagem: "Erro ao processar a ação de seguir."
             });
         }
-
     });
-
 }
 
 export { follow_user };

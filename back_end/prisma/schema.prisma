@@ -27,7 +27,8 @@ model User {
   seguidores    Follows[]      @relation("UserBeingFollowed")
   seguindo      Follows[]      @relation("UserFollowing")
   
-  notifications Notification[] @relation("UserNotifications")
+  notifications      Notification[] @relation("UserNotifications")
+  notificacoes_feitas Notification[] @relation("NotificationActor") 
 }
 
 model Follows {
@@ -123,9 +124,10 @@ model Notification {
   userId    String           @db.Uuid
   usuario   User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
 
-  projetoId String?          @db.Uuid
   actorId   String?          @db.Uuid 
+  origem    User?            @relation("NotificationActor", fields: [actorId], references: [id]) // Relação oficial
 
+  projetoId String?          @db.Uuid 
   createdAt DateTime         @default(now())
 
   @@index([userId])
@@ -138,4 +140,5 @@ enum NotificationType {
   NEW_LAYER
   LAYER_APPROVED
   NEW_FOLLOWER
+  PROJECT_RELEASED
 }

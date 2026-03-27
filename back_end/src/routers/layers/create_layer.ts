@@ -33,6 +33,27 @@ const create_Layer: FastifyPluginAsyncZod = async (Fastify) => {
                 }
             })
 
+            if (userId !== check_project.userId) {
+
+                try {
+                    await Fastify.prisma.notification.create({
+                        data: {
+                            userId: check_project.userId,
+                            actorId: userId,
+                            projetoId: projetoId,
+                            tipo: "NEW_LAYER",
+                            mensagem: `${request.user.nome} adicionou uma nova trilha ao seu projeto "${check_project.titulo}"!`
+                        }
+                    });
+                    Fastify.log.info(`Notificação enviada para o usuário ${check_project.userId}`);
+                }
+
+                catch (err) {
+                    Fastify.log.error("Falha ao gerar notificação de nova camada:" + err);
+                }
+                
+            }
+
             return reply.status(201).send({
                 status: "sucesso",
                 mensagem: "Colaboração enviada com sucesso!",
