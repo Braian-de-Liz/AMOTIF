@@ -48,6 +48,7 @@ model Follows {
 model Projeto {
   id            String        @id @default(uuid()) @db.Uuid
   titulo        String
+  genero        MusicGenre  
   bpm           Int           @default(120)
   escala        String?
   descricao     String?
@@ -63,6 +64,28 @@ model Projeto {
 
   @@index([userId])
   @@index([createdAt])
+  @@index([genero]) 
+}
+
+enum MusicGenre {
+  ROCK
+  POP
+  JAZZ
+  BLUES
+  FORRO
+  METAL
+  HIP_HOP
+  ELECTRONIC
+  CLASSICAL
+  LO_FI
+  INDIE
+  SERTANEJO
+  SAMBA
+  MPB
+  COUNTRY
+  FUNK
+  SOUNDTRACK
+  REGGAE
 }
 
 model Convite {

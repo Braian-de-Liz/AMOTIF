@@ -67,7 +67,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(Unfollow_route, { prefix: '/api' });
 
     Fastify.register(get_notifications, { prefix: '/api' });
-    Fastify.register(read_all_notifications, { prefix: '/api' });
+    Fastify.register(read_all_notifications, { prefix: '/api'});
 }
 
 

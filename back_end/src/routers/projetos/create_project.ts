@@ -4,14 +4,16 @@ import { schema_post_project } from "../../schemas/projetos/creat_project_schema
 const post_project: FastifyPluginAsyncZod = async (Fastify) => {
 
     Fastify.post("/projetos/:id", schema_post_project, async (request, reply) => {
+
         const { id } = request.params; 
-        const { titulo, bpm, audio_guia, descricao, escala } = request.body;
+        const { titulo, genero, bpm, audio_guia, descricao, escala } = request.body;
         const userId = request.user.id; 
 
         try {
             const novo_projeto = await Fastify.prisma.projeto.create({
                 data: {
                     titulo,
+                    genero, 
                     bpm,
                     audio_guia,
                     descricao,
@@ -32,16 +34,15 @@ const post_project: FastifyPluginAsyncZod = async (Fastify) => {
                         actorId: userId, 
                         projetoId: novo_projeto.id,
                         tipo: "PROJECT_RELEASED" as any, 
-                        mensagem: `${request.user.nome} lançou um novo projeto: "${titulo}"! Que tal colaborar?`
+                        mensagem: `${request.user.nome} lançou um novo projeto de ${genero}: "${titulo}"!`
                     }));
 
                     await Fastify.prisma.notification.createMany({
                         data: notificationsData
                     });
-
-                    Fastify.log.info(`${notificationsData.length} seguidores notificados.`);
                 }
-            } catch (notifErr) {
+            }
+            catch (notifErr) {
                 Fastify.log.error("Falha ao notificar seguidores: " + notifErr);
             }
 
@@ -52,7 +53,6 @@ const post_project: FastifyPluginAsyncZod = async (Fastify) => {
             });
 
         } catch (erro) {
-
             Fastify.log.error(erro);
             return reply.status(500).send({
                 status: "erro",

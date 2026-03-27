@@ -1,7 +1,22 @@
 import { z } from "zod";
 import { verificar_permissao } from "../../hooks/verificar_permicao.js";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
+import { Error_schema } from "../error/erro_schema.js";
 
+const projetoSchema = z.object({
+    id: z.uuid(),
+    titulo: z.string(),
+    genero: z.enum([
+        "ROCK", "POP", "JAZZ", "BLUES", "FORRO", "METAL", 
+        "HIP_HOP", "ELECTRONIC", "CLASSICAL", "LO_FI", 
+        "INDIE", "SERTANEJO", "SAMBA", "MPB", "COUNTRY", 
+        "FUNK", "SOUNDTRACK", "REGGAE"
+    ]),
+    descricao: z.string().nullable(),
+    bpm: z.number(),
+    escala: z.string().nullable(),
+    createdAt: z.date(),
+});
 
 const get_schemaPROJETC = {
     preHandler: [autenticarJWT, verificar_permissao],
@@ -12,48 +27,14 @@ const get_schemaPROJETC = {
         params: z.object({
             id: z.uuid()
         }),
-
         response: {
             200: z.object({
                 status: z.string(),
                 mensagem: z.string(),
-                projetos: z.array(
-                    z.object({
-                        id: z.string().uuid(),
-                        titulo: z.string(),
-                        descricao: z.string().nullable(),
-                        bpm: z.number(),
-                        escala: z.string().nullable(),
-                        createdAt: z.date(),
-                    })
-                )
+                projetos: z.array(projetoSchema)
             }),
-            400: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            404: z.object({
-                status: z.string(),
-                mensagem: z.string(),
-                projetos: z.array(z.object({
-                    id: z.string().uuid(),
-                    titulo: z.string(),
-                    descricao: z.string().nullable(),
-                    bpm: z.number(),
-                    escala: z.string().nullable(),
-                    createdAt: z.date(),
-                }))
-            }),
-            403: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            }),
-            500: z.object({
-                status: z.string(),
-                mensagem: z.string()
-            })
+            ...Error_schema
         }
-
     }
 }
 
