@@ -58,7 +58,6 @@ Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '2d' } 
 Fastify.register(Plugin_Routes);
 Fastify.register(health_route);
 
-
 const start = async () => {
 
     const port: number = Number(process.env.PORT) || 3333;

@@ -8,6 +8,7 @@ const Deletar_Colab_schema = {
     preHandler: [autenticarJWT, verificar_dono_projeto],
     schema: {
         tags: ['colaboração'],
+        security: [{ bearerAuth: [] }],
         params: z.object({
             projetoId: z.uuid(),
             userId: z.uuid()
