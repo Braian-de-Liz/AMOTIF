@@ -58,20 +58,46 @@ Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '2d' } 
 Fastify.register(Plugin_Routes);
 Fastify.register(health_route);
 
-const start = async () => {
+import { monitorEventLoopDelay } from 'perf_hooks';
 
+const start = async () => {
     const port: number = Number(process.env.PORT) || 3333;
+    const environment = process.env.NODE_ENV || 'development';
+
+    // Cria um monitor que amostra o delay do loop a cada 10ms
+    const histogram = monitorEventLoopDelay({ resolution: 10 });
+    histogram.enable();
 
     try {
         await Fastify.ready();
         await Fastify.listen({ port: port, host: '0.0.0.0' });
-        const memoriaUsada = process.memoryUsage().heapUsed / 1024 / 1024;
-        Fastify.log.info(`Servidor rodando em http://localhost:${port}`);
-        console.log(`Uso de RAM: ${memoriaUsada.toFixed(2)} MB`);
-    }
 
-    catch (erro) {
-        console.error("Erro no servidor: " + erro);
+        const usedMemory = process.memoryUsage();
+        const heapUsedMB = (usedMemory.heapUsed / 1024 / 1024).toFixed(2);
+        const rssMB = (usedMemory.rss / 1024 / 1024).toFixed(2); 
+        const bootTime = process.uptime().toFixed(2);
+
+        console.log(`
+            🚀 AMOTIF Back-end Online!
+            -----------------------------------------
+            URL: http://localhost:${port}
+            Environment: ${environment}
+            Runtime: ${process.versions.bun ? 'Bun ' + process.versions.bun : 'Node ' + process.version}
+            Boot Time: ${bootTime}s
+            -----------------------------------------
+            Heap Used: ${heapUsedMB} MB
+            RSS Memory: ${rssMB} MB
+        
+-----------------------------------------
+        `);
+
+        Fastify.log.info(`Servidor iniciado na porta ${port}`);
+
+ 
+
+    } catch (erro) {
+        Fastify.log.error("Erro fatal no servidor:");
+        console.error(erro);
         process.exit(1);
     }
 }
