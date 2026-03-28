@@ -15,6 +15,12 @@ const get_feed_schema = {
                     z.object({
                         id: z.uuid(),
                         titulo: z.string(),
+                        genero: z.enum([
+                            "ROCK", "POP", "JAZZ", "BLUES", "FORRO", "METAL", 
+                            "HIP_HOP", "ELECTRONIC", "CLASSICAL", "LO_FI", 
+                            "INDIE", "SERTANEJO", "SAMBA", "MPB", "COUNTRY", 
+                            "FUNK", "SOUNDTRACK", "REGGAE"
+                        ]),
                         bpm: z.number(),
                         escala: z.string().nullable(),
                         descricao: z.string().nullable(),

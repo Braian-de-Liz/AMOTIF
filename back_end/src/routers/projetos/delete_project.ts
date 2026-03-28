@@ -1,10 +1,10 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import { Schema_del_user } from "../../schemas/user_schema/delete_user_schema.js";
+import { Schema_del_project } from "../../schemas/projetos/del_project.schema.js";
 import argon2 from "argon2";
 
 const del_project: FastifyPluginAsyncZod = async (Fastify) => {
 
-    Fastify.delete("/projetos/:id/delete", Schema_del_user, async (request, reply) => {
+    Fastify.delete("/projetos/:id", Schema_del_project, async (request, reply) => {
 
         const { id } = request.params; 
         const { senha } = request.body;

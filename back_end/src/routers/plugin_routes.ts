@@ -12,6 +12,7 @@ import { post_project } from "./projetos/create_project.js";
 import { del_project } from "./projetos/delete_project.js";
 import { Get_projects_user } from "./projetos/get_projects.js";
 import { Get_a_project } from "./projetos/get_project_details.js";
+import { Update_project } from "./projetos/update_project.js";
 import { searth_feed } from "./projetos/get_feed.js";
 
 import { convite_project } from "./colaboration/convite_project.js";
@@ -48,6 +49,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(Get_projects_user, { prefix: '/api' });
     Fastify.register(searth_feed, { prefix: '/api' });
     Fastify.register(Get_a_project, { prefix: '/api' });
+    Fastify.register(Update_project, { prefix: '/api' });
 
     Fastify.register(convite_project, { prefix: '/api' });
     Fastify.register(Accept_invite, { prefix: '/api' });
@@ -67,7 +69,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(Unfollow_route, { prefix: '/api' });
 
     Fastify.register(get_notifications, { prefix: '/api' });
-    Fastify.register(read_all_notifications, { prefix: '/api'});
+    Fastify.register(read_all_notifications, { prefix: '/api' });
 }
 
 

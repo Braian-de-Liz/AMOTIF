@@ -55,8 +55,9 @@ O ecossistema de dados está estruturado em três pilares fundamentais:
 * **Sincronização:** Registro de **Delay/Offset** em milissegundos para compensar latências de gravação.
 * **Persistência:** Mapeamento de URLs seguras para os objetos processados no Cloud Storage.
 
-
-
+---
+[Entenda nossa modelo de servidor Principal](./documents/organization.md)
+[Entenda nossa Arquitetura](./documents/Architecture.md)
 ---
 
 ## 🌟 Valor do Ecossistema
