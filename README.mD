@@ -57,6 +57,8 @@ O ecossistema de dados está estruturado em três pilares fundamentais:
 
 ---
 [Entenda nossa modelo de servidor Principal](./documents/organization.md)
+
+
 [Entenda nossa Arquitetura](./documents/Architecture.md)
 ---
 
