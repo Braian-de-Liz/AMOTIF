@@ -7,6 +7,7 @@ const search_instrumento = {
     preHandler: [autenticarJWT],
     schema: {
         tags: ['search'],
+        security: [{ bearerAuth: [] }],
         description: 'Procurar projetos com filtro por instrumento',
         querystring: z.object({
             instrumento: z.string().min(2),
