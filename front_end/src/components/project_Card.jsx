@@ -1,8 +1,10 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; // Importe o hook
 import { URL_API_TESTE } from "../utility/url_apis";
-import { Heart, MessageSquare, Music } from "lucide-react"; 
+import { Heart, Music } from "lucide-react"; 
 
 function ProjectCard({ proj }) {
+    const navigate = useNavigate(); // Inicialize o hook
     const [isLiked, setIsLiked] = useState(proj.userHasLiked);
     const [likesCount, setLikesCount] = useState(proj._count.likes);
 
@@ -55,7 +57,7 @@ function ProjectCard({ proj }) {
                 </div>
                 <button
                     className="btn-small"
-                    onClick={() => window.location.href = `/studio/${proj.id}`}
+                    onClick={() => navigate(`/studio/${proj.id}`)} 
                 >
                     Entrar no Studio
                 </button>

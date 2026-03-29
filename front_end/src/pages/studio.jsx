@@ -5,7 +5,7 @@ import { Nav } from "../components/nav";
 import { URL_API_TESTE } from "../utility/url_apis";
 import { Play, Pause, Mic } from "lucide-react";
 
-export function Studio() { 
+function Studio() { 
     const { id } = useParams();
     const [projeto, setProjeto] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -15,7 +15,7 @@ export function Studio() {
         async function carregarProjeto() {
             try {
                 const token = localStorage.getItem("token");
-                const response = await fetch(`${URL_API_TESTE}/projetos/detalhes/${id}`, {
+                const response = await fetch(`${URL_API_TESTE}/projetos/${id}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 
@@ -74,3 +74,5 @@ export function Studio() {
         </div>
     );
 }
+
+export {Studio};
