@@ -6,8 +6,12 @@ const get_feed_schema = {
     preHandler: [autenticarJWT],
     schema: {
         tags: ['projeto'],
-        description: 'Retorna um feed/explorador público de projetos',
+        description: 'Retorna um feed inteligente de projetos com filtros e status de curtida',
         security: [{ bearerAuth: [] }],
+        querystring: z.object({
+            genero: z.string().optional(),
+            instrumentoFaltante: z.string().optional(),
+        }),
         response: {
             200: z.object({
                 status: z.string(),
@@ -15,12 +19,7 @@ const get_feed_schema = {
                     z.object({
                         id: z.uuid(),
                         titulo: z.string(),
-                        genero: z.enum([
-                            "ROCK", "POP", "JAZZ", "BLUES", "FORRO", "METAL", 
-                            "HIP_HOP", "ELECTRONIC", "CLASSICAL", "LO_FI", 
-                            "INDIE", "SERTANEJO", "SAMBA", "MPB", "COUNTRY", 
-                            "FUNK", "SOUNDTRACK", "REGGAE"
-                        ]),
+                        genero: z.string(),
                         bpm: z.number(),
                         escala: z.string().nullable(),
                         descricao: z.string().nullable(),
@@ -29,7 +28,13 @@ const get_feed_schema = {
                         autor: z.object({
                             nome_completo: z.string(),
                             instrumentos: z.array(z.string())
-                        })
+                        }),
+                        _count: z.object({
+                            likes: z.number(),
+                            camadas: z.number(),
+                            colaboradores: z.number()
+                        }),
+                        userHasLiked: z.boolean()
                     })
                 )
             }),

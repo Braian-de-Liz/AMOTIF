@@ -1,12 +1,13 @@
 import fp from "fastify-plugin"
 import { FastifyPluginAsync } from "fastify"
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, NotificationType } from '@prisma/client' 
 import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
 
 declare module 'fastify' {
     interface FastifyInstance {
-        prisma: PrismaClient
+        prisma: PrismaClient;
+        notiType: typeof NotificationType; 
     }
 }
 
@@ -36,10 +37,12 @@ const prisma_plugin: FastifyPluginAsync = fp(async (fastify) => {
         });
 
         fastify.decorate('prisma', prisma);
+        fastify.decorate('notiType', NotificationType); 
+        
         console.log("NeonDB conectado");
 
     } catch (error) {
-        console.error("Erro:", error);
+        console.error("Erro ao conectar no Prisma:", error);
         process.exit(1);
     }
 });

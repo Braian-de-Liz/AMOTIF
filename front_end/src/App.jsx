@@ -5,13 +5,13 @@ import { Login } from './pages/login';
 import { Cadastro } from './pages/cadastro';
 import { Home } from './pages/home';
 import { UserPage } from './pages/user';
-import { ProtectedRoute } from './components/ProtectedRoute'; // Importe aqui
+import { Studio } from './pages/studio'; // Importando seu componente
+import { ProtectedRoute } from './components/ProtectedRoute'; 
 
 function App() {
   return (
     <Router>
       <Routes>
-
         <Route path='/' element={<Login />} />
         <Route path='/cadastro' element={<Cadastro />} />
 
@@ -27,9 +27,10 @@ function App() {
           </ProtectedRoute>
         } />
 
-        <Route path='/studio' element={
+
+        <Route path='/studio/:id' element={
           <ProtectedRoute>
-            <div>Página do Studio</div>
+            <Studio />
           </ProtectedRoute>
         } />
 

@@ -29,6 +29,7 @@ model User {
   
   notifications      Notification[] @relation("UserNotifications")
   notificacoes_feitas Notification[] @relation("NotificationActor") 
+  likes_dados Like[] @relation("UserLikes")
 }
 
 model Follows {
@@ -61,6 +62,7 @@ model Projeto {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  likes Like[] @relation("ProjectLikes")
 
   @@index([userId])
   @@index([createdAt])
@@ -137,6 +139,18 @@ model Camada {
   @@index([createdAt])
 }
 
+model Like {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @db.Uuid
+  usuario   User     @relation("UserLikes", fields: [userId], references: [id], onDelete: Cascade)
+  projetoId String   @db.Uuid
+  projeto   Projeto  @relation("ProjectLikes", fields: [projetoId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, projetoId])
+  @@index([projetoId])
+}
 
 model Notification {
   id        String           @id @default(uuid()) @db.Uuid
@@ -165,4 +179,5 @@ enum NotificationType {
   PROJECT_REJECT
   NEW_FOLLOWER
   PROJECT_RELEASED
+  NEW_LIKE         
 }

@@ -5,81 +5,64 @@ function Feed() {
     const [projetos, setProjetos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [erro, setErro] = useState(null);
+    const [filtroInstrumento, setFiltroInstrumento] = useState(""); 
 
-    useEffect(() => {
-        async function carregarFeed() {
-            try {
-                const token = localStorage.getItem("token");
-                const headers = {};
-                if (token) {
-                    headers['Authorization'] = `Bearer ${token}`;
-                }
-
-                const response = await fetch(`${URL_API_TESTE}/projetos/feed`, {
-                    headers
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    setProjetos(data.projetos || []);
-                } else {
-                    setErro(data.mensagem || "Erro ao carregar o feed.");
-                }
-            }
+    async function carregarFeed() {
+        setLoading(true);
+        try {
+            const token = localStorage.getItem("token");
+            const url = new URL(`${URL_API_TESTE}/projetos/feed`);
             
-            catch (err) {
-                setErro("Não foi possível conectar ao servidor.");
-            }
+            if (filtroInstrumento) url.searchParams.append("instrumentoFaltante", filtroInstrumento);
 
-            finally {
-                setLoading(false);
+            const response = await fetch(url, {
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+            });
+
+            const data = await response.json();
+            if (response.ok) {
+                setProjetos(data.projetos || []);
+            } else {
+                setErro(data.mensagem);
             }
+        } catch (err) {
+            setErro("Erro de conexão.");
+        } finally {
+            setLoading(false);
         }
+    }
 
-        carregarFeed();
-    }, []);
+    useEffect(() => { carregarFeed(); }, [filtroInstrumento]); 
 
-    if (loading) return <div className="loading-txt">Carregando projetos da comunidade...</div>;
-    if (erro) return <div className="error-msg">{erro}</div>;
+    if (loading && projetos.length === 0) return <div>Carregando...</div>;
 
     return (
         <div className="feed-container">
-            <h2 className="feed-title">Feed Global</h2>
+            <header className="feed-header">
+                <h2 className="feed-title">Explorar Projetos</h2>
+                
+                <select 
+                    className="filter-select"
+                    onChange={(e) => setFiltroInstrumento(e.target.value)}
+                >
+                    <option value="">Todos os instrumentos</option>
+                    <option value="Baixo">Precisando de Baixo</option>
+                    <option value="Guitarra">Precisando de Guitarra</option>
+                    <option value="Vocal">Precisando de Vocal</option>
+                </select>
+            </header>
+
             {projetos.length > 0 ? (
                 <div className="feed-grid">
                     {projetos.map(proj => (
-                        <article key={proj.id} className="feed-card">
-                            <div className="feed-card-header">
-                                <h3>{proj.titulo}</h3>
-                                <span className="badge-bpm">{proj.bpm} BPM</span>
-                            </div>
-                            <p className="feed-card-desc">{proj.descricao || "Sem descrição."}</p>
-                            <div className="feed-card-footer">
-                                <div className="feed-card-author">
-                                    <strong>{proj.autor?.nome_completo || "Anônimo"}</strong>
-                                    {proj.autor?.instrumentos && (
-                                        <small> • {Array.isArray(proj.autor.instrumentos)
-                                            ? proj.autor.instrumentos.join(', ')
-                                            : proj.autor.instrumentos}
-                                        </small>
-                                    )}
-                                </div>
-                                <button
-                                    className="btn-small"
-                                    onClick={() => window.location.href = `/studio/${proj.id}`}
-                                >
-                                    Ver projeto
-                                </button>
-                            </div>
-                        </article>
+                        <ProjectCard key={proj.id} proj={proj} />
                     ))}
                 </div>
             ) : (
-                <p className="empty-state">Nenhum projeto encontrado. Seja o primeiro a compartilhar!</p>
+                <p>Nenhum projeto precisando de {filtroInstrumento} no momento.</p>
             )}
         </div>
     );
 }
 
-export { Feed };
+export {Feed}

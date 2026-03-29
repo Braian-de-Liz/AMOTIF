@@ -64,7 +64,6 @@ const start = async () => {
     const port: number = Number(process.env.PORT) || 3333;
     const environment = process.env.NODE_ENV || 'development';
 
-    // Cria um monitor que amostra o delay do loop a cada 10ms
     const histogram = monitorEventLoopDelay({ resolution: 10 });
     histogram.enable();
 
