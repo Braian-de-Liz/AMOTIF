@@ -22,7 +22,7 @@ function Cadastro() {
         }
 
         
-        if (!validar_email(email)) {
+        if (!validar_email(email)) {p
             alert("email inválido");
             return false;
         }

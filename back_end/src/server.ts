@@ -86,7 +86,7 @@ const start = async () => {
             Heap Used: ${heapUsedMB} MB
             RSS Memory: ${rssMB} MB
         
------------------------------------------
+            -----------------------------------------
         `);
 
         Fastify.log.info(`Servidor iniciado na porta ${port}`);
