@@ -27,7 +27,6 @@ const Fastify: FastifyInstance = fastify(/* { logger: true } */).withTypeProvide
 
 Fastify.setValidatorCompiler(validatorCompiler);
 Fastify.setSerializerCompiler(serializerCompiler);
-
 Fastify.register(swagger, {
     openapi: {
         info: {

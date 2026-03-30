@@ -7,6 +7,7 @@ import { Deletar_user } from "./user/delete_user.js";
 import { Get_user } from "./user/get_user.js";
 import { Patch_bio } from "./user/post_bio.js";
 import { Patch_Instrumentos } from "./user/instrumentos.js";
+import { Recuperar_senha } from './user/forgot_password.js'
 
 import { post_project } from "./projetos/create_project.js";
 import { del_project } from "./projetos/delete_project.js";
@@ -45,6 +46,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(Get_user, { prefix: '/api' });
     Fastify.register(Patch_bio, { prefix: '/api' });
     Fastify.register(Patch_Instrumentos, { prefix: '/api' });
+    Fastify.register(Recuperar_senha, {prefix: '/api'});
 
     Fastify.register(post_project, { prefix: '/api' });
     Fastify.register(del_project, { prefix: '/api' });
