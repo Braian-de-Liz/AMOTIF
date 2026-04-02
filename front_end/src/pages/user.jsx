@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MyProjetosLoader } from '../components/MyLoadProjects';
 import { Nav } from '../components/nav';
 import { CreateProjectModal } from '../components/init_project';
+import '../styles/User.css';
 
 function UserPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);

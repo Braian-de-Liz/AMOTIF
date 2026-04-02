@@ -1,5 +1,6 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Home, User, Music, LogOut } from 'lucide-react';
+import '../styles/Navbar.css';
 
 function Nav() {
     const navigate = useNavigate();

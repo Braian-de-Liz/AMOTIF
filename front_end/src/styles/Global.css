@@ -1,0 +1,64 @@
+/* front_end/src/styles/Global.css */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  /* Paleta de verdes e pastéis suaves */
+  --verde-pastel: #d4e6d4;
+  --verde-claro: #c0d9c0;
+  --verde-medio: #8fb08f;
+  --verde-escuro: #2c3e2c;
+  --verde-musgo: #6b8e4d;
+  --fundo: #f4f9f4;
+  --branco: #ffffff;
+  --cinza-suave: #e8f0e8;
+  --sombra: rgba(0, 0, 0, 0.05);
+  --texto: #2c3e2c;
+  --texto-secundario: #4a5e4a;
+  --borda: #c2d6c2;
+  --badge-bpm: #b8d9b8;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: var(--fundo);
+  color: var(--texto);
+  line-height: 1.6;
+  padding: 0;
+  margin: 0;
+  min-height: 100vh;
+}
+
+/* Links */
+a {
+  color: var(--verde-musgo);
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+a:hover {
+  color: var(--verde-escuro);
+  text-decoration: underline;
+}
+
+/* Botões base */
+button {
+  cursor: pointer;
+  font-family: inherit;
+  border: none;
+  background: none;
+  transition: all 0.2s ease;
+}
+
+h1, h2, h3 {
+  color: var(--verde-escuro);
+}
+
+hr {
+  border: 1px solid var(--verde-pastel);
+  margin: 1rem 0;
+}

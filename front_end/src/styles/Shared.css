@@ -1,0 +1,214 @@
+/* front_end/src/styles/Shared.css */
+
+/* CARD CONTAINER (MyLoadProjects) */
+.card-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.8rem;
+  margin-top: 2rem;
+}
+
+/* Card individual */
+.card {
+  background: linear-gradient(145deg, var(--branco), var(--fundo));
+  border-radius: 20px;
+  padding: 1.5rem;
+  box-shadow: 0 6px 14px var(--sombra);
+  border: 1px solid var(--verde-pastel);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 20px rgba(107, 142, 77, 0.15);
+  border-color: var(--verde-claro);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.card-header h3, .card-header h4 {
+  font-size: 1.4rem;
+  color: var(--verde-escuro);
+  font-weight: 600;
+  word-break: break-word;
+  max-width: 70%;
+}
+
+.badge-bpm {
+  background-color: var(--badge-bpm);
+  color: var(--verde-escuro);
+  padding: 0.3rem 0.8rem;
+  border-radius: 30px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid var(--verde-claro);
+}
+
+.card-desc {
+  color: var(--texto-secundario);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+  flex-grow: 1;
+  font-size: 0.95rem;
+}
+
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid var(--verde-pastel);
+  padding-top: 1rem;
+  margin-top: auto;
+}
+
+.card-footer small {
+  color: var(--verde-musgo);
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.btn-small {
+  background-color: transparent;
+  color: var(--verde-musgo);
+  padding: 0.4rem 1.2rem;
+  border-radius: 30px;
+  font-weight: 600;
+  border: 2px solid var(--verde-claro);
+  font-size: 0.9rem;
+}
+
+.btn-small:hover {
+  background-color: var(--verde-claro);
+  color: var(--verde-escuro);
+}
+
+/* Estados vazio / loading / erro */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 3rem;
+  color: var(--texto-secundario);
+  font-style: italic;
+  background-color: var(--cinza-suave);
+  border-radius: 30px;
+  border: 2px dashed var(--verde-claro);
+}
+
+.loading-txt {
+  text-align: center;
+  padding: 2rem;
+  color: var(--verde-musgo);
+  font-size: 1.2rem;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.error-msg {
+  text-align: center;
+  padding: 1.5rem;
+  background-color: #ffe6e6;
+  color: #b34a4a;
+  border-radius: 20px;
+  border: 1px solid #f5c2c2;
+  max-width: 500px;
+  margin: 2rem auto;
+}
+
+/* FEED GRID (Muitas similaridades com Card) */
+.feed-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1.5rem;
+}
+
+.feed-title {
+    font-size: 2rem;
+    color: var(--verde-escuro);
+    margin-bottom: 2rem;
+    border-left: 8px solid var(--verde-medio);
+    padding-left: 1.5rem;
+}
+
+.feed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.feed-card {
+    background: var(--branco);
+    border-radius: 20px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px var(--sombra);
+    border: 1px solid var(--verde-pastel);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.feed-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(107, 142, 77, 0.15);
+    border-color: var(--verde-claro);
+}
+
+.feed-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.feed-card-header h3 {
+    font-size: 1.3rem;
+    color: var(--verde-escuro);
+    font-weight: 600;
+    word-break: break-word;
+    max-width: 70%;
+}
+
+.feed-card-desc {
+    color: var(--texto-secundario);
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+    flex-grow: 1;
+    font-size: 0.95rem;
+}
+
+.feed-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--verde-pastel);
+    padding-top: 1rem;
+    margin-top: auto;
+}
+
+.feed-card-author {
+    color: var(--verde-musgo);
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.feed-card-author strong {
+    color: var(--verde-escuro);
+}
+
+/* RESPONSIVIDADE PARA CARDS E FEED */
+@media (max-width: 768px) {
+  .card-container, .feed-grid {
+    grid-template-columns: 1fr;
+  }
+}

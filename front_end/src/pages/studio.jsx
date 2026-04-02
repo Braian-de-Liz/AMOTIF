@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { Nav } from "../components/nav";
 import { URL_API_TESTE } from "../utility/url_apis";
 import { Play, Pause, Mic } from "lucide-react";
+import '../styles/Studio.css';
 
 function Studio() { 
     const { id } = useParams();

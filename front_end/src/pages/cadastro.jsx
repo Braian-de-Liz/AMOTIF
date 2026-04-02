@@ -64,7 +64,7 @@ function Cadastro() {
 
     return (
         <>
-            <form action="form_login" onSubmit={cadastrar}>
+            <form className="form_login" onSubmit={cadastrar}>
 
                 <div>
                     <label>Nome Completo</label>

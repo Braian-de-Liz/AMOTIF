@@ -1,5 +1,6 @@
 // front_end\src\pages\login.jsx
 import { useState } from 'react';
+import '../styles/Login.css';
 import { validar_email } from '../utility/validar_email';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';

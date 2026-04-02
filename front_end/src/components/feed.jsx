@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { URL_API_TESTE } from "../utility/url_apis";
+import '../styles/Shared.css';
 import {ProjectCard} from './project_Card'
 
 function Feed() {

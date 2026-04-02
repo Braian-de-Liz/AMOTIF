@@ -1,0 +1,70 @@
+/* front_end/src/styles/Cadastro.css */
+
+.form_login {
+  max-width: 400px;
+  margin: 2rem auto;
+  background-color: var(--branco);
+  padding: 2.5rem 2rem;
+  border-radius: 20px;
+  box-shadow: 0 8px 20px var(--sombra);
+  border: 1px solid var(--verde-pastel);
+}
+
+.form_login div {
+  margin-bottom: 1.5rem;
+}
+
+.form_login label {
+  display: block;
+  margin-bottom: 0.5rem;
+  color: var(--verde-escuro);
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.form_login input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 2px solid var(--cinza-suave);
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+  background-color: var(--fundo);
+  color: var(--texto);
+}
+
+.form_login input:focus {
+  outline: none;
+  border-color: var(--verde-medio);
+  background-color: var(--branco);
+}
+
+.form_login input::placeholder {
+  color: #a0b8a0;
+}
+
+#btn_envia {
+  width: 100%;
+  padding: 1rem;
+  background-color: var(--verde-medio);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  box-shadow: 0 4px 6px var(--sombra);
+}
+
+#btn_envia:hover {
+  background-color: var(--verde-musgo);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(107, 142, 77, 0.2);
+}
+
+@media (max-width: 768px) {
+  .form_login {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+}

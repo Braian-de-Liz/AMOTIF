@@ -26,7 +26,7 @@ model User {
 
   seguidores    Follows[]      @relation("UserBeingFollowed")
   seguindo      Follows[]      @relation("UserFollowing")
-  
+  mural_posts MuralPost[]      @relation("AutorDoPost")
   notifications      Notification[] @relation("UserNotifications")
   notificacoes_feitas Notification[] @relation("NotificationActor") 
   likes_dados Like[] @relation("UserLikes")
@@ -59,7 +59,7 @@ model Projeto {
   camadas       Camada[]
   colaboradores Colaborador[]
   convites      Convite[]
-
+  mural MuralPost[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   likes Like[] @relation("ProjectLikes")
@@ -88,6 +88,20 @@ enum MusicGenre {
   FUNK
   SOUNDTRACK
   REGGAE
+}
+
+model MuralPost {
+  id        String   @id @default(uuid()) @db.Uuid
+  conteudo  String   @db.Text
+  createdAt DateTime @default(now())
+  
+  projetoId String   @db.Uuid
+  projeto   Projeto  @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  
+  autorId   String   @db.Uuid
+  autor     User     @relation("AutorDoPost", fields: [autorId], references: [id])
+
+  @@index([projetoId])
 }
 
 model Convite {

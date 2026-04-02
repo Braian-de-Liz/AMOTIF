@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom"; // Importe o hook
+import { useNavigate } from "react-router-dom";
+import '../styles/Shared.css'; // Importe o hook
 import { URL_API_TESTE } from "../utility/url_apis";
 import { Heart, Music } from "lucide-react"; 
 

@@ -76,7 +76,7 @@ const start = async () => {
         const bootTime = process.uptime().toFixed(2);
 
         console.log(`L
-            🚀 AMOTIF Back-end Online!
+            AMOTIF Back-end Online!
             -----------------------------------------
             URL: http://localhost:${port}
             Environment: ${environment}

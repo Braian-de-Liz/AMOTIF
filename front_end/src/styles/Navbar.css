@@ -1,0 +1,120 @@
+/* front_end/src/styles/Navbar.css */
+
+nav {
+  background-color: var(--branco);
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 8px var(--sombra);
+  border-bottom: 2px solid var(--verde-claro);
+  margin-bottom: 2rem;
+}
+
+nav ul {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 2rem;
+  list-style: none;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+nav ul li a {
+  color: var(--verde-escuro);
+  font-weight: 500;
+  padding: 0.5rem 0;
+  border-bottom: 2px solid transparent;
+}
+
+nav ul li a:hover {
+  color: var(--verde-musgo);
+  border-bottom-color: var(--verde-musgo);
+  text-decoration: none;
+}
+
+nav ul li button {
+  background-color: var(--verde-pastel);
+  color: var(--verde-escuro);
+  padding: 0.5rem 1.2rem;
+  border-radius: 30px;
+  font-weight: 600;
+  border: 1px solid var(--verde-claro);
+}
+
+nav ul li button:hover {
+  background-color: var(--verde-claro);
+  transform: scale(0.98);
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+  nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin-bottom: 0; 
+    z-index: 3000;
+    padding: 0.8rem 1rem;
+    border-bottom: none;
+    border-top: 2px solid var(--verde-claro);
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  nav ul {
+    justify-content: space-around; 
+    gap: 0;
+  }
+  
+  nav ul li a {
+    font-size: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    border-bottom: none;
+  }
+  
+  nav ul li button {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.75rem;
+    border-radius: 15px;
+  }
+
+  nav ul li a span {
+    font-size: 0.7rem;
+    margin-top: 2px;
+  }
+
+  .nav-icon {
+    color: var(--verde-escuro);
+    transition: transform 0.2s;
+  }
+
+  /* Efeito de item ativo */
+  li.active .nav-icon {
+    color: var(--verde-musgo);
+    transform: translateY(-3px);
+  }
+
+  li.active span {
+    color: var(--verde-musgo);
+    font-weight: bold;
+  }
+
+  /* Ajuste no botão de logout para parecer um item da nav */
+  .btn-logout-mobile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: none !important;
+    border: none !important;
+    color: var(--verde-escuro) !important;
+    padding: 0 !important;
+  }
+}
+
+@media (min-width: 769px) {
+  .nav-icon {
+    display: none; 
+  }
+}

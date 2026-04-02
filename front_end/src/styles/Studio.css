@@ -1,0 +1,8 @@
+/* front_end/src/styles/Studio.css */
+@import './User.css';
+@import './Shared.css';
+
+/* Studio specific overrides if any */
+.studio-track-list {
+    margin-top: 2rem;
+}

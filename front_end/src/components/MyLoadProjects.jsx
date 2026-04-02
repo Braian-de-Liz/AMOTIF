@@ -1,6 +1,7 @@
 // front_end/src/components/MyLoadProjects.jsx
 import { useState, useEffect } from "react";
 import { URL_API_TESTE } from "../utility/url_apis";
+import '../styles/Shared.css';
 
 function MyProjetosLoader() {
     const [projetos, setProjetos] = useState([]);

@@ -1,0 +1,224 @@
+/* front_end/src/styles/User.css */
+
+.user-dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+}
+
+.user-header {
+  text-align: left;
+  margin-bottom: 2rem;
+  background-color: var(--branco);
+  padding: 2rem 2rem 1rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px var(--sombra);
+  border-left: 8px solid var(--verde-medio);
+}
+
+.user-header h1 {
+  color: var(--verde-escuro);
+  font-size: 2.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.user-header p {
+  color: var(--texto-secundario);
+  font-size: 1.1rem;
+}
+
+.user-header strong {
+  color: var(--verde-musgo);
+}
+
+.user-header hr {
+  border: none;
+  height: 2px;
+  background: linear-gradient(90deg, var(--verde-pastel), transparent);
+  margin-top: 1rem;
+}
+
+/* Seção de projetos */
+.my-projects-section {
+  background-color: var(--branco);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px var(--sombra);
+}
+
+.my-projects-section h2 {
+  color: var(--verde-escuro);
+  font-size: 1.8rem;
+  margin: 0;
+}
+
+/* Botão novo projeto */
+.btn-create-proj {
+  background-color: var(--verde-medio);
+  color: white;
+  padding: 0.8rem 1.8rem;
+  border-radius: 40px;
+  font-weight: 600;
+  font-size: 1rem;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 6px var(--sombra);
+}
+
+.btn-create-proj:hover {
+  background-color: var(--verde-musgo);
+  transform: scale(1.02);
+  border-color: var(--verde-claro);
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(44, 62, 44, 0.6); 
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 1rem;
+}
+
+.modal-content.form_login {
+  margin: 0;
+  width: 100%;
+  max-width: 550px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+.custom-select {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  border: 2px solid var(--cinza-suave);
+  border-radius: 12px;
+  font-size: 1rem;
+  background-color: var(--fundo);
+  color: var(--texto);
+  cursor: pointer;
+}
+
+.custom-select:focus {
+  outline: none;
+  border-color: var(--verde-medio);
+}
+
+.modal-content label {
+    margin-top: 0.5rem;
+}
+
+/* UPLOAD */
+.upload-group {
+  margin-bottom: 1.5rem;
+}
+
+.modal-file-input {
+  display: none;
+}
+
+.file-drop-area {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  border: 2px dashed var(--verde-medio);
+  border-radius: 15px;
+  background-color: var(--fundo);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.file-drop-area:hover {
+  background-color: var(--branco);
+  border-color: var(--verde-musgo);
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px var(--sombra);
+}
+
+.upload-icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+}
+
+.file-msg {
+  font-size: 0.9rem;
+  color: var(--verde-escuro);
+  font-weight: 500;
+}
+
+.file-name-badge {
+  margin-top: 0.8rem;
+  background-color: var(--verde-pastel);
+  color: var(--verde-escuro);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border: 1px solid var(--verde-claro);
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* MODAL LAYOUT */
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.flex-1 { flex: 1; }
+.flex-2 { flex: 2; }
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.modal-textarea {
+  width: 100%;
+  border: 2px solid var(--cinza-suave);
+  border-radius: 12px;
+  padding: 0.8rem;
+  background-color: var(--fundo);
+  font-family: inherit;
+  resize: none;
+}
+
+.modal-textarea:focus {
+  outline: none;
+  border-color: var(--verde-medio);
+}
+
+/* RESPONSIVIDADE */
+@media (max-width: 768px) {
+  .user-header h1 {
+    font-size: 1.8rem;
+  }
+  
+  .my-projects-section > div:first-child {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .btn-create-proj {
+    width: 100%;
+  }
+
+  body {
+    padding-bottom: 80px; 
+  }
+}

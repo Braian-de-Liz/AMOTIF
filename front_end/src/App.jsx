@@ -1,11 +1,11 @@
 // front_end\src\App.jsx
-import './App.css';
+import './styles/Global.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Login } from './pages/login';
 import { Cadastro } from './pages/cadastro';
 import { Home } from './pages/home';
 import { UserPage } from './pages/user';
-import { Studio } from './pages/studio'; // Importando seu componente
+import { Studio } from './pages/studio'; 
 import { ProtectedRoute } from './components/ProtectedRoute'; 
 
 function App() {

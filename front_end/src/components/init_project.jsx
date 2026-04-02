@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { URL_API_TESTE, UPLOAD_URL_teste } from '../utility/url_apis';
+import '../styles/User.css';
 
 function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
     const [file, setFile] = useState(null);
