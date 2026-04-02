@@ -1,28 +1,31 @@
-// front_end\src\components\nav.jsx
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Home, User, Music, LogOut } from 'lucide-react';
 
 function Nav() {
     const navigate = useNavigate();
+    const location = useLocation();
 
-    function logout() {
-        localStorage.clear();
-        navigate("/");
-    }
 
     return (
-        <nav>
+        <nav className="nav-container">
             <ul>
-                <li>
-                    <Link to="/home">Home</Link>
+                <li className={location.pathname === '/home' ? 'active' : ''}>
+                    <Link to="/home">
+                        <Home size={24} className="nav-icon" />
+                        <span>Home</span>
+                    </Link>
                 </li>
-                <li>
-                    <Link to="/usuario">Meu Perfil</Link>
+                <li className={location.pathname === '/usuario' ? 'active' : ''}>
+                    <Link to="/usuario">
+                        <User size={24} className="nav-icon" />
+                        <span>Perfil</span>
+                    </Link>
                 </li>
-                <li>
-                    <Link to="/studio">Estúdio de Gravação</Link>
-                </li>
-                <li>
-                    <button onClick={logout}>Sair</button>
+                <li className={location.pathname === '/studio' ? 'active' : ''}>
+                    <Link to="/studio">
+                        <Music size={24} className="nav-icon" />
+                        <span>Estúdio</span>
+                    </Link>
                 </li>
             </ul>
         </nav>

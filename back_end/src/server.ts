@@ -75,7 +75,7 @@ const start = async () => {
         const rssMB = (usedMemory.rss / 1024 / 1024).toFixed(2); 
         const bootTime = process.uptime().toFixed(2);
 
-        console.log(`
+        console.log(`L
             🚀 AMOTIF Back-end Online!
             -----------------------------------------
             URL: http://localhost:${port}
@@ -101,3 +101,5 @@ const start = async () => {
 }
 
 start();
+
+export { Fastify, start };//só em caso de teste

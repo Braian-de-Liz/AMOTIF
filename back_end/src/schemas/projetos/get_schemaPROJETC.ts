@@ -38,4 +38,4 @@ const get_schemaPROJETC = {
     }
 }
 
-export { get_schemaPROJETC };
+export { get_schemaPROJETC, projetoSchema };

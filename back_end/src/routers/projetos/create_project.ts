@@ -3,37 +3,36 @@ import { schema_post_project } from "../../schemas/projetos/creat_project_schema
 
 const post_project: FastifyPluginAsyncZod = async (Fastify) => {
 
-    Fastify.post("/projetos/:id", schema_post_project, async (request, reply) => {
 
-        const { id } = request.params; 
+    Fastify.post("/projetos", schema_post_project, async (request, reply) => {
+        const userId = request.user.id;
         const { titulo, genero, bpm, audio_guia, descricao, escala } = request.body;
-        const userId = request.user.id; 
 
         try {
             const novo_projeto = await Fastify.prisma.projeto.create({
                 data: {
                     titulo,
-                    genero, 
+                    genero,
                     bpm,
                     audio_guia,
                     descricao,
                     escala,
-                    userId: id 
+                    userId: userId
                 }
             });
 
             try {
                 const seguidores = await Fastify.prisma.follows.findMany({
-                    where: { followingId: id }, 
+                    where: { followingId: userId },
                     select: { followerId: true }
                 });
 
                 if (seguidores.length > 0) {
                     const notificationsData = seguidores.map(f => ({
-                        userId: f.followerId,     
-                        actorId: userId, 
+                        userId: f.followerId,
+                        actorId: userId,
                         projetoId: novo_projeto.id,
-                        tipo: "PROJECT_RELEASED" as any, 
+                        tipo: Fastify.notiType.PROJECT_RELEASED,
                         mensagem: `${request.user.nome} lançou um novo projeto de ${genero}: "${titulo}"!`
                     }));
 
@@ -41,8 +40,7 @@ const post_project: FastifyPluginAsyncZod = async (Fastify) => {
                         data: notificationsData
                     });
                 }
-            }
-            catch (notifErr) {
+            } catch (notifErr) {
                 Fastify.log.error("Falha ao notificar seguidores: " + notifErr);
             }
 

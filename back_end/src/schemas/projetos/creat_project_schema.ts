@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { Error_schema } from "../error/erro_schema.js";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
+import { projetoSchema } from './get_schemaPROJETC.js';
 
 
 const schema_post_project = {
@@ -9,9 +10,6 @@ const schema_post_project = {
         tags: ['projeto'],
         description: 'Cria um novo projeto musical',
         security: [{ bearerAuth: [] }],
-        params: z.object({
-            id: z.uuid()
-        }),
         body: z.object({
             titulo: z.string().min(2),
             genero: z.enum([
@@ -23,13 +21,13 @@ const schema_post_project = {
             bpm: z.preprocess((val) => Number(val), z.number().int().min(40).max(300)),
             escala: z.string().optional(),
             descricao: z.string().optional(),
-            audio_guia: z.string().url()
+            audio_guia: z.url()
         }),
         response: {
             201: z.object({
                 status: z.string(),
                 mensagem: z.string(),
-                projeto: z.any().optional()
+                projeto: projetoSchema
             }),
            ...Error_schema
         }
