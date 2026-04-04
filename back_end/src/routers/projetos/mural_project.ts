@@ -1,10 +1,9 @@
-import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import type { FastifyPluginAsyncZod } from "Fastify-type-provider-zod";
 import { mural_schema } from "../../schemas/projetos/mural.schema.js";
-import { Fastify } from "../../server.js";
 
-const mural_project: FastifyPluginAsyncZod = async (fastify) => {
+const mural_project: FastifyPluginAsyncZod = async (Fastify) => {
 
-    fastify.post("/projetos/:id/mural", mural_schema, async (request, reply) => {
+    Fastify.post("/projetos/:id/mural", mural_schema, async (request, reply) => {
 
         const autorId = request.user.id;
         const { projeto_id } = request.params;
@@ -12,7 +11,7 @@ const mural_project: FastifyPluginAsyncZod = async (fastify) => {
 
         try {
 
-            const mural = await fastify.prisma.muralPost.create({
+            const mural = await Fastify.prisma.muralPost.create({
                 data: {
                     projetoId: projeto_id,
                     autorId: autorId,
