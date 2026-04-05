@@ -61,7 +61,6 @@ import { monitorEventLoopDelay } from 'perf_hooks';
 
 const start = async () => {
     const port: number = Number(process.env.PORT) || 3333;
-    const environment = process.env.NODE_ENV || 'development';
 
     const histogram = monitorEventLoopDelay({ resolution: 10 });
     histogram.enable();
@@ -75,11 +74,10 @@ const start = async () => {
         const rssMB = (usedMemory.rss / 1024 / 1024).toFixed(2); 
         const bootTime = process.uptime().toFixed(2);
 
-        console.log(`L
+        console.log(`
             AMOTIF Back-end Online!
             -----------------------------------------
             URL: http://localhost:${port}
-            Environment: ${environment}
             Runtime: ${process.versions.bun ? 'Bun ' + process.versions.bun : 'Node ' + process.version}
             Boot Time: ${bootTime}s
             -----------------------------------------
@@ -102,4 +100,4 @@ const start = async () => {
 
 start();
 
-export { Fastify, start };//só em caso de teste
+// export { Fastify, start };//só em caso de teste
