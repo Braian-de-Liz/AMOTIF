@@ -7,15 +7,26 @@ async function verificar_dono_projeto(request: FastifyRequest, reply: FastifyRep
 
     const projeto = await request.server.prisma.projeto.findUnique({
         where: { id },
-        select: { userId: true }
+        select: { userId: true, deletedAt: true }
     });
 
     if (!projeto) {
-        return reply.status(404).send({ mensagem: "Projeto não encontrado." });
+        return reply.status(404).send({
+            status: "erro",
+            mensagem: "Projeto não encontrado."
+        });
+    }
+
+    if (projeto.deletedAt) {
+        return reply.status(404).send({
+            status: "erro",
+            mensagem: "Projeto não encontrado."
+        });
     }
 
     if (projeto.userId !== usuarioLogadoId) {
         return reply.status(403).send({
+            status: "erro",
             mensagem: "Ação negada: Você não é o autor deste projeto."
         });
     }

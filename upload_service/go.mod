@@ -2,7 +2,10 @@ module amotif-upload-service
 
 go 1.24.5
 
-require github.com/gofiber/fiber/v2 v2.52.12
+require (
+	github.com/gofiber/fiber/v2 v2.52.12
+	github.com/golang-jwt/jwt/v5 v5.2.1
+)
 
 require (
 	github.com/andybalholm/brotli v1.1.0 // indirect

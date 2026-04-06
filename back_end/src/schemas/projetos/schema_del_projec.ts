@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
-import { verificar_permissao } from "../../hooks/verificar_permicao.js";
+import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 

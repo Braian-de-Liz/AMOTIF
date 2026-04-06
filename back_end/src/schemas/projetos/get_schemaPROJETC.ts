@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { verificar_permissao } from "../../hooks/verificar_permicao.js";
+import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { Error_schema } from "../error/erro_schema.js";
 

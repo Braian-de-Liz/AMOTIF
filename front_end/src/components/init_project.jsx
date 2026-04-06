@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { URL_API_TESTE, UPLOAD_URL_teste } from '../utility/url_apis';
+import { URL_API_TESTE, UPLOAD_URL } from '../utility/url_apis';
 import '../styles/User.css';
 
 function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
@@ -28,7 +28,7 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
             const uploadData = new FormData();
             uploadData.append('file', file);
 
-            const uploadResponse = await fetch(UPLOAD_URL_teste, {
+            const uploadResponse = await fetch(UPLOAD_URL, {
                 method: 'POST',
                 body: uploadData,
             });

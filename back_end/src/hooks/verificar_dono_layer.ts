@@ -30,4 +30,4 @@ async function verificar_permissao_layer(request: FastifyRequest, reply: Fastify
     }
 }
 
-export { verificar_permissao_layer }
+export { verificar_permissao_layer };

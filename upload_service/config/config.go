@@ -59,3 +59,22 @@ func getEnv(key, defaultValue string) string {
 	}
 	return defaultValue
 }
+
+func (c *Config) Validate() error {
+	if c.SupabaseURL == "" {
+		return ErrMissingEnv("SUPABASE_URL")
+	}
+	if c.SupabaseKey == "" {
+		return ErrMissingEnv("SUPABASE_KEY")
+	}
+	if c.JwtPassword == "" {
+		return ErrMissingEnv("JWT_PASSWORD")
+	}
+	return nil
+}
+
+type ErrMissingEnv string
+
+func (e ErrMissingEnv) Error() string {
+	return "variável de ambiente obrigatória não definida: " + string(e)
+}

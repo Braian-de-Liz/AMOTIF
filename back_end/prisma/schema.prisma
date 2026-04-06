@@ -1,7 +1,6 @@
 // Configuração do Gerador e Datasource
 generator client {
   provider = "prisma-client-js"
-  // binaryTargets = ["native", "debian-openssl-3.0.x"] //APENAS NO DEPLOY
 }
 
 datasource db {
@@ -25,12 +24,12 @@ model User {
   camadas_enviadas     Camada[]
   projetos_colaborados Colaborador[]
 
-  seguidores    Follows[]        @relation("UserBeingFollowed")
-  seguindo      Follows[]        @relation("UserFollowing")
-  mural_posts   MuralPost[]      @relation("AutorDoPost")
-  notifications Notification[]   @relation("UserNotifications")
-  notifications_sent Notification[] @relation("NotificationActor") 
-  likes_dados   Like[]          @relation("UserLikes")
+  seguidores         Follows[]      @relation("UserBeingFollowed")
+  seguindo           Follows[]      @relation("UserFollowing")
+  mural_posts        MuralPost[]    @relation("AutorDoPost")
+  notifications      Notification[] @relation("UserNotifications")
+  notifications_sent Notification[] @relation("NotificationActor")
+  likes_dados        Like[]         @relation("UserLikes")
 }
 
 model Follows {
@@ -50,7 +49,7 @@ model Follows {
 model Projeto {
   id            String        @id @default(uuid()) @db.Uuid
   titulo        String
-  genero        MusicGenre  
+  genero        MusicGenre
   bpm           Int           @default(120)
   escala        String?
   descricao     String?
@@ -68,7 +67,7 @@ model Projeto {
 
   @@index([userId])
   @@index([createdAt])
-  @@index([genero]) 
+  @@index([genero])
   @@index([userId, deletedAt])
 }
 
@@ -97,12 +96,12 @@ model MuralPost {
   id        String   @id @default(uuid()) @db.Uuid
   conteudo  String   @db.Text
   createdAt DateTime @default(now())
-  
-  projetoId String   @db.Uuid
-  projeto   Projeto  @relation(fields: [projetoId], references: [id], onDelete: Cascade)
-  
-  autorId   String   @db.Uuid
-  autor     User     @relation("AutorDoPost", fields: [autorId], references: [id])
+
+  projetoId String  @db.Uuid
+  projeto   Projeto @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+
+  autorId String @db.Uuid
+  autor   User   @relation("AutorDoPost", fields: [autorId], references: [id])
 
   @@index([projetoId])
   @@index([autorId])
@@ -124,11 +123,11 @@ model Convite {
 }
 
 model Colaborador {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  usuario   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  projetoId String   @db.Uuid
-  projeto   Projeto  @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  id        String  @id @default(uuid()) @db.Uuid
+  userId    String  @db.Uuid
+  usuario   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projetoId String  @db.Uuid
+  projeto   Projeto @relation(fields: [projetoId], references: [id], onDelete: Cascade)
 
   cargo    String   @default("membro")
   joinedAt DateTime @default(now())
@@ -163,11 +162,11 @@ model Camada {
 }
 
 model Like {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @db.Uuid
-  usuario   User     @relation("UserLikes", fields: [userId], references: [id], onDelete: Cascade)
-  projetoId String   @db.Uuid
-  projeto   Projeto  @relation("ProjectLikes", fields: [projetoId], references: [id], onDelete: Cascade)
+  id        String  @id @default(uuid()) @db.Uuid
+  userId    String  @db.Uuid
+  usuario   User    @relation("UserLikes", fields: [userId], references: [id], onDelete: Cascade)
+  projetoId String  @db.Uuid
+  projeto   Projeto @relation("ProjectLikes", fields: [projetoId], references: [id], onDelete: Cascade)
 
   createdAt DateTime @default(now())
 
@@ -177,19 +176,19 @@ model Like {
 }
 
 model Notification {
-  id        String           @id @default(uuid()) @db.Uuid
-  tipo      NotificationType
-  mensagem  String           
-  lida      Boolean          @default(false)
+  id       String           @id @default(uuid()) @db.Uuid
+  tipo     NotificationType
+  mensagem String
+  lida     Boolean          @default(false)
 
-  userId    String           @db.Uuid
-  usuario   User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+  userId  String @db.Uuid
+  usuario User   @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
 
-  actorId   String?          @db.Uuid 
-  origem    User?            @relation("NotificationActor", fields: [actorId], references: [id])
+  actorId String? @db.Uuid
+  origem  User?   @relation("NotificationActor", fields: [actorId], references: [id])
 
-  projetoId String?          @db.Uuid 
-  createdAt DateTime         @default(now())
+  projetoId String?  @db.Uuid
+  createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([userId, lida])
@@ -205,5 +204,5 @@ enum NotificationType {
   PROJECT_REJECT
   NEW_FOLLOWER
   PROJECT_RELEASED
-  NEW_LIKE         
+  NEW_LIKE
 }

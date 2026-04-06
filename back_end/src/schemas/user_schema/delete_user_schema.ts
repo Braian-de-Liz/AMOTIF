@@ -1,7 +1,7 @@
 // back_end\src\schemas\user_schema\delete_user_schema.ts
 import { z } from "zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js"
-import { verificar_permissao } from "../../hooks/verificar_permicao.js";
+import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const Schema_del_user = {
