@@ -26,15 +26,8 @@ function Login() {
             return false;
         }
 
-        class dados_para_logar {
-            constructor(email, senha) {
-                this.email = email;
-                this.senha = senha;
-            }
-        }
-
         try {
-            const dados_login = new dados_para_logar(email, senha);
+            const dados_login = { email, senha };
 
             const try_login = await fetch(`${URL_API_TESTE}/usuario/login`, {
                 method: "POST",
@@ -57,7 +50,7 @@ function Login() {
             localStorage.setItem("usuario_id", data.usuario.id);
             localStorage.setItem("usuario_nome", data.usuario.nome);
 
-            alert("Login realizado com sucesso!");
+            
 
             navigate("/home");
         }
@@ -68,31 +61,28 @@ function Login() {
     }
 
     return (
-        <>
-            <h1>AMOTIF - Login</h1>
-
+        <div className="login-page">
             <form className='form_login' onSubmit={request_log}>
+                <h1 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.8rem' }}>AMOTIF</h1>
 
                 <div>
                     <label>Email</label>
-                    <br />
-                    <input type="email" value={email} onChange={(e) => Setemail(e.target.value)} />
+                    <input type="email" value={email} onChange={(e) => Setemail(e.target.value)} placeholder="seu@email.com" />
                 </div>
 
                 <div>
                     <label>Senha</label>
-                    <br />
-                    <input type="password" value={senha} onChange={(e) => Setsenha(e.target.value)} />
+                    <input type="password" value={senha} onChange={(e) => Setsenha(e.target.value)} placeholder="••••••••" />
                 </div>
 
-                <button type="submit" id='btn_envia'>Entrar</button>
+                <button type="submit" className='btn-submit'>Entrar</button>
             </form>
 
-            <div style={{ marginTop: '5px' }}>
+            <div className='login-footer'>
                 <p>Não tem uma conta?</p>
                 <Link to="/cadastro">Cadastrar-se</Link>
             </div>
-        </>
+        </div>
     )
 }
 

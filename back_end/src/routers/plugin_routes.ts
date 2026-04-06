@@ -5,6 +5,7 @@ import { User_register } from "./user/cadastro.js";
 import { login_user } from "./user/login.js";
 import { Deletar_user } from "./user/delete_user.js";
 import { Get_user } from "./user/get_user.js";
+import { Get_user_with_counts } from "./user/get_user_with_counts.js";
 import { Patch_bio } from "./user/post_bio.js";
 import { Patch_Instrumentos } from "./user/instrumentos.js";
 import { Recuperar_senha } from './user/forgot_password.js'
@@ -32,7 +33,7 @@ import { update_layer } from "./layers/update_layers.js";
 
 import { follow_user } from "./follows/follow_user.js";
 import { Unfollow_route } from "./follows/unfollow_user.js";
-import { list_follows } from "./follows/list_follows.js";
+import { list_followers } from "./follows/list_followers.js";
 import { Create_like } from "./likes/like_create.js";
 
 import { search_user_by_instruments } from "./search/search_by_instrument.js";
@@ -47,6 +48,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(login_user, { prefix: '/api' });
     Fastify.register(Deletar_user, { prefix: '/api' });
     Fastify.register(Get_user, { prefix: '/api' });
+    Fastify.register(Get_user_with_counts, { prefix: '/api' });
     Fastify.register(Patch_bio, { prefix: '/api' });
     Fastify.register(Patch_Instrumentos, { prefix: '/api' });
     Fastify.register(Recuperar_senha, {prefix: '/api'});
@@ -77,7 +79,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(follow_user, { prefix: '/api' });
     Fastify.register(Unfollow_route, { prefix: '/api' });
-    Fastify.register(list_follows, { prefix: '/api' });
+    Fastify.register(list_followers, { prefix: '/api' });
     Fastify.register(Create_like, { prefix: '/api' });
 
     Fastify.register(get_notifications, { prefix: '/api' });

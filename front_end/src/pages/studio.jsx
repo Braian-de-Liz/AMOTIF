@@ -42,12 +42,12 @@ function Studio() {
     if (!projeto) return <div className="error-msg">Projeto não encontrado.</div>;
 
     return (
-        <div className="user-dashboard"> 
+        <div className="studio-page"> 
             <Nav />
             <div className="user-header">
                 <h1>Estúdio: {projeto.titulo}</h1>
                 <p>BPM: <strong>{projeto.bpm}</strong> | Gênero: {projeto.genero}</p>
-                <div style={{ marginTop: '1rem', display: 'flex', gap: '10px' }}>
+                <div style={{ marginTop: '1rem', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     <button className="btn-create-proj"><Play size={18}/> Ouvir Tudo</button>
                     <button className="btn-small" style={{borderColor: 'var(--verde-medio)'}}><Mic size={18}/> Gravar</button>
                 </div>

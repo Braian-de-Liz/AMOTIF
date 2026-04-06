@@ -34,7 +34,7 @@ function MyProjetosLoader() {
                 } else {
                     setErro(data.mensagem || "Erro ao carregar projetos.");
                 }
-            } catch (err) {
+            } catch {
                 setErro("Não foi possível conectar ao servidor.");
             } finally {
                 setLoading(false);

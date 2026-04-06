@@ -3,4 +3,11 @@
 .home-content {
   min-height: calc(100vh - 80px);
   background-color: var(--fundo);
+  padding-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .home-content {
+    min-height: calc(100vh - 60px);
+  }
 }

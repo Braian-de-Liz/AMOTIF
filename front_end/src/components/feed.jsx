@@ -6,7 +6,7 @@ import {ProjectCard} from './project_Card'
 function Feed() {
     const [projetos, setProjetos] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [erro, setErro] = useState(null);
+    const [, setErro] = useState(null);
     const [filtroInstrumento, setFiltroInstrumento] = useState(""); 
 
     async function carregarFeed() {
@@ -27,14 +27,14 @@ function Feed() {
             } else {
                 setErro(data.mensagem);
             }
-        } catch (err) {
+        } catch {
             setErro("Erro de conexão.");
         } finally {
             setLoading(false);
         }
     }
 
-    useEffect(() => { carregarFeed(); }, [filtroInstrumento]); 
+    useEffect(() => { carregarFeed(); }, [filtroInstrumento, carregarFeed]); 
 
     if (loading && projetos.length === 0) return <div>Carregando...</div>;
 
@@ -61,7 +61,7 @@ function Feed() {
                     ))}
                 </div>
             ) : (
-                <p>Nenhum projeto precisando de {filtroInstrumento} no momento.</p>
+                <p className="empty-state">Nenhum projeto precisando de {filtroInstrumento || 'músicos'} no momento.</p>
             )}
         </div>
     );

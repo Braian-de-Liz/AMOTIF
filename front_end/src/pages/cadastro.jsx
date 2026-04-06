@@ -22,7 +22,7 @@ function Cadastro() {
         }
 
         
-        if (!validar_email(email)) {p
+        if (!validar_email(email)) {
             alert("email inválido");
             return false;
         }
@@ -63,37 +63,33 @@ function Cadastro() {
     }
 
     return (
-        <>
+        <div className="cadastro-page">
             <form className="form_login" onSubmit={cadastrar}>
+                <h1 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.8rem' }}>Criar Conta</h1>
 
                 <div>
                     <label>Nome Completo</label>
-                    <br />
-                    <input type="text" value={nome_completo} onChange={(e) => Setnome_completo(e.target.value)} placeholder="minimo 6"/>
+                    <input type="text" value={nome_completo} onChange={(e) => Setnome_completo(e.target.value)} placeholder="Seu nome completo" />
                 </div>
 
                 <div>
                     <label>Email</label>
-                    <br />
-                    <input type="email" value={email} onChange={(e) => Setemail(e.target.value)} />
+                    <input type="email" value={email} onChange={(e) => Setemail(e.target.value)} placeholder="seu@email.com" />
                 </div>
 
                 <div>
                     <label>Senha</label>
-                    <br />
-                    <input type="password" value={senha} onChange={(e) => Setsenha(e.target.value)} />
+                    <input type="password" value={senha} onChange={(e) => Setsenha(e.target.value)} placeholder="Mínimo 8 caracteres" />
                 </div>
 
                 <div>
-                    <label>cpf</label>
-                    <br />
+                    <label>CPF</label>
                     <input placeholder="000.000.000-00" type="text" value={cpf} onChange={(e) => Setcpf(e.target.value)} />
                 </div>
 
-                <br />
-                <button type="submit" id='btn_envia'>Cadastrar</button>
+                <button type="submit" className='btn-submit'>Cadastrar</button>
             </form>
-        </>
+        </div>
     )
 }
 

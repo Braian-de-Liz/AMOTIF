@@ -52,6 +52,14 @@
   margin: 0;
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
 /* Botão novo projeto */
 .btn-create-proj {
   background-color: var(--verde-medio);
@@ -84,6 +92,7 @@
   justify-content: center;
   z-index: 2000;
   padding: 1rem;
+  overflow-y: auto;
 }
 
 .modal-content.form_login {
@@ -93,6 +102,7 @@
   max-height: 90vh;
   overflow-y: auto;
   box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  scroll-behavior: smooth;
 }
 
 .custom-select {
@@ -113,6 +123,60 @@
 
 .modal-content label {
     margin-top: 0.5rem;
+}
+
+.modal-title {
+    color: var(--verde-escuro);
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border: 2px solid var(--cinza-suave);
+    border-radius: 12px;
+    font-size: 1rem;
+    background-color: var(--fundo);
+    color: var(--texto);
+    transition: border-color 0.2s ease;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: var(--verde-medio);
+    background-color: var(--branco);
+}
+
+.btn-modal-cancel {
+    flex: 1;
+}
+
+.btn-modal-submit {
+    flex: 2;
+    padding: 0.8rem 1.5rem;
+    background-color: var(--verde-medio);
+    color: white;
+    border: none;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0 4px 6px var(--sombra);
+}
+
+.btn-modal-submit:hover:not(:disabled) {
+    background-color: var(--verde-musgo);
+    transform: translateY(-2px);
+}
+
+.btn-modal-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
 }
 
 /* UPLOAD */
@@ -208,7 +272,7 @@
     font-size: 1.8rem;
   }
   
-  .my-projects-section > div:first-child {
+  .section-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 1rem;
@@ -217,8 +281,129 @@
   .btn-create-proj {
     width: 100%;
   }
+}
 
-  body {
-    padding-bottom: 80px; 
-  }
+/* Estatísticas do usuário */
+.user-stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.user-stats .stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.user-stats .stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--verde-escuro);
+}
+
+.user-stats .stat-label {
+  font-size: 0.9rem;
+  color: var(--texto-secundario);
+}
+
+/* Seção de seguidores */
+.followers-section-container {
+  background-color: var(--branco);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px var(--sombra);
+  margin-bottom: 2rem;
+}
+
+.followers-section h3 {
+  color: var(--verde-escuro);
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+.followers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.follower-card {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem;
+  background-color: var(--fundo);
+  border-radius: 12px;
+  transition: transform 0.2s ease;
+}
+
+.follower-card:hover {
+  transform: translateY(-2px);
+}
+
+.follower-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.follower-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--verde-pastel);
+  color: var(--verde-escuro);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.follower-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.follower-info strong {
+  display: block;
+  color: var(--texto);
+  font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.follower-info p {
+  font-size: 0.8rem;
+  color: var(--texto-secundario);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.no-followers {
+  color: var(--texto-secundario);
+  font-style: italic;
+}
+
+.loading {
+  color: var(--texto-secundario);
+  padding: 1rem;
+  text-align: center;
+}
+
+.error {
+  color: #dc3545;
+  padding: 1rem;
+  text-align: center;
 }

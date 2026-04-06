@@ -1,8 +1,18 @@
 /* front_end/src/styles/Login.css */
 
+.login-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 80px);
+    padding: 2rem 1rem;
+}
+
 .form_login {
   max-width: 400px;
-  margin: 2rem auto;
+  width: 100%;
+  margin: 0 auto;
   background-color: var(--branco);
   padding: 2.5rem 2rem;
   border-radius: 20px;
@@ -43,7 +53,7 @@
   color: #a0b8a0;
 }
 
-#btn_envia {
+.btn-submit {
   width: 100%;
   padding: 1rem;
   background-color: var(--verde-medio);
@@ -56,20 +66,23 @@
   box-shadow: 0 4px 6px var(--sombra);
 }
 
-#btn_envia:hover {
+.btn-submit:hover {
   background-color: var(--verde-musgo);
   transform: translateY(-2px);
   box-shadow: 0 6px 12px rgba(107, 142, 77, 0.2);
 }
 
-/* Link de cadastro na página de login */
-div > p {
-  text-align: center;
+.login-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+}
+
+.login-footer p {
   color: var(--texto-secundario);
   margin-bottom: 0.5rem;
 }
 
-div > a {
+.login-footer a {
   display: inline-block;
   background-color: var(--verde-pastel);
   color: var(--verde-escuro);
@@ -79,7 +92,7 @@ div > a {
   border: 1px solid var(--verde-claro);
 }
 
-div > a:hover {
+.login-footer a:hover {
   background-color: var(--verde-claro);
   text-decoration: none;
   transform: scale(0.98);
@@ -87,7 +100,12 @@ div > a:hover {
 
 @media (max-width: 768px) {
   .form_login {
-    margin: 1rem;
+    margin: 0 1rem;
     padding: 1.5rem;
+  }
+  
+  .login-page {
+    min-height: calc(100vh - 60px);
+    padding: 1rem;
   }
 }

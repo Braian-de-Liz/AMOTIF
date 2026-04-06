@@ -6,6 +6,7 @@
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1.8rem;
   margin-top: 2rem;
+  overflow-x: hidden;
 }
 
 /* Card individual */
@@ -133,18 +134,102 @@
     padding: 0 1.5rem;
 }
 
+.feed-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
 .feed-title {
     font-size: 2rem;
     color: var(--verde-escuro);
-    margin-bottom: 2rem;
+    margin: 0;
     border-left: 8px solid var(--verde-medio);
     padding-left: 1.5rem;
+}
+
+@media (max-width: 768px) {
+    .feed-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .feed-title {
+        font-size: 1.5rem;
+        border-left-width: 6px;
+        padding-left: 1rem;
+    }
+    
+    .filter-select {
+        width: 100%;
+    }
+}
+
+.filter-select {
+    padding: 0.6rem 1rem;
+    border: 2px solid var(--verde-claro);
+    border-radius: 12px;
+    background-color: var(--branco);
+    color: var(--verde-escuro);
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    min-width: 200px;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--verde-medio);
+    box-shadow: 0 0 0 3px var(--verde-pastel);
+}
+
+.feed-stats-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+}
+
+.btn-like {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: none;
+    border: none;
+    color: var(--texto-secundario);
+    font-size: 0.9rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.btn-like:hover {
+    background-color: var(--cinza-suave);
+}
+
+.btn-like.active {
+    color: #e74c3c;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--texto-secundario);
+    font-size: 0.9rem;
 }
 
 .feed-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
     gap: 2rem;
+    overflow-x: hidden;
 }
 
 .feed-card {
