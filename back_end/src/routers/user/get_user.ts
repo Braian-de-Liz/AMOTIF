@@ -8,48 +8,33 @@ const Get_user: FastifyPluginAsyncZod = async (Fastify) => {
 
         const { id } = request.params;
 
-        try {
-
-            const check_user = await Fastify.prisma.user.findUnique({
-                where: { id },
-                select: {
-                    id: true,
-                    nome_completo: true,
-                    email: true,
-                    bio: true,
-                    instrumentos: true,
-                    createdAt: true,
-                }
-            });
-
-            if (!check_user) {
-                Fastify.log.error("usuário não enocntrado");
-
-                return reply.status(404).send({
-                    status: 'erro',
-                    mensagem: 'usuário não enocntrado'
-                });
+        const check_user = await Fastify.prisma.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                nome_completo: true,
+                email: true,
+                bio: true,
+                instrumentos: true,
+                createdAt: true,
             }
+        });
 
-            return reply.status(200).send({
-                status: 'sucesso',
-                usuario: check_user
-            });
+        if (!check_user) {
+            Fastify.log.error("usuário não enocntrado");
 
-        }
-
-        catch (erro) {
-            Fastify.log.error("problema interno no servidor ou na validação" + erro);
-
-            return reply.status(500).send({
+            return reply.status(404).send({
                 status: 'erro',
-                mensagem: 'problema interno no servidor ou na validação'
+                mensagem: 'usuário não enocntrado'
             });
         }
-    })
+
+        return reply.status(200).send({
+            status: 'sucesso',
+            usuario: check_user
+        });
+
+    });
 }
-
-
-
 
 export { Get_user };

@@ -8,34 +8,23 @@ const list_invite: FastifyPluginAsyncZod = async (Fastify) => {
         const { id } = request.params;
         const idUsuarioLogado = request.user.id;
 
-        try {
-            const Check_invites = await Fastify.prisma.convite.findMany({
-                where: { 
-                    projetoId: id 
-                },
-                include: {
-                    projeto: {
-                        select: {
-                            titulo: true
-                        }
+        const Check_invites = await Fastify.prisma.convite.findMany({
+            where: { 
+                projetoId: id 
+            },
+            include: {
+                projeto: {
+                    select: {
+                        titulo: true
                     }
                 }
-            });
+            }
+        });
 
-            return reply.status(200).send({
-                status: 'sucesso',
-                convites: Check_invites
-            });
-        } 
-        
-        catch (erro) {
-            Fastify.log.error(erro);
-
-            return reply.status(500).send({
-                status: 'erro',
-                mensagem: 'Erro interno ao listar os convites do projeto'
-            });
-        }
+        return reply.status(200).send({
+            status: 'sucesso',
+            convites: Check_invites
+        });
     });
 }
 

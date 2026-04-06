@@ -7,37 +7,25 @@ const get_mural: FastifyPluginAsyncZod = async (Fastify) => {
         
         const { projeto_id } = request.params;
         
-        try {
-
-            const mural = await Fastify.prisma.muralPost.findMany({
-                where: {
-                    projetoId: projeto_id
-                }
-            });
-
-            if (!mural) {
-                return reply.status(404).send({
-                    status: "error",
-                    mensagem: "Mural não encontrado"
-                });
+        const mural = await Fastify.prisma.muralPost.findMany({
+            where: {
+                projetoId: projeto_id
             }
-            
-            return reply.status(200).send({
-                status: "success",
-                mensagem: "Mural encontrado",
-                mural
-            });
+        });
 
-        }
-
-        catch (erro) {
-            Fastify.log.error(erro);
-
-            return reply.status(500).send({
+        if (!mural) {
+            return reply.status(404).send({
                 status: "error",
-                mensagem: "Erro ao encontrar mural"
+                mensagem: "Mural não encontrado"
             });
         }
+        
+        return reply.status(200).send({
+            status: "success",
+            mensagem: "Mural encontrado",
+            mural
+        });
+
     });
 
 }

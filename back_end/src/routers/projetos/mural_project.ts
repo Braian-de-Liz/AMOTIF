@@ -9,7 +9,7 @@ const mural_project: FastifyPluginAsyncZod = async (Fastify) => {
         const { projeto_id } = request.params;
         const { conteudo } = request.body;
 
-        try {
+        
 
             const mural = await Fastify.prisma.muralPost.create({
                 data: {
@@ -33,17 +33,6 @@ const mural_project: FastifyPluginAsyncZod = async (Fastify) => {
                 mensagem: "Mural criado com sucesso",
                 mural
             });
-        }
-
-        catch (erro) {
-            Fastify.log.error(erro);
-            
-            return reply.status(500).send({
-                status: "error",
-                mensagem: "Erro ao criar mural"
-            });
-        }
-
     });
 }
 

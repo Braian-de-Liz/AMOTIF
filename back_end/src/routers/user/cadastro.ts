@@ -9,55 +9,46 @@ const User_register: FastifyPluginAsyncZod = async (Fastify, options) => {
 
         const { nome_completo, email, senha, cpf } = request.body;
 
-        try {
-            const check_user = await Fastify.prisma.user.findFirst({
-                where: {
-                    OR: [
-                        { email: email },
-                        { cpf: cpf }
-                    ]
-                }
-            });
 
-            if (check_user) {
-                Fastify.log.warn("Tentativa de cadastro com email/cpf já existente");
-
-                return reply.status(400).send({
-                    status: 'erro',
-                    mensagem: 'E-mail ou CPF já cadastrado no sistema'
-                });
+        const check_user = await Fastify.prisma.user.findFirst({
+            where: {
+                OR: [
+                    { email: email },
+                    { cpf: cpf }
+                ]
             }
+        });
 
-            const senha_hash = await argon2.hash(senha, {
-                type: argon2.argon2id,
-                memoryCost: 2 ** 15,
-                timeCost: 2,
-                parallelism: 1
-            });
+        if (check_user) {
+            Fastify.log.warn("Tentativa de cadastro com email/cpf já existente");
 
-            const user = await Fastify.prisma.user.create({
-                data: {
-                    nome_completo,
-                    email,
-                    senha: senha_hash,
-                    cpf
-                }
-            });
-
-            return reply.status(201).send({
-                status: 'sucesso',
-                mensagem: 'Usuário criado com sucesso',
-                userId: user.id
+            return reply.status(400).send({
+                status: 'erro',
+                mensagem: 'E-mail ou CPF já cadastrado no sistema'
             });
         }
-        catch (erro) {
-            Fastify.log.error("Erro interno: " + erro);
 
-            return reply.status(500).send({
-                status: 'erro interno',
-                mensagem: 'Erro do servidor ao realizar tarefa, tente mais tarde'
-            });
-        }
+        const senha_hash = await argon2.hash(senha, {
+            type: argon2.argon2id,
+            memoryCost: 2 ** 15,
+            timeCost: 2,
+            parallelism: 1
+        });
+
+        const user = await Fastify.prisma.user.create({
+            data: {
+                nome_completo,
+                email,
+                senha: senha_hash,
+                cpf
+            }
+        });
+
+        return reply.status(201).send({
+            status: 'sucesso',
+            mensagem: 'Usuário criado com sucesso',
+            userId: user.id
+        });
     });
 }
 

@@ -69,14 +69,10 @@ const follow_user: FastifyPluginAsyncZod = async (Fastify) => {
                 seguindo: true
             });
 
+        } catch (notifError) {
+            Fastify.log.error("Erro ao criar notificação de follow:" + notifError);
         }
-        catch (erro) {
-            Fastify.log.error(erro);
-            return reply.status(500).send({
-                status: "erro",
-                mensagem: "Erro ao processar a ação de seguir."
-            });
-        }
+
     });
 }
 

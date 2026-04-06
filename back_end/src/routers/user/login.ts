@@ -9,53 +9,42 @@ const login_user: FastifyPluginAsyncZod = async (Fastify) => {
 
         const { email, senha } = request.body;
 
-        try {
-            const check_user = await Fastify.prisma.user.findUnique({ where: { email } });
+        const check_user = await Fastify.prisma.user.findUnique({ where: { email } });
 
-            if (!check_user) {
-                Fastify.log.error("usuário não encontrado");
+        if (!check_user) {
+            Fastify.log.error("usuário não encontrado");
 
-                return reply.status(401).send({
-                    status: 'erro',
-                    mensagem: 'usuário, não encontrado'
-                });
-            }
+            return reply.status(401).send({
+                status: 'erro',
+                mensagem: 'usuário não encontrado'
+            });
+        }
 
-            const senhaValida = await argon2.verify(check_user.senha, senha);
+        const senhaValida = await argon2.verify(check_user.senha, senha);
 
-            if (!senhaValida) {
-                Fastify.log.error("Dados incorretos");
-                return reply.status(401).send({
-                    status: "erro",
-                    mensagem: "E-mail ou senha inválidos"
-                });
-            }
+        if (!senhaValida) {
+            Fastify.log.error("Dados incorretos");
+            return reply.status(401).send({
+                status: "erro",
+                mensagem: "E-mail ou senha inválidos"
+            });
+        }
 
-            const token = Fastify.jwt.sign({
+        const token = Fastify.jwt.sign({
+            id: check_user.id,
+            nome: check_user.nome_completo,
+            email: check_user.email
+        });
+
+        return reply.status(200).send({
+            status: "sucesso",
+            token,
+            usuario: {
                 id: check_user.id,
                 nome: check_user.nome_completo,
                 email: check_user.email
-            });
-
-            return reply.status(200).send({
-                status: "sucesso",
-                token,
-                usuario: {
-                    id: check_user.id,
-                    nome: check_user.nome_completo,
-                    email: check_user.email
-                }
-            });
-        }
-
-        catch (erro) {
-            Fastify.log.warn("erro interno no servidor, ou validação negada: " + erro);
-
-            return reply.status(500).send({
-                status: 'erro',
-                mensagem: 'erro interno, ou dados inválidos'
-            });
-        }
+            }
+        });
     });
 }
 

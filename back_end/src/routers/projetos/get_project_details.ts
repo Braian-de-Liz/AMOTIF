@@ -9,57 +9,43 @@ const Get_a_project: FastifyPluginAsyncZod = async (Fastify) => {
         const { id } = request.params;
         const id_user = request.user.id;
 
-        try {
-
-            const projeto = await Fastify.prisma.projeto.findUnique({
-                where: { id },
-                include: {
-                    autor: {
-                        select: {
-                            nome_completo: true,
-                            avatar_url: true
+        const projeto = await Fastify.prisma.projeto.findUnique({
+            where: { id },
+            include: {
+                autor: {
+                    select: {
+                        nome_completo: true,
+                        avatar_url: true
+                    }
+                },
+                camadas: {
+                    include: {
+                        autor: {
+                            select: {
+                                nome_completo: true
+                            }
                         }
                     },
-                    camadas: {
-                        include: {
-                            autor: {
-                                select: {
-                                    nome_completo: true
-                                }
-                            }
-                        },
-                        orderBy: {
-                            createdAt: 'asc'
-                        }
+                    orderBy: {
+                        createdAt: 'asc'
                     }
                 }
-            });
-            if (!projeto) {
-                Fastify.log.error("projeto inexistente");
-
-                return reply.status(404).send({
-                    status: 'erro',
-                    mensagem: 'projeto não encontrado ou não existente'
-                });
             }
+        });
+        if (!projeto) {
+            Fastify.log.error("projeto inexistente");
 
-            return reply.status(200).send({
-                status: 'sucesso',
-                mensagem: 'projeto carregado',
-                projeto
-            })
-
-        }
-
-        catch (erro) {
-            Fastify.log.warn(erro);
-
-            return reply.status(500).send({
+            return reply.status(404).send({
                 status: 'erro',
-                mensagem: 'erro interno de servidor'
-            })
-
+                mensagem: 'projeto não encontrado ou não existente'
+            });
         }
+
+        return reply.status(200).send({
+            status: 'sucesso',
+            mensagem: 'projeto carregado',
+            projeto
+        })
 
     });
 

@@ -10,42 +10,32 @@ const del_project: FastifyPluginAsyncZod = async (Fastify) => {
         const { senha } = request.body;
         const usuarioLogadoId = request.user.id;
 
-        try {
-            const user = await Fastify.prisma.user.findUnique({
-                where: { id: usuarioLogadoId }
-            });
+        const user = await Fastify.prisma.user.findUnique({
+            where: { id: usuarioLogadoId }
+        });
 
-            if (!user) {
-                return reply.status(404).send({ status: 'erro', mensagem: "Usuário não encontrado" });
-            }
-
-            const check_password = await argon2.verify(user.senha, senha);
-
-            if (!check_password) {
-                Fastify.log.error("erro au autenticar senha");
-                
-                return reply.status(400).send({
-                    status: 'erro',
-                    mensagem: "Senha incorreta"
-                });
-            }
-
-
-            await Fastify.prisma.projeto.delete({
-                where: { id }
-            });
-
-            return reply.status(202).send({ status: "sucesso", mensagem: "Projeto deletado" });
-
+        if (!user) {
+            return reply.status(404).send({ status: 'erro', mensagem: "Usuário não encontrado" });
         }
 
-        catch (erro) {
-            Fastify.log.warn
-            return reply.status(500).send({
+        const check_password = await argon2.verify(user.senha, senha);
+
+        if (!check_password) {
+            Fastify.log.error("erro au autenticar senha");
+            
+            return reply.status(400).send({
                 status: 'erro',
-                mensagem: "Erro interno"
+                mensagem: "Senha incorreta"
             });
         }
+
+
+        await Fastify.prisma.projeto.delete({
+            where: { id }
+        });
+
+        return reply.status(202).send({ status: "sucesso", mensagem: "Projeto deletado" });
+
     });
 }
 

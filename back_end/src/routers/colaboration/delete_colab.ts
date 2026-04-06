@@ -8,54 +8,43 @@ const Delete_Colab: FastifyPluginAsyncZod = async (Fastify) => {
         const { projetoId, userId } = request.params;
         const usuarioLogadoId = request.user.id;
 
-        try {
-            const colaboracao = await Fastify.prisma.colaborador.findFirst({
-                where: {
-                    projetoId: projetoId,
-                    userId: userId
-                }
-            });
-
-            if (!colaboracao) {
-                return reply.status(404).send({
-                    status: "erro",
-                    mensagem: "Colaborador não encontrado neste projeto."
-                });
+        const colaboracao = await Fastify.prisma.colaborador.findFirst({
+            where: {
+                projetoId: projetoId,
+                userId: userId
             }
+        });
 
-            await Fastify.prisma.colaborador.delete({
-                where: {
-                    id: colaboracao.id
-                }
-            });
-
-            if (usuarioLogadoId !== userId) {
-
-                await Fastify.prisma.notification.create({
-                    data: {
-                        userId: userId,
-                        actorId: usuarioLogadoId,
-                        tipo: "PROJECT_REJECT",
-                        mensagem: `Você foi removido de um projeto.`
-                    }
-                }).catch(() => { });
-
-            }
-
-            return reply.status(200).send({
-                status: "sucesso",
-                mensagem: "Colaborador removido com sucesso."
-            });
-
-        }
-
-        catch (erro) {
-            Fastify.log.error(erro);
-            return reply.status(500).send({
+        if (!colaboracao) {
+            return reply.status(404).send({
                 status: "erro",
-                mensagem: "Erro interno ao remover colaborador."
+                mensagem: "Colaborador não encontrado neste projeto."
             });
         }
+
+        await Fastify.prisma.colaborador.delete({
+            where: {
+                id: colaboracao.id
+            }
+        });
+
+        if (usuarioLogadoId !== userId) {
+
+            await Fastify.prisma.notification.create({
+                data: {
+                    userId: userId,
+                    actorId: usuarioLogadoId,
+                    tipo: "PROJECT_REJECT",
+                    mensagem: `Você foi removido de um projeto.`
+                }
+            }).catch(() => { });
+
+        }
+
+        return reply.status(200).send({
+            status: "sucesso",
+            mensagem: "Colaborador removido com sucesso."
+        });
 
     });
 

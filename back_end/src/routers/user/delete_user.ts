@@ -1,6 +1,6 @@
 // back_end\src\routers\deletar_user.ts
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import argon2 from "argon2"; 
+import argon2 from "argon2";
 import { Schema_del_user } from "../../schemas/user_schema/delete_user_schema.js";
 
 const Deletar_user: FastifyPluginAsyncZod = async (Fastify) => {
@@ -10,44 +10,34 @@ const Deletar_user: FastifyPluginAsyncZod = async (Fastify) => {
         const { senha } = request.body;
 
 
-        try {
-            const encontrar_user = await Fastify.prisma.user.findUnique({ where: { id } });
+        const encontrar_user = await Fastify.prisma.user.findUnique({ where: { id } });
 
-            if (!encontrar_user) {
-                Fastify.log.error("usuário não encontrado");
+        if (!encontrar_user) {
+            Fastify.log.error("usuário não encontrado");
 
-                return reply.status(404).send({
-                    status: 'erro',
-                    mensagem: 'usuário não encontrado'
-                });
-            }
-
-            const senha_true = await argon2.verify(encontrar_user.senha, senha);
-
-            if (!senha_true) {
-                Fastify.log.error("senha incorreta");
-
-                return reply.status(400).send({
-                    status: 'erro',
-                    mensagem: 'senha incorreta'
-                });
-            }
-
-            await Fastify.prisma.user.delete({ where: { id } });
-
-            return reply.status(202).send({
-                status: 'sucesso',
-                mensagem: 'usuário deletado com sucesso'
+            return reply.status(404).send({
+                status: 'erro',
+                mensagem: 'usuário não encontrado'
             });
         }
-        catch (erro) {
-            Fastify.log.warn("problema interno no servidor ou na validação " + erro);
 
-            return reply.status(500).send({
+        const senha_true = await argon2.verify(encontrar_user.senha, senha);
+
+        if (!senha_true) {
+            Fastify.log.error("senha incorreta");
+
+            return reply.status(400).send({
                 status: 'erro',
-                mensagem: 'problema interno no servidor ou na validação'
-            })
+                mensagem: 'senha incorreta'
+            });
         }
+
+        await Fastify.prisma.user.delete({ where: { id } });
+
+        return reply.status(202).send({
+            status: 'sucesso',
+            mensagem: 'usuário deletado com sucesso'
+        });
     });
 }
 

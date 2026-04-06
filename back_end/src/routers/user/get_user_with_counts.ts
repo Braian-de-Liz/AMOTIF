@@ -7,52 +7,40 @@ const Get_user_with_counts: FastifyPluginAsyncZod = async (Fastify) => {
 
         const { id } = request.params;
 
-        try {
-
-            const check_user = await Fastify.prisma.user.findUnique({
-                where: { id },
-                select: {
-                    id: true,
-                    nome_completo: true,
-                    email: true,
-                    bio: true,
-                    instrumentos: true,
-                    avatar_url: true,
-                    createdAt: true,
-                    _count: {
-                        select: {
-                            seguidores: true,
-                            seguindo: true
-                        }
+        const check_user = await Fastify.prisma.user.findUnique({
+            where: { id },
+            select: {
+                id: true,
+                nome_completo: true,
+                email: true,
+                bio: true,
+                instrumentos: true,
+                avatar_url: true,
+                createdAt: true,
+                _count: {
+                    select: {
+                        seguidores: true,
+                        seguindo: true
                     }
                 }
-            });
-
-            if (!check_user) {
-                Fastify.log.error("usuário não encontrado");
-
-                return reply.status(404).send({
-                    status: 'erro',
-                    mensagem: 'usuário não encontrado'
-                });
             }
+        });
 
-            return reply.status(200).send({
-                status: 'sucesso',
-                usuario: check_user
-            });
+        if (!check_user) {
+            Fastify.log.error("usuário não encontrado");
 
-        }
-
-        catch (erro) {
-            Fastify.log.error("problema interno no servidor ou na validação" + erro);
-
-            return reply.status(500).send({
+            return reply.status(404).send({
                 status: 'erro',
-                mensagem: 'problema interno no servidor ou na validação'
+                mensagem: 'usuário não encontrado'
             });
         }
-    })
+
+        return reply.status(200).send({
+            status: 'sucesso',
+            usuario: check_user
+        });
+
+    });
 }
 
 export { Get_user_with_counts };

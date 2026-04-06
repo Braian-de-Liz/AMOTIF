@@ -15,30 +15,14 @@ const Patch_Instrumentos: FastifyPluginAsyncZod = async (Fastify) => {
             });
         }
 
-        try {
+        await Fastify.prisma.user.update({ where: { id }, data: { instrumentos } });
 
-            await Fastify.prisma.user.update({ where: { id }, data: { instrumentos } });
-
-            return reply.status(200).send({
-                status: "sucesso",
-                mensagem: "Instrumentos atualizados!"
-            });
-
-        }
-
-        catch (erro) {
-
-            Fastify.log.warn("erro interno ao adicionar instrumento a lista " + erro);
-
-            return reply.status(500).send({
-                status: 'erro',
-                mensagem: 'erro interno ao adicionar instrumento a lista'
-            });
-
-        }
+        return reply.status(200).send({
+            status: "sucesso",
+            mensagem: "Instrumentos atualizados!"
+        });
 
     });
-
 }
 
 export { Patch_Instrumentos };

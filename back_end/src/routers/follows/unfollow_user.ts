@@ -7,30 +7,19 @@ const Unfollow_route: FastifyPluginAsyncZod = async (Fastify) => {
         const { id } = request.params;
         const IdUser = request.user.id;
 
-        try {
-            await Fastify.prisma.follows.delete({
-                where: {
-                    followerId_followingId: {
-                        followerId: IdUser,
-                        followingId: id
-                    }
+        await Fastify.prisma.follows.delete({
+            where: {
+                followerId_followingId: {
+                    followerId: IdUser,
+                    followingId: id
                 }
-            });
+            }
+        });
 
-            return reply.status(200).send({
-                status: "sucesso",
-                mensagem: "Você deixou de seguir este músico."
-            });
-
-        }
-        catch (erro) {
-            Fastify.log.error(erro);
-            
-            return  reply.status(500).send({
-                status: 'erro',
-                mensagem: 'erro interno de servidor'
-            });
-        }
+        return reply.status(200).send({
+            status: "sucesso",
+            mensagem: "Você deixou de seguir este músico."
+        });
 
     });
 }

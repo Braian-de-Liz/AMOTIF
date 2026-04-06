@@ -12,6 +12,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import prisma_plugin from './lib/prisma.js';
+import { globalErrorHandler } from './lib/global_Error.js';
 import { Plugin_Routes } from './routers/plugin_routes.js';
 import { health_route } from './routers/health/health.js';
 
@@ -50,6 +51,8 @@ Fastify.register(swagger, {
 Fastify.register(swaggerUi, { routePrefix: '/docs', });
 
 Fastify.register(prisma_plugin);
+
+Fastify.setErrorHandler(globalErrorHandler);
 
 Fastify.register(cors, { origin: true });
 Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '2d' } });
