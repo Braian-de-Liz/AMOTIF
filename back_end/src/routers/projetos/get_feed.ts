@@ -45,7 +45,7 @@ const searth_feed: FastifyPluginAsyncZod = async (Fastify) => {
                 }
             });
 
-            const projetos = projetosRaw.map(projeto => ({
+            const projetos = projetosRaw.map((projeto: any) => ({
                 ...projeto,
                 userHasLiked: projeto.likes.length > 0,
                 likes: undefined 

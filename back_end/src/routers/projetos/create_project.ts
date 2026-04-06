@@ -28,7 +28,7 @@ const post_project: FastifyPluginAsyncZod = async (Fastify) => {
                 });
 
                 if (seguidores.length > 0) {
-                    const notificationsData = seguidores.map(f => ({
+                    const notificationsData = seguidores.map((f: any) => ({
                         userId: f.followerId,
                         actorId: userId,
                         projetoId: novo_projeto.id,

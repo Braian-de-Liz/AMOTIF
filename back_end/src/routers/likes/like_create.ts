@@ -10,7 +10,7 @@ const Create_like: FastifyPluginAsyncZod = async (Fastify) => {
 
         try {
 
-            const result = await Fastify.prisma.$transaction(async (ctx) => {
+            const result = await Fastify.prisma.$transaction(async (ctx: any) => {
 
                 const existingLike = await ctx.like.findUnique({
                     where: { userId_projetoId: { userId, projetoId } }

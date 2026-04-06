@@ -1,4 +1,4 @@
-import type { FastifyPluginAsyncZod } from "Fastify-type-provider-zod";
+import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { mural_schema } from "../../schemas/projetos/mural.schema.js";
 
 const mural_project: FastifyPluginAsyncZod = async (Fastify) => {
