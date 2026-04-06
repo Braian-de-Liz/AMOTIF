@@ -9,27 +9,28 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid()) @db.Uuid
+  id            String    @id @default(uuid()) @db.Uuid
   nome_completo String
-  email         String   @unique
+  email         String    @unique
   senha         String
-  cpf           String   @unique
+  cpf           String    @unique
   bio           String?
   instrumentos  String[]
   avatar_url    String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
 
   projetos_criados     Projeto[]     @relation("DonoDoProjeto")
   camadas_enviadas     Camada[]
   projetos_colaborados Colaborador[]
 
-  seguidores    Follows[]      @relation("UserBeingFollowed")
-  seguindo      Follows[]      @relation("UserFollowing")
-  mural_posts MuralPost[]      @relation("AutorDoPost")
-  notifications      Notification[] @relation("UserNotifications")
-  notificacoes_feitas Notification[] @relation("NotificationActor") 
-  likes_dados Like[] @relation("UserLikes")
+  seguidores    Follows[]        @relation("UserBeingFollowed")
+  seguindo      Follows[]        @relation("UserFollowing")
+  mural_posts   MuralPost[]      @relation("AutorDoPost")
+  notifications Notification[]   @relation("UserNotifications")
+  notifications_sent Notification[] @relation("NotificationActor") 
+  likes_dados   Like[]          @relation("UserLikes")
 }
 
 model Follows {
@@ -59,14 +60,16 @@ model Projeto {
   camadas       Camada[]
   colaboradores Colaborador[]
   convites      Convite[]
-  mural MuralPost[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  likes Like[] @relation("ProjectLikes")
+  mural         MuralPost[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  deletedAt     DateTime?
+  likes         Like[]        @relation("ProjectLikes")
 
   @@index([userId])
   @@index([createdAt])
   @@index([genero]) 
+  @@index([userId, deletedAt])
 }
 
 enum MusicGenre {
@@ -102,6 +105,7 @@ model MuralPost {
   autor     User     @relation("AutorDoPost", fields: [autorId], references: [id])
 
   @@index([projetoId])
+  @@index([autorId])
 }
 
 model Convite {
@@ -131,26 +135,31 @@ model Colaborador {
 
   @@unique([userId, projetoId])
   @@index([projetoId])
+  @@index([userId])
 }
 
 model Camada {
-  id              String  @id @default(uuid()) @db.Uuid
+  id              String    @id @default(uuid()) @db.Uuid
   nome_trilha     String
   audio_url       String
   instrumento_tag String
-  delay_offset    Int     @default(0)
-  volume_padrao   Float   @default(1.0)
-  esta_aprovada   Boolean @default(false)
-  projetoId       String  @db.Uuid
-  projeto         Projeto @relation(fields: [projetoId], references: [id], onDelete: Cascade)
-  userId          String  @db.Uuid
-  autor           User    @relation(fields: [userId], references: [id])
+  delay_offset    Int       @default(0)
+  volume_padrao   Float     @default(1.0)
+  esta_aprovada   Boolean   @default(false)
+  duracao_ms      Int?
+  formato_audio   String    @default("mp3")
+  projetoId       String    @db.Uuid
+  projeto         Projeto   @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  userId          String    @db.Uuid
+  autor           User      @relation(fields: [userId], references: [id])
+  deletedAt       DateTime?
 
   createdAt DateTime @default(now())
 
   @@index([projetoId])
   @@index([userId])
   @@index([createdAt])
+  @@index([esta_aprovada])
 }
 
 model Like {
@@ -164,6 +173,7 @@ model Like {
 
   @@unique([userId, projetoId])
   @@index([projetoId])
+  @@index([userId])
 }
 
 model Notification {
@@ -176,13 +186,15 @@ model Notification {
   usuario   User             @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
 
   actorId   String?          @db.Uuid 
-  origem    User?            @relation("NotificationActor", fields: [actorId], references: [id]) // Relação oficial
+  origem    User?            @relation("NotificationActor", fields: [actorId], references: [id])
 
   projetoId String?          @db.Uuid 
   createdAt DateTime         @default(now())
 
   @@index([userId])
-  @@index([createdAt])
+  @@index([userId, lida])
+  @@index([createdAt(sort: Desc)])
+  @@index([tipo])
 }
 
 enum NotificationType {
