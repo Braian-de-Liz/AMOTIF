@@ -14,12 +14,12 @@ const list_follows_schema = {
                 mensagem: z.string(),
                 follows: z.array(
                     z.object({
-                        id: z.uuid(),
-                        usuario_id: z.uuid(),
-                        seguindo_id: z.uuid(),
-                        criado_em: z.date()
+                        followerId: z.string().uuid(),
+                        followingId: z.string().uuid(),
+                        createdAt: z.date()
                     })
-                )
+                ),
+                total: z.number()
             }),
             ...Error_schema
         }

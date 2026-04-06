@@ -10,14 +10,17 @@ const list_follows: FastifyPluginAsyncZod = async (Fastify) => {
 
             const follows = await Fastify.prisma.follows.findMany({
                 where: {
-                    usuario_id: UserId
+                    followerId: UserId
                 }
             });
+
+            const follows_count = follows.length;
 
             return reply.status(200).send({
                 status: "sucesso",
                 mensagem: "Follows listados com sucesso",
-                follows: follows.length
+                follows: follows,
+                total: follows_count
             });
 
         }
