@@ -32,6 +32,7 @@ import { update_layer } from "./layers/update_layers.js";
 
 import { follow_user } from "./follows/follow_user.js";
 import { Unfollow_route } from "./follows/unfollow_user.js";
+import { list_follows } from "./follows/list_follows.js";
 import { Create_like } from "./likes/like_create.js";
 
 import { search_user_by_instruments } from "./search/search_by_instrument.js";
@@ -76,6 +77,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(follow_user, { prefix: '/api' });
     Fastify.register(Unfollow_route, { prefix: '/api' });
+    Fastify.register(list_follows, { prefix: '/api' });
     Fastify.register(Create_like, { prefix: '/api' });
 
     Fastify.register(get_notifications, { prefix: '/api' });
