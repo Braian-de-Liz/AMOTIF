@@ -51,7 +51,8 @@ func (s *StorageService) UploadAudio(fileName string, fileBody io.Reader, conten
 		return "", fmt.Errorf("erro do Supabase (%d): %s", resp.StatusCode, string(errBody))
 	}
 
-	return fileName, nil
+	publicURL := fmt.Sprintf("%s/storage/v1/object/public/%s/%s", s.cfg.SupabaseURL, s.cfg.StorageBucket, fileName)
+	return publicURL, nil
 }
 
 func (s *StorageService) GetAudioStream(fileName string) (io.ReadCloser, error) {
