@@ -1,5 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, User, Music, LogOut } from 'lucide-react';
+import { Home, User, Music } from 'lucide-react';
+import { Notificacoes } from './pull_notifications';
 import '../styles/Navbar.css';
 
 function Nav() {
@@ -29,6 +30,10 @@ function Nav() {
                         <Music size={24} className="nav-icon" />
                         <span>Estúdio</span>
                     </Link>
+                </li>
+
+                <li className="notifications-item">
+                    <Notificacoes />
                 </li>
                 
             </ul>

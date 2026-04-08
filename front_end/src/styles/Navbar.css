@@ -6,16 +6,21 @@ nav {
   box-shadow: 0 2px 8px var(--sombra);
   border-bottom: 2px solid var(--verde-claro);
   margin-bottom: 2rem;
+  position: relative;
 }
 
 nav ul {
   display: flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 2rem;
+  gap: 1.5rem;
   list-style: none;
   max-width: 1200px;
   margin: 0 auto;
+}
+
+nav ul li.notifications-item {
+  margin-left: auto;
 }
 
 nav ul li a {
@@ -109,7 +114,6 @@ nav ul li button:hover {
     font-weight: bold;
   }
 
-  /* Ajuste no botão de logout para parecer um item da nav */
   .btn-logout-mobile {
     display: flex;
     flex-direction: column;
