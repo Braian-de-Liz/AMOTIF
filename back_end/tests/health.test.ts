@@ -1,4 +1,4 @@
-/* import { describe, it, expect, beforeAll, afterAll } from "bun:test";
+import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import { Fastify } from "../src/server.js";
 
 describe("Health Route", () => {
@@ -25,4 +25,3 @@ describe("Health Route", () => {
     expect(typeof body.uptime).toBe("number");
   });
 });
- */

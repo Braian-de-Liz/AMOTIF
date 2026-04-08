@@ -13,7 +13,7 @@ const schema_bio = {
             bio: z.string().nullable()
         }),
         params: z.object({
-            id: z.string().uuid({ message: "O formato do ID é inválido" })
+            id: z.uuid({ message: "O formato do ID é inválido" })
         }),
         response: {
             200: z.object({

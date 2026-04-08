@@ -94,7 +94,8 @@ const start = async () => {
 
  
 
-    } catch (erro) {
+    }
+    catch (erro) {
         Fastify.log.error("Erro fatal no servidor:");
         console.error(erro);
         process.exit(1);
@@ -103,4 +104,4 @@ const start = async () => {
 
 start();
 
-// export { Fastify, start };//só em caso de teste
+export { Fastify, start };//só em caso de teste
