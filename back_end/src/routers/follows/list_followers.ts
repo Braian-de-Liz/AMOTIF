@@ -1,7 +1,9 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { list_followers_schema } from "../../schemas/follows/list_followers.schema.js";
 
 const list_followers: FastifyPluginAsyncZod = async (Fastify) => {
+    Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.get("/follows", list_followers_schema, async (request, reply) => {
         const UserId = request.user.id;

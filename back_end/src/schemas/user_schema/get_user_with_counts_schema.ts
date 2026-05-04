@@ -1,9 +1,8 @@
 import { z } from "zod";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const get_user_with_counts_schema = {
-    preHandler: [autenticarJWT],
+    preHandler: [],
     schema: {
         tags: ['usuario'],
         description: 'Retorna os dados do perfil de um usuário específico com contagem de seguidores',

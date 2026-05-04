@@ -1,9 +1,8 @@
 import { z } from "zod";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const read_all_notifications_schema = {
-    prehandler: [autenticarJWT],
+    prehandler: [],
     schema: {
         tags: ['notificacoes'],
         description: 'Marca todas as notificações do usuário logado como lidas',

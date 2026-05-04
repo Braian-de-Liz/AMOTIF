@@ -1,9 +1,8 @@
 import { z } from "zod";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_permissao } from "../../hooks/verificar_permissao.js"
 import { Error_schema } from "../error/erro_schema.js";
 const schema_get_user = {
-    preHandler: [autenticarJWT, verificar_permissao],
+    preHandler: [verificar_permissao],
     schema: {
         tags: ['usuario'],
         description: 'Retorna os dados do perfil de um usuário específico',

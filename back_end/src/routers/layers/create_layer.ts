@@ -1,7 +1,9 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_layer } from "../../schemas/layers/create_schema_lyr.js";
 
 const create_Layer: FastifyPluginAsyncZod = async (Fastify) => {
+    Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.post("/layer/:projetoId", schema_layer, async (request, reply) => {
         const userId = request.user.id;

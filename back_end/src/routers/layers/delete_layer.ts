@@ -1,8 +1,10 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { delete_lay_schema } from "../../schemas/layers/delete_a_layer.js";
 
 
 const delete_layer: FastifyPluginAsyncZod = async (Fastify) => {
+    Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.delete("/layer/:id", delete_lay_schema, async (request, reply) => {
 

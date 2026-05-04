@@ -1,8 +1,10 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { Schema_del_project } from "../../schemas/projetos/del_project.schema.js";
 import argon2 from "argon2";
 
 const del_project: FastifyPluginAsyncZod = async (Fastify) => {
+    Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.delete("/projetos/:id", Schema_del_project, async (request, reply) => {
 

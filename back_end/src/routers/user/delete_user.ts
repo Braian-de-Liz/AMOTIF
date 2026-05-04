@@ -1,9 +1,11 @@
 // back_end\src\routers\deletar_user.ts
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import argon2 from "argon2";
+import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { Schema_del_user } from "../../schemas/user_schema/delete_user_schema.js";
 
 const Deletar_user: FastifyPluginAsyncZod = async (Fastify) => {
+    Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.delete("/usuario/:id", Schema_del_user, async (request, reply) => {
         const { id } = request.params;

@@ -1,10 +1,9 @@
 // schemas/projetos/like_project_schema.ts
 import { z } from 'zod'
-import { autenticarJWT } from '../../hooks/JWT_verific.js';
 import { Error_schema } from '../error/erro_schema.js';
 
 const like_project_schema = {
-    preHandler: [autenticarJWT],
+    preHandler: [],
     schema: {
         tags: ['colaboração'],
         description: 'permite que usário d^ like em projetos alheios',

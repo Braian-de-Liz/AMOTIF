@@ -1,9 +1,8 @@
 import { z } from "zod";
 import { Error_schema } from '../error/erro_schema.js'
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 
 const schema_details_project = {
-    preHandler: [autenticarJWT],
+    preHandler: [],
     schema: {
         tags: ['projeto'],
         description: 'Retorna os detalhes completos de um projeto específico',

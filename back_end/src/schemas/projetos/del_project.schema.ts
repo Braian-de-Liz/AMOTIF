@@ -1,11 +1,10 @@
 import { z } from "zod";
 import { Error_schema } from "../error/erro_schema.js";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 
 const Schema_del_project = {
-    preHandler: [autenticarJWT, verificar_permissao, verificar_dono_projeto],
+    preHandler: [verificar_permissao, verificar_dono_projeto],
     schema: {
         tags: ['projeto'],
         description: 'Exclui o projeto',

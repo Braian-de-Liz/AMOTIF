@@ -1,10 +1,9 @@
 // back_end\src\schemas\layers\create_schema_lyr.ts
 import { z } from "zod";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const schema_layer = {
-    preHandler: [autenticarJWT],
+    preHandler: [],
     schema: {
         tags: ['camada'],
         description: 'Cria uma nova camada (trilha de áudio) em um projeto',

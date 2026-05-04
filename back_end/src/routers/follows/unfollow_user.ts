@@ -1,7 +1,9 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { unfollow_schema } from "../../schemas/follows/unfollow_user_schema.js";
 
 const Unfollow_route: FastifyPluginAsyncZod = async (Fastify) => {
+    Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.delete("/follow/:id", unfollow_schema, async (request, reply) => {
         const { id } = request.params;

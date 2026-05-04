@@ -1,10 +1,9 @@
 import { z } from "zod";
 import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const schema_convite = {
-    preHandler: [autenticarJWT, verificar_dono_projeto],
+    preHandler: [verificar_dono_projeto],
     schema: {
         tags: ['colaboração'],
         description: 'Cria e envia um convite para um usuário participar de um projeto',

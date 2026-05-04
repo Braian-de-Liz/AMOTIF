@@ -1,8 +1,10 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_details_project } from "../../schemas/projetos/get_one_project.js";
 
 
 const Get_a_project: FastifyPluginAsyncZod = async (Fastify) => {
+    Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.get("/projetos/:id", schema_details_project, async (request, reply) => {
 

@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { Error_schema } from "../error/erro_schema.js";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 
 
 const GeneroEnum = z.enum([
@@ -11,7 +10,7 @@ const GeneroEnum = z.enum([
 ]);
 
 const search_project_schema = {
-    preHandler: [autenticarJWT],
+    preHandler: [],
     schema: {
         tags: ['search'],
         security: [{ bearerAuth: [] }],

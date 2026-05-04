@@ -1,9 +1,8 @@
 import { z } from "zod";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const get_feed_schema = {
-    preHandler: [autenticarJWT],
+    preHandler: [],
     schema: {
         tags: ['projeto'],
         description: 'Retorna um feed inteligente de projetos com filtros e status de curtida',

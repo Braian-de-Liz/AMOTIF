@@ -1,11 +1,10 @@
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 import { Error_schema } from "../error/erro_schema.js";
 import { z } from "zod";
 
 
 const Deletar_Colab_schema = {
-    preHandler: [autenticarJWT, verificar_dono_projeto],
+    preHandler: [verificar_dono_projeto],
     schema: {
         tags: ['colaboração'],
         security: [{ bearerAuth: [] }],

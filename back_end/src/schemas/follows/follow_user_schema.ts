@@ -1,9 +1,8 @@
 import { z } from 'zod'
-import { autenticarJWT } from '../../hooks/JWT_verific.js'
 import { Error_schema } from '../error/erro_schema.js';
 
 const follow_schema = {
-    preHandler: [autenticarJWT],
+    preHandler: [],
     schema: {
         tags: ['seguidores'],
         description: 'Segue um usuário (músico) pelo ID',

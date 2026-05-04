@@ -1,11 +1,10 @@
 import { z } from "zod";
 import { Error_schema } from "../error/erro_schema.js";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { projetoSchema } from './get_schemaPROJETC.js';
 
 
 const schema_post_project = {
-    preHandler: [autenticarJWT],
+    preHandler: [],
     schema: {
         tags: ['projeto'],
         description: 'Cria um novo projeto musical',

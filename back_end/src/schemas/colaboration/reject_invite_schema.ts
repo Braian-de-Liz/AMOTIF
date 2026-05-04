@@ -1,9 +1,8 @@
 import { z } from "zod";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const reject_schema_invite = {
-    preHandler: [autenticarJWT],
+    preHandler: [],
     schema:{
         security: [{ bearerAuth: [] }],
         tags: ['colaboração'],

@@ -1,10 +1,9 @@
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { z } from "zod";
 import { Error_schema } from "../error/erro_schema.js";
 
 
 const search_instrumento = {
-    preHandler: [autenticarJWT],
+    preHandler: [],
     schema: {
         tags: ['search'],
         security: [{ bearerAuth: [] }],

@@ -1,10 +1,9 @@
 import { z } from "zod";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const update_layer_schema = {
-    preHandler: [autenticarJWT, verificar_permissao],
+    preHandler: [verificar_permissao],
     schema: {
         tags: ['camada'],
         description: 'Atualiza os dados de uma camada musical existente',

@@ -1,8 +1,10 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { recupere_senha_schema } from '../../schemas/user_schema/forgot_password.schema.js'
 import argon2 from "argon2";
 
 const Recuperar_senha: FastifyPluginAsyncZod = async (Fastify) => {
+    Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.patch("/forgot/password", recupere_senha_schema, async (request, reply) => {
         const { senha, nova_senha } = request.body;

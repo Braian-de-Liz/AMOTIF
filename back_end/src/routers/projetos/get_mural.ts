@@ -1,7 +1,9 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { get_mural_schema } from "../../schemas/projetos/get_mural.schema.js";
 
 const get_mural: FastifyPluginAsyncZod = async (Fastify) => {
+    Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.get('/mural/:projeto_id', get_mural_schema, async (request, reply) => {
         

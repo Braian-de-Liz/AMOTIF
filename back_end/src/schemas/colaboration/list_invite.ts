@@ -1,11 +1,10 @@
 // back_end\src\schemas\colaboration\list_invite.js
 import { z } from "zod";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const List_invite_schema = {
-    preHandler: [autenticarJWT, verificar_permissao],
+    preHandler: [verificar_permissao],
     schema: {
         tags: ['colaboração'],
         description: 'Lista todos os convites de um projeto específico',

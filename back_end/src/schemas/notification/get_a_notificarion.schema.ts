@@ -1,9 +1,8 @@
 import { z } from "zod";
 import { Error_schema } from "../error/erro_schema.js";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 
 const get_notifications_schema = {
-    preHandler: [autenticarJWT],
+    preHandler: [],
     schema: {
         tags: ['notificacoes'],
         description: 'Lista as notificações do usuário logado',

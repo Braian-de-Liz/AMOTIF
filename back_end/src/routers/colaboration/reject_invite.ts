@@ -1,7 +1,9 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { reject_schema_invite } from "../../schemas/colaboration/reject_invite_schema.js";
 
 const Reject_Invite: FastifyPluginAsyncZod = async (Fastify) => {
+    Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.delete("/colaboration/:projetoId/reject", reject_schema_invite, async (request, reply) => {
         const { projetoId } = request.params;

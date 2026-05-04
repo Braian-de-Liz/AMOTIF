@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { verificar_permissao } from "../../hooks/verificar_permissao.js";
-import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const projetoSchema = z.object({
@@ -19,7 +18,7 @@ const projetoSchema = z.object({
 });
 
 const get_schemaPROJETC = {
-    preHandler: [autenticarJWT, verificar_permissao],
+    preHandler: [verificar_permissao],
     schema: {
         tags: ['projeto'],
         description: 'Retorna os projetos do usuário logado',
