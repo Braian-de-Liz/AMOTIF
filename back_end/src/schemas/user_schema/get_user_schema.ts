@@ -1,8 +1,6 @@
 import { z } from "zod";
-import { verificar_permissao } from "../../hooks/verificar_permissao.js"
 import { Error_schema } from "../error/erro_schema.js";
 const schema_get_user = {
-    preHandler: [verificar_permissao],
     schema: {
         tags: ['usuario'],
         description: 'Retorna os dados do perfil de um usuário específico',

@@ -1,9 +1,7 @@
 import { z } from "zod";
-import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const aceitar_convite_schema = {
-    preHandler: [verificar_permissao],
     schema: {
         tags: ['colaboração'],
         description: 'Aceita um convite para participar de um projeto usando um token de convite',

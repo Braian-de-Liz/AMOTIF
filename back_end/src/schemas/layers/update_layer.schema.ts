@@ -1,9 +1,7 @@
 import { z } from "zod";
-import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const update_layer_schema = {
-    preHandler: [verificar_permissao],
     schema: {
         tags: ['camada'],
         description: 'Atualiza os dados de uma camada musical existente',

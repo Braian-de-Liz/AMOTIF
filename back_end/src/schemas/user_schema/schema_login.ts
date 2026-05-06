@@ -7,7 +7,7 @@ const schema_login = {
         tags: ['usuario'],
         description: 'Autentica um usuário e retorna um token JWT',
         body: z.object({
-            email: z.string().email({ message: "E-mail inválido" }),
+            email: z.email({ message: "E-mail inválido" }),
             senha: z.string().min(8, { message: "A senha deve ter no mínimo 8 caracteres" })
         }),
         response: {

@@ -1,9 +1,7 @@
 import { z } from "zod";
-import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const schema_bio = {
-    preHandler: [verificar_permissao],
     schema: {
         tags: ['usuario'],
         description: 'Atualiza a biografia do perfil do usuário',

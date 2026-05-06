@@ -1,9 +1,11 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { Deletar_Colab_schema } from "../../schemas/colaboration/delete_colab_schema.js";
+import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 
 const Delete_Colab: FastifyPluginAsyncZod = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("preHandler", verificar_dono_projeto);
 
     Fastify.delete("/colaboration/:projetoId/remove/:userId", Deletar_Colab_schema, async (request, reply) => {
 

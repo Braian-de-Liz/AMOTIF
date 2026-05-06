@@ -1,9 +1,7 @@
 import { z } from "zod";
-import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const schema_convite = {
-    preHandler: [verificar_dono_projeto],
     schema: {
         tags: ['colaboração'],
         description: 'Cria e envia um convite para um usuário participar de um projeto',

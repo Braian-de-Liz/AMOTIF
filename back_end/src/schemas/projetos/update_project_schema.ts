@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const projectBodySchema = z.object({
@@ -16,7 +15,6 @@ const projectBodySchema = z.object({
 });
 
 const update_project_schema = {
-    preHandler: [verificar_dono_projeto],
     schema: {
         tags: ['projeto'],
         description: 'Atualiza parcialmente os metadados do projeto (Título, BPM, Gênero, etc)',

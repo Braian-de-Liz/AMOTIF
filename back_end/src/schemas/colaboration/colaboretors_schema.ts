@@ -2,7 +2,6 @@ import { z } from "zod";
 import { Error_schema } from "../error/erro_schema.js";
 
 const schema_colaboretors = {
-    preHandler: [],
     schema: {
         tags: ['colaboração'],
         description: 'Lista todos os colaboradores de um projeto com seus respectivos cargos',

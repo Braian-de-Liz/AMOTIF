@@ -2,7 +2,6 @@ import { z } from "zod";
 import { Error_schema } from "../error/erro_schema.js";
 
 const reject_schema_invite = {
-    preHandler: [],
     schema:{
         security: [{ bearerAuth: [] }],
         tags: ['colaboração'],

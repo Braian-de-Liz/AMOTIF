@@ -1,9 +1,7 @@
 import { z } from "zod";
-import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { Error_schema } from "../error/erro_schema.js";
 
 const mural_schema = {
-    preHandler: [verificar_permissao],
     schema: {
         tags: ['projeto'],
         description: 'Cria uma mensagem no mural do projeto',

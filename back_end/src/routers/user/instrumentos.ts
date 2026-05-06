@@ -1,9 +1,11 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
+import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { instrumentos_schema } from "../../schemas/user_schema/instrumentos_schema.js";
 
 const Patch_Instrumentos: FastifyPluginAsyncZod = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("preHandler", verificar_permissao)
 
     Fastify.patch("/usuario/:id/instrumentos", instrumentos_schema, async (request, reply) => {
 

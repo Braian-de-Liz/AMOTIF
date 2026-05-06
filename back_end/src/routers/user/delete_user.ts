@@ -2,10 +2,12 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import argon2 from "argon2";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
+import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { Schema_del_user } from "../../schemas/user_schema/delete_user_schema.js";
 
 const Deletar_user: FastifyPluginAsyncZod = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("preHandler", verificar_permissao);
 
     Fastify.delete("/usuario/:id", Schema_del_user, async (request, reply) => {
         const { id } = request.params;

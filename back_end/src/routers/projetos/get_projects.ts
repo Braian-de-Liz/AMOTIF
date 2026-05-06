@@ -1,9 +1,11 @@
 import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
+import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { get_schemaPROJETC } from "../../schemas/projetos/get_schemaPROJETC.js";
 
 const Get_projects_user: FastifyPluginAsyncZod = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("preHandler", verificar_permissao);
 
     Fastify.get("/projetos/:id/get", get_schemaPROJETC, async (request, reply) => {
         const { id } = request.params;
