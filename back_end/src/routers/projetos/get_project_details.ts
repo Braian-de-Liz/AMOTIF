@@ -1,15 +1,13 @@
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_details_project } from "../../schemas/projetos/get_one_project.js";
 
-
-const Get_a_project: FastifyPluginAsyncZod = async (Fastify) => {
+const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.get("/projetos/:id", schema_details_project, async (request, reply) => {
 
         const { id } = request.params;
-        const id_user = request.user.id;
 
         const projeto = await Fastify.prisma.projeto.findUnique({
             where: { id },
@@ -50,8 +48,6 @@ const Get_a_project: FastifyPluginAsyncZod = async (Fastify) => {
         })
 
     });
-
 }
-
 
 export { Get_a_project };

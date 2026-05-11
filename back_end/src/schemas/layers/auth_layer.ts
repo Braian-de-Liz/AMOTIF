@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const schema_auth_layer = {
     preHandler: [],
@@ -7,14 +7,14 @@ const schema_auth_layer = {
         tags: ['camada'],
         description: 'Autoriza ou desautoriza uma camada de um projeto',
         security: [{ bearerAuth: [] }],
-        params: z.object({ layerId: z.uuid() }),
-        body: z.object({ aprovada: z.boolean() }),
+        params: Type.Object({ layerId: Type.String({ format: 'uuid' }) }),
+        body: Type.Object({ aprovada: Type.Boolean() }),
         response: {
-            200: z.object({
-                status: z.string(),
-                mensagem: z.string()
+            200: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String()
             }),
-            ... Error_schema
+            ...Error_schema
         }
     }
 }

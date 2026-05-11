@@ -1,8 +1,8 @@
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { get_user_with_counts_schema } from "../../schemas/user_schema/get_user_with_counts_schema.js";
 
-const Get_user_with_counts: FastifyPluginAsyncZod = async (Fastify) => {
+const Get_user_with_counts: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.get("/usuario/:id/completo", get_user_with_counts_schema, async (request, reply) => {

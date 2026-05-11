@@ -1,8 +1,8 @@
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { read_all_notifications_schema } from "../../schemas/notification/read_all_notifications_schema.js";
 
-const read_all_notifications: FastifyPluginAsyncZod = async (Fastify) => {
+const read_all_notifications: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.patch("/notifications/read-all", read_all_notifications_schema, async (request, reply) => {

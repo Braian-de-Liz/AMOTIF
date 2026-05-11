@@ -1,14 +1,13 @@
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_post_project } from "../../schemas/projetos/creat_project_schema.js";
 
-const post_project: FastifyPluginAsyncZod = async (Fastify) => {
+const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.post("/projetos", schema_post_project, async (request, reply) => {
         const userId = request.user.id;
         const { titulo, genero, bpm, audio_guia, descricao, escala } = request.body;
-
 
         const novo_projeto = await Fastify.prisma.projeto.create({
             data: {

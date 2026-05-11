@@ -1,40 +1,41 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
-const projectBodySchema = z.object({
-    titulo: z.string().min(3, { message: "O título deve ter no mínimo 3 caracteres" }),
-    descricao: z.string().nullable(),
-    genero: z.enum([
-        "ROCK", "POP", "JAZZ", "BLUES", "FORRO", "METAL", 
-        "HIP_HOP", "ELECTRONIC", "CLASSICAL", "LO_FI", 
-        "INDIE", "SERTANEJO", "SAMBA", "MPB", "COUNTRY", 
-        "FUNK", "SOUNDTRACK", "REGGAE"
-    ]),
-    bpm: z.number().positive({ message: "O BPM deve ser um número positivo" }),
-    escala: z.string().nullable(),
-});
+const GeneroEnum = Type.Union([
+    Type.Literal("ROCK"), Type.Literal("POP"), Type.Literal("JAZZ"), Type.Literal("BLUES"),
+    Type.Literal("FORRO"), Type.Literal("METAL"), Type.Literal("HIP_HOP"), Type.Literal("ELECTRONIC"),
+    Type.Literal("CLASSICAL"), Type.Literal("LO_FI"), Type.Literal("INDIE"), Type.Literal("SERTANEJO"),
+    Type.Literal("SAMBA"), Type.Literal("MPB"), Type.Literal("COUNTRY"), Type.Literal("FUNK"),
+    Type.Literal("SOUNDTRACK"), Type.Literal("REGGAE")
+]);
 
 const update_project_schema = {
     schema: {
         tags: ['projeto'],
         description: 'Atualiza parcialmente os metadados do projeto (Título, BPM, Gênero, etc)',
         security: [{ bearerAuth: [] }],
-        params: z.object({
-            id: z.uuid({ message: "ID do projeto inválido" })
+        params: Type.Object({
+            id: Type.String({ format: 'uuid' })
         }),
-        body: projectBodySchema.partial(),
+        body: Type.Partial(Type.Object({
+            titulo: Type.String({ minLength: 3 }),
+            descricao: Type.Union([Type.String(), Type.Null()]),
+            genero: GeneroEnum,
+            bpm: Type.Number({ minimum: 1 }),
+            escala: Type.Union([Type.String(), Type.Null()]),
+        })),
         response: {
-            200: z.object({
-                status: z.string(),
-                mensagem: z.string(),
-                projeto: z.object({
-                    id: z.uuid(),
-                    titulo: z.string(),
-                    genero: z.string(),
-                    bpm: z.number(),
-                    descricao: z.string().nullable(),
-                    escala: z.string().nullable(),
-                    updatedAt: z.date()
+            200: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String(),
+                projeto: Type.Object({
+                    id: Type.String({ format: 'uuid' }),
+                    titulo: Type.String(),
+                    genero: Type.String(),
+                    bpm: Type.Number(),
+                    descricao: Type.Union([Type.String(), Type.Null()]),
+                    escala: Type.Union([Type.String(), Type.Null()]),
+                    updatedAt: Type.Unknown()
                 })
             }),
             ...Error_schema

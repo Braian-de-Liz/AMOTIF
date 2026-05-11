@@ -1,26 +1,25 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const schema_bio = {
     schema: {
         tags: ['usuario'],
         description: 'Atualiza a biografia do perfil do usuário',
         security: [{ bearerAuth: [] }],
-        body: z.object({
-            bio: z.string().nullable()
+        body: Type.Object({
+            bio: Type.Union([Type.String(), Type.Null()])
         }),
-        params: z.object({
-            id: z.uuid({ message: "O formato do ID é inválido" })
+        params: Type.Object({
+            id: Type.String({ format: 'uuid' })
         }),
         response: {
-            200: z.object({
-                status: z.string(),
-                mensagem: z.string()
+            200: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String()
             }),
             ...Error_schema
         }
     }
 }
 
-''
 export { schema_bio };

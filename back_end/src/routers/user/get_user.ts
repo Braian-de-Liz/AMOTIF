@@ -1,10 +1,9 @@
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { schema_get_user } from "../../schemas/user_schema/get_user_schema.js";
 
-
-const Get_user: FastifyPluginAsyncZod = async (Fastify) => {
+const Get_user: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
     Fastify.addHook("preHandler", verificar_permissao);
 

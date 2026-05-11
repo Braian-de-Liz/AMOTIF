@@ -47,26 +47,26 @@ Isso elimina a camada de Controller que apenas serviria como passagem de dados.
 A lógica de negócio fica onde deve estar: na rota, com acesso direto ao Prisma.
 
 
-2. Schema‑First Design (Zod + Fastify)
-A pasta schemas/ contém todas as definições de validação utilizando Zod. Esses schemas são a única fonte da verdade para:
+2. Schema‑First Design (TypeBox + Fastify)
+A pasta schemas/ contém todas as definições de validação utilizando TypeBox. Esses schemas são a única fonte da verdade para:
 
 Validação de body, params, query, headers
 
-Geração automática de tipos TypeScript (inferidos a partir do Zod)
+Geração automática de tipos TypeScript (inferidos a partir do TypeBox)
 
 Compilação JIT (Just‑In‑Time) pelo Fastify, garantindo validação extremamente rápida
 
 ```typescript
 // schemas/projetos/creat_project_schema.ts
-import { z } from 'zod'
+import { Type } from '@sinclair/typebox'
 
 export const createProjectSchema = {
-  body: z.object({
-    titulo: z.string().min(3),
-    genero: z.nativeEnum(MusicGenre),
-    bpm: z.number().int().min(40).max(300).default(120),
-    escala: z.string().optional(),
-    audio_guia: z.string().url()
+  body: Type.Object({
+    titulo: Type.String({ minLength: 2 }),
+    genero: Type.Union([Type.Literal("ROCK"), Type.Literal("POP")]),
+    bpm: Type.Number({ minimum: 40, maximum: 300 }),
+    escala: Type.Optional(Type.String()),
+    audio_guia: Type.String({ format: 'uri' })
   })
 }
 

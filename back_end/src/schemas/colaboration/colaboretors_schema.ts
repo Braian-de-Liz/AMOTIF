@@ -1,32 +1,30 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const schema_colaboretors = {
     schema: {
         tags: ['colaboração'],
         description: 'Lista todos os colaboradores de um projeto com seus respectivos cargos',
         security: [{ bearerAuth: [] }],
-        params: z.object({
-            id: z.uuid({ message: "ID do projeto inválido" })
+        params: Type.Object({
+            id: Type.String({ format: 'uuid' })
         }),
         response: {
-            200: z.object({
-                status: z.string(),
-                mensagem: z.string(),
-                colaborators: z.object({
-                    colaboradores: z.array(
-                        z.object({
-                            cargo: z.string().nullable(),
-                            joinedAt: z.coerce.string(), 
-                            usuario: z.object({
-                                id: z.uuid(),
-                                nome_completo: z.string(),
-                                email: z.email(),
-                                avatar_url: z.string().nullable().optional(),
-                                instrumentos: z.array(z.string())
-                            })
+            200: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String(),
+                colaborators: Type.Object({
+                    colaboradores: Type.Array(Type.Object({
+                        cargo: Type.Union([Type.String(), Type.Null()]),
+                        joinedAt: Type.Unknown(),
+                        usuario: Type.Object({
+                            id: Type.String({ format: 'uuid' }),
+                            nome_completo: Type.String(),
+                            email: Type.String({ format: 'email' }),
+                            avatar_url: Type.Optional(Type.Union([Type.String(), Type.Null()])),
+                            instrumentos: Type.Array(Type.String())
                         })
-                    )
+                    }))
                 })
             }),
             ...Error_schema

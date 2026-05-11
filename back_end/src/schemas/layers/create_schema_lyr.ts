@@ -1,6 +1,5 @@
-// back_end\src\schemas\layers\create_schema_lyr.ts
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const schema_layer = {
     preHandler: [],
@@ -8,31 +7,31 @@ const schema_layer = {
         tags: ['camada'],
         description: 'Cria uma nova camada (trilha de áudio) em um projeto',
         security: [{ bearerAuth: [] }],
-        params: z.object({
-            projetoId: z.string().uuid({ message: "ID do projeto inválido" })
+        params: Type.Object({
+            projetoId: Type.String({ format: 'uuid' })
         }),
-        body: z.object({
-            nome_trilha: z.string().min(3, "O nome da trilha deve ter no mínimo 3 caracteres"),
-            audio_url: z.string().url("URL de áudio inválida"),
-            instrumento_tag: z.string().min(2, "Selecione um instrumento válido"),
-            delay_offset: z.number().int().default(0),
-            volume_padrao: z.number().min(0).max(1.5).default(1.0)
+        body: Type.Object({
+            nome_trilha: Type.String({ minLength: 3 }),
+            audio_url: Type.String({ format: 'uri' }),
+            instrumento_tag: Type.String({ minLength: 2 }),
+            delay_offset: Type.Optional(Type.Integer({ default: 0 })),
+            volume_padrao: Type.Optional(Type.Number({ minimum: 0, maximum: 1.5, default: 1.0 }))
         }),
         response: {
-            201: z.object({
-                status: z.string(),
-                mensagem: z.string(),
-                camada: z.object({
-                    id: z.string().uuid(),
-                    nome_trilha: z.string(),
-                    audio_url: z.string(),
-                    instrumento_tag: z.string(),
-                    delay_offset: z.number(),
-                    volume_padrao: z.number(),
-                    esta_aprovada: z.boolean(),
-                    projetoId: z.string(),
-                    userId: z.string(),
-                    createdAt: z.date()
+            201: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String(),
+                camada: Type.Object({
+                    id: Type.String({ format: 'uuid' }),
+                    nome_trilha: Type.String(),
+                    audio_url: Type.String(),
+                    instrumento_tag: Type.String(),
+                    delay_offset: Type.Number(),
+                    volume_padrao: Type.Number(),
+                    esta_aprovada: Type.Boolean(),
+                    projetoId: Type.String(),
+                    userId: Type.String(),
+                    createdAt: Type.Unknown()
                 })
             }),
             ...Error_schema

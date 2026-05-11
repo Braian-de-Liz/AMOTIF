@@ -1,6 +1,5 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
-
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const search_instrumento = {
     preHandler: [],
@@ -8,15 +7,15 @@ const search_instrumento = {
         tags: ['search'],
         security: [{ bearerAuth: [] }],
         description: 'Procurar projetos com filtro por instrumento',
-        querystring: z.object({
-            instrumento: z.string().min(2),
-            limite: z.number().optional(),
-            pagina: z.number().optional()
+        querystring: Type.Object({
+            instrumento: Type.String({ minLength: 2 }),
+            limite: Type.Optional(Type.Number()),
+            pagina: Type.Optional(Type.Number())
         }),
         response: {
-            200: z.object({
-                status: z.string(),
-                resultados: z.array(z.any())
+            200: Type.Object({
+                status: Type.String(),
+                resultados: Type.Array(Type.Unknown())
             }),
             ...Error_schema
         }

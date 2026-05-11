@@ -1,16 +1,16 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const delete_lay_schema = {
     schema: {
         tags: ['camada'],
         description: 'Remove uma camada musical de um projeto',
         security: [{ bearerAuth: [] }],
-        params: z.object({ id: z.uuid() }),
+        params: Type.Object({ id: Type.String({ format: 'uuid' }) }),
         response: {
-            200: z.object({
-                status: z.string(),
-                mensagem: z.string()
+            200: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String()
             }),
             ...Error_schema
         }

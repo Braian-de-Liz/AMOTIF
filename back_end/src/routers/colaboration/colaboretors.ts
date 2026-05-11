@@ -1,9 +1,8 @@
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_colaboretors } from "../../schemas/colaboration/colaboretors_schema.js";
 
-
-const colaborators: FastifyPluginAsyncZod = async (Fastify) => {
+const colaborators: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.get("/colaboration/:id", schema_colaboretors, async (request, reply) => {

@@ -1,5 +1,5 @@
-import { z } from 'zod'
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const unfollow_schema = {
     preHandler: [],
@@ -7,8 +7,8 @@ const unfollow_schema = {
         tags: ['seguidores'],
         description: 'Para de seguir um usuário (músico) pelo ID',
         security: [{ bearerAuth: [] }],
-        params: z.object({
-            id: z.uuid({ error: 'formato inválido' })
+        params: Type.Object({
+            id: Type.String({ format: 'uuid' })
         }),
         ...Error_schema
     }

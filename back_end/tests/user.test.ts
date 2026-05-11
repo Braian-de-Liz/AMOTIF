@@ -2,7 +2,6 @@ import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import fastifyJwt from "@fastify/jwt";
-import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
 import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import { PrismaClient } from "@prisma/client";
@@ -45,8 +44,6 @@ const prismaPlugin = fp(async (fastify: FastifyInstance) => {
 
 async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify();
-  app.setValidatorCompiler(validatorCompiler);
-  app.setSerializerCompiler(serializerCompiler);
   app.register(cors, { origin: true });
   app.register(fastifyJwt, { secret: "test-secret-key-for-jwt-signing", sign: { expiresIn: "2d" } });
   app.register(prismaPlugin);
@@ -177,7 +174,7 @@ describe("User Routes - GET /api/usuario/:id", () => {
     await app.close();
   });
 
-  it.skip("deve retornar erro 400 se o ID não for um UUID (Zod validation)", async () => {
+  it.skip("deve retornar erro 400 se o ID não for um UUID (TypeBox validation)", async () => {
     const res = await app.inject({
       method: "GET",
       url: "/api/usuario/meu_id_nao_uuid",

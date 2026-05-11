@@ -1,23 +1,24 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
+
 const schema_get_user = {
     schema: {
         tags: ['usuario'],
         description: 'Retorna os dados do perfil de um usuário específico',
         security: [{ bearerAuth: [] }],
-        params: z.object({
-            id: z.uuid({ message: "O formato do ID é inválido" })
+        params: Type.Object({
+            id: Type.String({ format: 'uuid' })
         }),
         response: {
-            200: z.object({
-                status: z.string(),
-                usuario: z.object({
-                    id: z.uuid(),
-                    nome_completo: z.string(),
-                    email: z.email(),
-                    bio: z.string().nullable(),
-                    instrumentos: z.array(z.string()),
-                    createdAt: z.any(),
+            200: Type.Object({
+                status: Type.String(),
+                usuario: Type.Object({
+                    id: Type.String({ format: 'uuid' }),
+                    nome_completo: Type.String(),
+                    email: Type.String({ format: 'email' }),
+                    bio: Type.Union([Type.String(), Type.Null()]),
+                    instrumentos: Type.Array(Type.String()),
+                    createdAt: Type.Unknown()
                 })
             }),
             ...Error_schema

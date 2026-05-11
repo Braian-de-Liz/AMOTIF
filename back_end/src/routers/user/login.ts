@@ -1,9 +1,8 @@
-// back_end\src\routers\user\login.ts
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import argon2 from "argon2";
 import { schema_login } from "../../schemas/user_schema/schema_login.js";
 
-const login_user: FastifyPluginAsyncZod = async (Fastify) => {
+const login_user: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.post("/usuario/login", schema_login, async (request, reply) => {
 

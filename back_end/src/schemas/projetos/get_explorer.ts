@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const get_feed_schema = {
     preHandler: [],
@@ -7,35 +7,33 @@ const get_feed_schema = {
         tags: ['projeto'],
         description: 'Retorna um feed inteligente de projetos com filtros e status de curtida',
         security: [{ bearerAuth: [] }],
-        querystring: z.object({
-            genero: z.string().optional(),
-            instrumentoFaltante: z.string().optional(),
+        querystring: Type.Object({
+            genero: Type.Optional(Type.String()),
+            instrumentoFaltante: Type.Optional(Type.String())
         }),
         response: {
-            200: z.object({
-                status: z.string(),
-                projetos: z.array(
-                    z.object({
-                        id: z.uuid(),
-                        titulo: z.string(),
-                        genero: z.string(),
-                        bpm: z.number(),
-                        escala: z.string().nullable(),
-                        descricao: z.string().nullable(),
-                        audio_guia: z.string(),
-                        createdAt: z.date(),
-                        autor: z.object({
-                            nome_completo: z.string(),
-                            instrumentos: z.array(z.string())
-                        }),
-                        _count: z.object({
-                            likes: z.number(),
-                            camadas: z.number(),
-                            colaboradores: z.number()
-                        }),
-                        userHasLiked: z.boolean()
-                    })
-                )
+            200: Type.Object({
+                status: Type.String(),
+                projetos: Type.Array(Type.Object({
+                    id: Type.String({ format: 'uuid' }),
+                    titulo: Type.String(),
+                    genero: Type.String(),
+                    bpm: Type.Number(),
+                    escala: Type.Union([Type.String(), Type.Null()]),
+                    descricao: Type.Union([Type.String(), Type.Null()]),
+                    audio_guia: Type.String(),
+                    createdAt: Type.Unknown(),
+                    autor: Type.Object({
+                        nome_completo: Type.String(),
+                        instrumentos: Type.Array(Type.String())
+                    }),
+                    _count: Type.Object({
+                        likes: Type.Number(),
+                        camadas: Type.Number(),
+                        colaboradores: Type.Number()
+                    }),
+                    userHasLiked: Type.Boolean()
+                }))
             }),
             ...Error_schema
         }

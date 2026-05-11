@@ -1,12 +1,12 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
-
-const GeneroEnum = z.enum([
-    "ROCK", "POP", "JAZZ", "BLUES", "FORRO", "METAL", 
-    "HIP_HOP", "ELECTRONIC", "CLASSICAL", "LO_FI", 
-    "INDIE", "SERTANEJO", "SAMBA", "MPB", "COUNTRY", 
-    "FUNK", "SOUNDTRACK", "REGGAE"
+const GeneroEnum = Type.Union([
+    Type.Literal("ROCK"), Type.Literal("POP"), Type.Literal("JAZZ"), Type.Literal("BLUES"),
+    Type.Literal("FORRO"), Type.Literal("METAL"), Type.Literal("HIP_HOP"), Type.Literal("ELECTRONIC"),
+    Type.Literal("CLASSICAL"), Type.Literal("LO_FI"), Type.Literal("INDIE"), Type.Literal("SERTANEJO"),
+    Type.Literal("SAMBA"), Type.Literal("MPB"), Type.Literal("COUNTRY"), Type.Literal("FUNK"),
+    Type.Literal("SOUNDTRACK"), Type.Literal("REGGAE")
 ]);
 
 const search_project_schema = {
@@ -15,31 +15,31 @@ const search_project_schema = {
         tags: ['search'],
         security: [{ bearerAuth: [] }],
         description: 'Pesquisa por projetos musicais usando filtros',
-        querystring: z.object({
-            query: z.string().min(1).optional(),
-            escala: z.string().optional(),
-            genero: GeneroEnum.optional(), 
-            bpm_min: z.coerce.number().optional(),
-            bpm_max: z.coerce.number().optional()
+        querystring: Type.Object({
+            query: Type.Optional(Type.String({ minLength: 1 })),
+            escala: Type.Optional(Type.String()),
+            genero: Type.Optional(GeneroEnum),
+            bpm_min: Type.Optional(Type.Number()),
+            bpm_max: Type.Optional(Type.Number())
         }),
         response: {
-            200: z.object({
-                status: z.string(),
-                resultados: z.array(z.object({
-                    id: z.uuid(), 
-                    titulo: z.string(),
-                    bpm: z.number(),
-                    genero: GeneroEnum, 
-                    escala: z.string().nullable(),
-                    descricao: z.string().nullable(),
-                    createdAt: z.date(),
-                    autor: z.object({
-                        nome_completo: z.string(),
-                        avatar_url: z.string().nullable()
+            200: Type.Object({
+                status: Type.String(),
+                resultados: Type.Array(Type.Object({
+                    id: Type.String({ format: 'uuid' }),
+                    titulo: Type.String(),
+                    bpm: Type.Number(),
+                    genero: Type.String(),
+                    escala: Type.Union([Type.String(), Type.Null()]),
+                    descricao: Type.Union([Type.String(), Type.Null()]),
+                    createdAt: Type.Unknown(),
+                    autor: Type.Object({
+                        nome_completo: Type.String(),
+                        avatar_url: Type.Union([Type.String(), Type.Null()])
                     }),
-                    _count: z.object({
-                        camadas: z.number(),
-                        colaboradores: z.number()
+                    _count: Type.Object({
+                        camadas: Type.Number(),
+                        colaboradores: Type.Number()
                     })
                 }))
             }),

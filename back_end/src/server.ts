@@ -1,13 +1,10 @@
-// back_end\src\server.ts
 import fastify from 'fastify';
-import type { ZodTypeProvider } from 'fastify-type-provider-zod';
-import { serializerCompiler, validatorCompiler } from 'fastify-type-provider-zod';
+import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import type { FastifyInstance } from 'fastify';
 import cors from "@fastify/cors";
 import fastifyJwt from "@fastify/jwt";
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
-import { jsonSchemaTransform } from 'fastify-type-provider-zod';
 import dotenv from 'dotenv';
 dotenv.config();
 
@@ -24,10 +21,8 @@ if (!process.env.JWT_PASSOWORD) {
 
 const JWT_PASSOWORD: string = process.env.JWT_PASSOWORD;
 
-const Fastify: FastifyInstance = fastify(/* { logger: true } */).withTypeProvider<ZodTypeProvider>();
+const Fastify: FastifyInstance = fastify({/*  logger: true  */}).withTypeProvider<TypeBoxTypeProvider>();
 
-Fastify.setValidatorCompiler(validatorCompiler);
-Fastify.setSerializerCompiler(serializerCompiler);
 Fastify.register(swagger, {
     openapi: {
         info: {
@@ -45,7 +40,13 @@ Fastify.register(swagger, {
             },
         },
     },
-    transform: jsonSchemaTransform,
+    transform: ({ schema, url }) => {
+        return {
+            schema: schema,
+            url: url,
+            produceMimeTypes: ['application/json'],
+        };
+    },
 });
 
 Fastify.register(swaggerUi, { routePrefix: '/docs', });
@@ -74,7 +75,7 @@ const start = async () => {
 
         const usedMemory = process.memoryUsage();
         const heapUsedMB = (usedMemory.heapUsed / 1024 / 1024).toFixed(2);
-        const rssMB = (usedMemory.rss / 1024 / 1024).toFixed(2); 
+        const rssMB = (usedMemory.rss / 1024 / 1024).toFixed(2);
         const bootTime = process.uptime().toFixed(2);
 
         console.log(`
@@ -92,7 +93,7 @@ const start = async () => {
 
         Fastify.log.info(`Servidor iniciado na porta ${port}`);
 
- 
+
 
     }
     catch (erro) {
@@ -104,4 +105,4 @@ const start = async () => {
 
 start();
 
-export { Fastify, start };//só em caso de teste
+export { Fastify, start };

@@ -1,27 +1,26 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const aceitar_convite_schema = {
     schema: {
         tags: ['colaboração'],
         description: 'Aceita um convite para participar de um projeto usando um token de convite',
         security: [{ bearerAuth: [] }],
-        params: z.object({
-            id: z.uuid({ message: "ID do projeto inválido" })
+        params: Type.Object({
+            id: Type.String({ format: 'uuid' })
         }),
-        body: z.object({
-            token_convite: z.uuid({ message: "Token de convite inválido" })
+        body: Type.Object({
+            token_convite: Type.String({ format: 'uuid' })
         }),
         response: {
-            201: z.object({
-                status: z.string(),
-                mensagem: z.string(),
-                projetoId: z.string()
+            201: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String(),
+                projetoId: Type.String()
             }),
             ...Error_schema
         }
     }
 }
-
 
 export { aceitar_convite_schema };

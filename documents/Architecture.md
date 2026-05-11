@@ -13,11 +13,11 @@ Metadados críticos como **BPM**, **Tonalidade** e **Offset (delay)** são armaz
 A arquitetura adota uma separação clara entre a API principal e o serviço de upload, visando **performance**, **escalabilidade** e **isolamento de responsabilidades**.
 
 ### 2.1 API Principal (Backend – Bun + Fastify)
-- **Tecnologias**: Bun (runtime), Fastify v5, Prisma v7, Zod, TypeScript.
+- **Tecnologias**: Bun (runtime), Fastify v5, Prisma v7, TypeBox, TypeScript.
 - **Função**: Gerencia toda a lógica de negócio, autenticação, autorização, relacionamentos (projetos, layers, colaboradores, seguidores), buscas e notificações.
 - **Por que Bun/Fastify?**  
   - **Bun** oferece startup extremamente rápido e baixo consumo de memória, ideal para um servidor de API com alta concorrência.  
-  - **Fastify** é um dos frameworks Node.js mais performáticos, com schema-based validation (usando Zod) e suporte nativo a plugins.  
+  - **Fastify** é um dos frameworks Node.js mais performáticos, com schema-based validation (usando TypeBox) e suporte nativo a plugins.  
   - A combinação permite máxima eficiência no processamento de requisições e manutenção de uma base de código tipada.
 
 ### 2.2 Serviço de Upload (Go)
@@ -75,7 +75,7 @@ Esses hooks são aplicados nas rotas correspondentes, garantindo que nenhuma ope
 
 ### 4.2 Routers e Schemas (`/routers` e `/schemas`)
 - **Routers**: Cada domínio da aplicação (projetos, layers, colaboração, follows, user, search) possui seu próprio arquivo de rotas, mantendo a organização por contexto.
-- **Schemas**: Definições **Zod** que descrevem a estrutura esperada de requisições (body, params, query).  
+- **Schemas**: Definições **TypeBox** que descrevem a estrutura esperada de requisições (body, params, query).  
   - São usados para validação automática pelo Fastify, eliminando código boilerplate e garantindo **type-safety** entre o backend e o frontend (através de tipos exportados).  
   - A separação em pastas idênticas aos routers (`/schemas/projetos`, `/schemas/layers`, etc.) facilita a manutenção e a clara relação entre contrato e implementação.
 
@@ -111,7 +111,7 @@ O uso intensivo de hooks no Fastify garante que as verificações de propriedade
 | **Runtime**      | Bun (backend) / Go (upload)         | Performance e isolamento de cargas intensivas.                                                   |
 | **API Server**   | Fastify (Node.js)                   | Alto desempenho, schema validation nativa e suporte a plugins.                                   |
 | **ORM**          | Prisma                              | Type-safe, migrations robustas, excelente para relações complexas.                               |
-| **Validação**    | Zod                                 | Integração perfeita com Fastify e TypeScript, garantindo tipos inferidos automaticamente.       |
+| **Validação**    | TypeBox                              | Integração perfeita com Fastify e TypeScript, garantindo tipos inferidos automaticamente.       |
 | **Frontend**     | React + Vite                        | Vite para dev experience rápida, React para construção da UI.                                    |
 | **Banco de Dados** | PostgreSQL (Neon)                  | Neon oferece banco serverless, com branching automático e baixa latência.                       |
 | **Storage**      | Supabase Storage                    | API simples, integração com buckets e URLs públicas.                                             |

@@ -1,12 +1,12 @@
-import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { search_project_schema } from "../../schemas/search/search_project.schema.js";
 
-const search_project: FastifyPluginAsyncZod = async (Fastify) => {
+const search_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.get("/search/projects", search_project_schema, async (request, reply) => {
-        
+
         const { query, escala, bpm_min, bpm_max, genero } = request.query;
 
         const projetos = await Fastify.prisma.projeto.findMany({
@@ -33,15 +33,15 @@ const search_project: FastifyPluginAsyncZod = async (Fastify) => {
             },
             include: {
                 autor: {
-                    select: { 
-                        nome_completo: true, 
-                        avatar_url: true 
+                    select: {
+                        nome_completo: true,
+                        avatar_url: true
                     }
                 },
                 _count: {
-                    select: { 
-                        camadas: true, 
-                        colaboradores: true 
+                    select: {
+                        camadas: true,
+                        colaboradores: true
                     }
                 }
             },

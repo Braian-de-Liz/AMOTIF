@@ -1,22 +1,21 @@
-import { z } from "zod";
-import { verificar_permissao } from "../../hooks/verificar_permissao.js";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const instrumentos_schema = {
     schema: {
         tags: ['usuario'],
         description: 'Atualiza os instrumentos tocados pelo usuário',
         security: [{ bearerAuth: [] }],
-        body: z.object({
-            instrumentos: z.array(z.string())
+        body: Type.Object({
+            instrumentos: Type.Array(Type.String())
         }),
-        params: z.object({
-            id: z.uuid({ message: "O formato do ID é inválido" })
+        params: Type.Object({
+            id: Type.String({ format: 'uuid' })
         }),
         response: {
-            200: z.object({
-                status: z.string(),
-                mensagem: z.string()
+            200: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String()
             }),
             ...Error_schema
         }

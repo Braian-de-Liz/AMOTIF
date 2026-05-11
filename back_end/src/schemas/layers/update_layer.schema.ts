@@ -1,26 +1,26 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const update_layer_schema = {
     schema: {
         tags: ['camada'],
         description: 'Atualiza os dados de uma camada musical existente',
         security: [{ bearerAuth: [] }],
-        params: z.object({
-            id: z.uuid({ message: "ID do projeto inválido" })
+        params: Type.Object({
+            id: Type.String({ format: 'uuid' })
         }),
-        body: z.object({
-            nome_trilha: z.string().min(1, "Nome da trilha não pode ser vazio"),
-            audio_url: z.url("URL do áudio inválida"),
-            instrumento_tag: z.string().min(1, "Tag do instrumento não pode ser vazia"),
-            delay_offset: z.number().int("Delay offset deve ser um número inteiro").optional(),
-            volume_padrao: z.number().min(0).max(1, "Volume padrão deve estar entre 0 e 1").optional(),
-            esta_aprovada: z.boolean().optional()
+        body: Type.Object({
+            nome_trilha: Type.String({ minLength: 1 }),
+            audio_url: Type.String({ format: 'uri' }),
+            instrumento_tag: Type.String({ minLength: 1 }),
+            delay_offset: Type.Optional(Type.Integer()),
+            volume_padrao: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+            esta_aprovada: Type.Optional(Type.Boolean())
         }),
         response: {
-            200: z.object({
-                status: z.literal("sucesso"),
-                mensagem: z.string()
+            200: Type.Object({
+                status: Type.Literal("sucesso"),
+                mensagem: Type.String()
             }),
             ...Error_schema
         }

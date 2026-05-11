@@ -1,25 +1,24 @@
-// back_end\src\schemas\colaboration\list_invite.js
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const List_invite_schema = {
     schema: {
         tags: ['colaboração'],
         description: 'Lista todos os convites de um projeto específico',
-        security: [{ bearerAuth: [] }], 
-        params: z.object({
-            id: z.uuid({ message: "ID do projeto deve ser um UUID válido" })
+        security: [{ bearerAuth: [] }],
+        params: Type.Object({
+            id: Type.String({ format: 'uuid' })
         }),
         response: {
-            200: z.object({
-                status: z.string(),
-                convites: z.array(z.object({
-                    id: z.string(),
-                    email_destinatario: z.string(),
-                    cargo: z.string(),
-                    mensagem: z.string().nullable(),
-                    expira_em: z.date().or(z.string()),
-                    projetoId: z.string()
+            200: Type.Object({
+                status: Type.String(),
+                convites: Type.Array(Type.Object({
+                    id: Type.String(),
+                    email_destinatario: Type.String(),
+                    cargo: Type.String(),
+                    mensagem: Type.Union([Type.String(), Type.Null()]),
+                    expira_em: Type.Unknown(),
+                    projetoId: Type.String()
                 }))
             }),
             ...Error_schema

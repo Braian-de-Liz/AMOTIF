@@ -1,16 +1,14 @@
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { like_project_schema } from "../../schemas/likes/like.schema.js";
 
-const Create_like: FastifyPluginAsyncZod = async (Fastify) => {
+const Create_like: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.post("/like/:projetoId", like_project_schema, async (request, reply) => {
 
         const { projetoId } = request.params;
         const userId = request.user.id;
-
-
 
         const result = await Fastify.prisma.$transaction(async (ctx: any) => {
 

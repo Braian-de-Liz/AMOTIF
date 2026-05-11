@@ -1,22 +1,21 @@
-// back_end\src\schemas\user_schema\delete_user_schema.ts
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const Schema_del_user = {
     schema: {
         tags: ['usuario'],
         description: 'Exclui a conta do usuário logado',
         security: [{ bearerAuth: [] }],
-        params: z.object({
-            id: z.uuid({ message: "O ID fornecido não é um UUID válido" })
+        params: Type.Object({
+            id: Type.String({ format: 'uuid' })
         }),
-        body: z.object({
-            senha: z.string().min(8, { message: "A senha deve ter no mínimo 6 caracteres" })
+        body: Type.Object({
+            senha: Type.String({ minLength: 8 })
         }),
         response: {
-            202: z.object({
-                status: z.string(),
-                mensagem: z.string()
+            202: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String()
             }),
             ...Error_schema
         }

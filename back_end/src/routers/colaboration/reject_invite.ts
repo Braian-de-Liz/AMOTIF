@@ -1,8 +1,8 @@
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { reject_schema_invite } from "../../schemas/colaboration/reject_invite_schema.js";
 
-const Reject_Invite: FastifyPluginAsyncZod = async (Fastify) => {
+const Reject_Invite: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.delete("/colaboration/:projetoId/reject", reject_schema_invite, async (request, reply) => {
@@ -10,12 +10,12 @@ const Reject_Invite: FastifyPluginAsyncZod = async (Fastify) => {
         const userId = request.user.id;
 
         const convite = await Fastify.prisma.colaborador.findFirst({
-            where: { projetoId, userId }, 
+            where: { projetoId, userId },
             include: {
-                projeto: true 
+                projeto: true
             }
         });
-        
+
         if (!convite) {
             return reply.status(404).send({
                 status: "erro",
@@ -27,11 +27,11 @@ const Reject_Invite: FastifyPluginAsyncZod = async (Fastify) => {
             where: { id: convite.id }
         });
 
-       
+
         await Fastify.prisma.notification.create({
             data: {
-                userId: convite.projeto.userId, 
-                actorId: userId, 
+                userId: convite.projeto.userId,
+                actorId: userId,
                 tipo: "PROJECT_REJECT",
                 mensagem: `${request.user.nome} recusou o convite para o projeto ${convite.projeto.titulo}.`
             }

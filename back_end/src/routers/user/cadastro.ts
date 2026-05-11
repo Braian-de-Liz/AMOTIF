@@ -1,14 +1,12 @@
-// back_end\src\routers\cadastro.ts
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import argon2 from "argon2";
 import { schema_register } from "../../schemas/user_schema/cadastroUSer_sche.js";
 
-const User_register: FastifyPluginAsyncZod = async (Fastify, options) => {
+const User_register: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.post("/usuario", schema_register, async (request, reply) => {
 
         const { nome_completo, email, senha, cpf } = request.body;
-
 
         const check_user = await Fastify.prisma.user.findFirst({
             where: {

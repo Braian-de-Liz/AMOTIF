@@ -1,14 +1,13 @@
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { get_feed_schema } from "../../schemas/projetos/get_explorer.js";
 
-const searth_feed: FastifyPluginAsyncZod = async (Fastify) => {
+const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.get("/projetos/feed", get_feed_schema, async (request, reply) => {
         const userId = request.user.id;
         const { genero, instrumentoFaltante } = request.query;
-
 
         const projetosRaw = await Fastify.prisma.projeto.findMany({
             where: {

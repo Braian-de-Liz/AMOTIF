@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const list_followers_schema = {
     preHandler: [],
@@ -8,23 +8,21 @@ const list_followers_schema = {
         description: 'Lista os seguidores do usuário',
         security: [{ bearerAuth: [] }],
         response: {
-            200: z.object({
-                status: z.string(),
-                mensagem: z.string(),
-                follows: z.array(
-                    z.object({
-                        followerId: z.uuid(),
-                        followingId: z.uuid(),
-                        createdAt: z.date(),
-                        follower: z.object({
-                            id: z.uuid(),
-                            nome_completo: z.string(),
-                            avatar_url: z.string().nullable(),
-                            bio: z.string().nullable()
-                        })
+            200: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String(),
+                follows: Type.Array(Type.Object({
+                    followerId: Type.String({ format: 'uuid' }),
+                    followingId: Type.String({ format: 'uuid' }),
+                    createdAt: Type.Unknown(),
+                    follower: Type.Object({
+                        id: Type.String({ format: 'uuid' }),
+                        nome_completo: Type.String(),
+                        avatar_url: Type.Union([Type.String(), Type.Null()]),
+                        bio: Type.Union([Type.String(), Type.Null()])
                     })
-                ),
-                total: z.number()
+                })),
+                total: Type.Number()
             }),
             ...Error_schema
         }

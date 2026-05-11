@@ -1,21 +1,20 @@
-// schemas/projetos/like_project_schema.ts
-import { z } from 'zod'
+import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
 const like_project_schema = {
     preHandler: [],
     schema: {
         tags: ['colaboração'],
-        description: 'permite que usário d^ like em projetos alheios',
+        description: 'Permite que usuário dê like em projetos alheios',
         security: [{ bearerAuth: [] }],
-        params: z.object({
-            projetoId: z.uuid()
+        params: Type.Object({
+            projetoId: Type.String({ format: 'uuid' })
         }),
         response: {
-            200: z.object({
-                status: z.string(),
-                liked: z.boolean(),
-                count: z.number()
+            200: Type.Object({
+                status: Type.String(),
+                liked: Type.Boolean(),
+                count: Type.Number()
             }),
             ...Error_schema
         }

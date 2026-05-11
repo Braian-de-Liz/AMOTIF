@@ -1,18 +1,18 @@
-import { z } from "zod";
-import { Error_schema } from "../error/erro_schema.js";
+import { Type } from '@sinclair/typebox';
+import { Error_schema } from '../error/erro_schema.js';
 
 const reject_schema_invite = {
-    schema:{
+    schema: {
         security: [{ bearerAuth: [] }],
         tags: ['colaboração'],
         description: 'Recusa um convite de colaboração recebido',
-        params: z.object({
-            projetoId: z.uuid() 
+        params: Type.Object({
+            projetoId: Type.String({ format: 'uuid' })
         }),
-        response:{
-            200: z.object({
-                status: z.string(),
-                mensagem: z.string()
+        response: {
+            200: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String()
             }),
             ...Error_schema
         }

@@ -1,14 +1,14 @@
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
-import { z } from "zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
+import { Type } from '@sinclair/typebox';
 
-const health_route: FastifyPluginAsyncZod = async (Fastify) => {
+const health_route: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.get("/health", {
         schema: {
             response: {
-                200: z.object({
-                    status: z.string(),
-                    timestamp: z.string(),
-                    uptime: z.number()
+                200: Type.Object({
+                    status: Type.String(),
+                    timestamp: Type.String(),
+                    uptime: Type.Number()
                 })
             }
         }
@@ -16,7 +16,7 @@ const health_route: FastifyPluginAsyncZod = async (Fastify) => {
         return reply.status(200).send({
             status: "ok",
             timestamp: new Date().toISOString(),
-            uptime: process.uptime() 
+            uptime: process.uptime()
         });
     });
 };

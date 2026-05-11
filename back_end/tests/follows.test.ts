@@ -2,7 +2,6 @@ import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import fastifyJwt from "@fastify/jwt";
-import { serializerCompiler, validatorCompiler } from "fastify-type-provider-zod";
 import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import { PrismaClient } from "@prisma/client";
@@ -12,7 +11,6 @@ import { list_followers } from "../src/routers/follows/list_followers.js";
 import { globalErrorHandler } from "../src/lib/global_Error.js";
 
 const VALID_UUID = "123e4567-e89b-12d3-a456-426614174000";
-const OTHER_UUID = "223e4567-e89b-12d3-a456-426614174000";
 
 const mockPrisma = {
   follows: {
@@ -39,8 +37,6 @@ const prismaPlugin = fp(async (fastify: FastifyInstance) => {
 
 async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify();
-  app.setValidatorCompiler(validatorCompiler);
-  app.setSerializerCompiler(serializerCompiler);
   app.register(cors, { origin: true });
   app.register(fastifyJwt, { secret: "test-secret-key-for-jwt-signing", sign: { expiresIn: "2d" } });
   app.register(prismaPlugin);

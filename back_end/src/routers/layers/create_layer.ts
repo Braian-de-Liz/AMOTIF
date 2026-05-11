@@ -1,8 +1,8 @@
-import { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
+import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_layer } from "../../schemas/layers/create_schema_lyr.js";
 
-const create_Layer: FastifyPluginAsyncZod = async (Fastify) => {
+const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.post("/layer/:projetoId", schema_layer, async (request, reply) => {
@@ -51,7 +51,7 @@ const create_Layer: FastifyPluginAsyncZod = async (Fastify) => {
             catch (err) {
                 Fastify.log.error("Falha ao gerar notificação de nova camada:" + err);
             }
-            
+
         }
 
         return reply.status(201).send({
