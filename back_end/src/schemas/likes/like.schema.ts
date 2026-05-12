@@ -2,7 +2,6 @@ import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
 const like_project_schema = {
-    preHandler: [],
     schema: {
         tags: ['colaboração'],
         description: 'Permite que usuário dê like em projetos alheios',

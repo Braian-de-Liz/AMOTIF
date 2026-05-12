@@ -2,7 +2,6 @@ import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
 const list_followers_schema = {
-    preHandler: [],
     schema: {
         tags: ['seguidores'],
         description: 'Lista os seguidores do usuário',

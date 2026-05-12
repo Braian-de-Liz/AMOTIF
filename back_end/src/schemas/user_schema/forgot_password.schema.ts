@@ -2,7 +2,6 @@ import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
 const recupere_senha_schema = {
-    preHandler: [],
     schema: {
         tags: ['usuario'],
         body: Type.Object({

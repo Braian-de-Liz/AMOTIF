@@ -2,7 +2,6 @@ import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
 const search_instrumento = {
-    preHandler: [],
     schema: {
         tags: ['search'],
         security: [{ bearerAuth: [] }],

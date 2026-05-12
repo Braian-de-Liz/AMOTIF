@@ -2,7 +2,6 @@ import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
 const schema_auth_layer = {
-    preHandler: [],
     schema: {
         tags: ['camada'],
         description: 'Autoriza ou desautoriza uma camada de um projeto',

@@ -11,7 +11,6 @@ const GeneroEnum = Type.Union([
 ]);
 
 const schema_post_project = {
-    preHandler: [],
     schema: {
         tags: ['projeto'],
         description: 'Cria um novo projeto musical',

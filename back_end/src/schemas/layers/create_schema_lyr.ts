@@ -2,7 +2,6 @@ import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
 const schema_layer = {
-    preHandler: [],
     schema: {
         tags: ['camada'],
         description: 'Cria uma nova camada (trilha de áudio) em um projeto',

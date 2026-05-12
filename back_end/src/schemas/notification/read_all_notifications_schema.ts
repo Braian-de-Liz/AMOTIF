@@ -2,7 +2,6 @@ import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
 const read_all_notifications_schema = {
-    preHandler: [],
     schema: {
         tags: ['notificacoes'],
         description: 'Marca todas as notificações do usuário logado como lidas',

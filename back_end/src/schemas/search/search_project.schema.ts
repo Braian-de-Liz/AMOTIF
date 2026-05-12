@@ -10,7 +10,6 @@ const GeneroEnum = Type.Union([
 ]);
 
 const search_project_schema = {
-    preHandler: [],
     schema: {
         tags: ['search'],
         security: [{ bearerAuth: [] }],

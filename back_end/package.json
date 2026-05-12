@@ -14,10 +14,10 @@
     "bun_start": "bun dist/server.js",
     "start_exe": "./dist/server",
     "check": "tsc --noEmit",
-    "conectDB": "pnpx prisma validate",
-    "db:migrate": "pnpx prisma migrate dev",
-    "db:generate": "pnpx prisma generate",
-    "db:studio": "pnpx prisma studio"
+    "conectDB": "bunx prisma validate",
+    "db:migrate": "bunx prisma migrate dev",
+    "db:generate": "bunx prisma generate",
+    "db:studio": "bunx prisma studio"
   },
   "keywords": [],
   "author": "",

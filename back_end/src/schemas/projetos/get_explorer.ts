@@ -2,7 +2,6 @@ import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
 const get_feed_schema = {
-    preHandler: [],
     schema: {
         tags: ['projeto'],
         description: 'Retorna um feed inteligente de projetos com filtros e status de curtida',

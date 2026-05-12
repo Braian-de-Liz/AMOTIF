@@ -2,7 +2,6 @@ import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
 const schema_details_project = {
-    preHandler: [],
     schema: {
         tags: ['projeto'],
         description: 'Retorna os detalhes completos de um projeto específico',

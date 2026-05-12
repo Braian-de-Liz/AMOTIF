@@ -2,7 +2,6 @@ import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
 const get_notifications_schema = {
-    preHandler: [],
     schema: {
         tags: ['notificacoes'],
         description: 'Lista as notificações do usuário logado',
