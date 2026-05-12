@@ -39,14 +39,7 @@ Fastify.register(swagger, {
                 },
             },
         },
-    },
-    transform: ({ schema, url }) => {
-        return {
-            schema: schema,
-            url: url,
-            produceMimeTypes: ['application/json'],
-        };
-    },
+    }
 });
 
 Fastify.register(swaggerUi, { routePrefix: '/docs', });

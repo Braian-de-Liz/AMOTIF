@@ -1,4 +1,4 @@
-import { Type, Static } from '@sinclair/typebox';
+import { Type } from '@sinclair/typebox';
 
 const DefaultError = Type.Object({
     status: Type.String(),
@@ -20,4 +20,3 @@ const Error_schema = {
 };
 
 export { Error_schema };
-export type ErrorType = Static<typeof DefaultError>;
