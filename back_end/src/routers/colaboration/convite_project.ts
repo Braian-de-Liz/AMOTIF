@@ -14,6 +14,7 @@ const convite_project: FastifyPluginAsyncTypebox = async (Fastify) => {
         const novoConvite = await Fastify.prisma.convite.create({
             data: {
                 projetoId: id,
+                remetenteId: request.user.id,
                 email_destinatario: email_destinatario,
                 cargo: cargo,
                 mensagem: mensagem,

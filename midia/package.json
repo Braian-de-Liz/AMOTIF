@@ -1,0 +1,12 @@
+{
+  "name": "midia",
+  "scripts": {
+    "dev": "bun run --hot src/index.ts"
+  },
+  "dependencies": {
+    "hono": "^4.12.18"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}

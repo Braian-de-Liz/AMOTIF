@@ -20,7 +20,7 @@
     "db:studio": "bunx prisma studio"
   },
   "keywords": [],
-  "author": "",
+  "author": "Braian de Liz da Silva",
   "license": "ISC",
   "dependencies": {
     "@fastify/cors": "^11.1.0",

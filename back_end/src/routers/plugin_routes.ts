@@ -42,6 +42,9 @@ import { search_project } from "./search/search_project.js";
 import { get_notifications } from "./notification/get_notifications.js";
 import { read_all_notifications } from "./notification/read_all.js";
 
+import { Toggle_favorite } from "./projetos/togle_favorites.js";
+import { Favorites_plugin } from "./projetos/list_favorites.js";
+
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(User_register, { prefix: '/api' });
@@ -84,6 +87,8 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(get_notifications, { prefix: '/api' });
     Fastify.register(read_all_notifications, { prefix: '/api' });
+    Fastify.register(Toggle_favorite , { prefix: '/api' });
+    Fastify.register(Favorites_plugin , { prefix: '/api' });
 }
 
 

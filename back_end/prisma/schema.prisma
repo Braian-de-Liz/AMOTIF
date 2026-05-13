@@ -27,9 +27,11 @@ model User {
   seguidores         Follows[]      @relation("UserBeingFollowed")
   seguindo           Follows[]      @relation("UserFollowing")
   mural_posts        MuralPost[]    @relation("AutorDoPost")
+  convites_enviados  Convite[]      @relation("ConviteRemetente")
   notifications      Notification[] @relation("UserNotifications")
   notifications_sent Notification[] @relation("NotificationActor")
   likes_dados        Like[]         @relation("UserLikes")
+  favorites          Favorite[]     @relation("UserFavorites")
 }
 
 model Follows {
@@ -56,6 +58,7 @@ model Projeto {
   audio_guia    String
   userId        String        @db.Uuid
   autor         User          @relation("DonoDoProjeto", fields: [userId], references: [id], onDelete: Cascade)
+  favoritos     Favorite[]    @relation("ProjectFavorites")
   camadas       Camada[]
   colaboradores Colaborador[]
   convites      Convite[]
@@ -101,7 +104,7 @@ model MuralPost {
   projeto   Projeto @relation(fields: [projetoId], references: [id], onDelete: Cascade)
 
   autorId String @db.Uuid
-  autor   User   @relation("AutorDoPost", fields: [autorId], references: [id])
+  autor   User   @relation("AutorDoPost", fields: [autorId], references: [id], onDelete: Cascade)
 
   @@index([projetoId])
   @@index([autorId])
@@ -111,6 +114,8 @@ model Convite {
   id                 String   @id @default(uuid()) @db.Uuid
   projetoId          String   @db.Uuid
   projeto            Projeto  @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  remetenteId        String   @db.Uuid
+  remetente          User     @relation("ConviteRemetente", fields: [remetenteId], references: [id], onDelete: Cascade)
   email_destinatario String
   cargo              String   @default("membro")
   mensagem           String?
@@ -119,6 +124,7 @@ model Convite {
   createdAt          DateTime @default(now())
 
   @@index([projetoId])
+  @@index([remetenteId])
   @@index([email_destinatario])
 }
 
@@ -150,7 +156,7 @@ model Camada {
   projetoId       String    @db.Uuid
   projeto         Projeto   @relation(fields: [projetoId], references: [id], onDelete: Cascade)
   userId          String    @db.Uuid
-  autor           User      @relation(fields: [userId], references: [id])
+  autor           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   deletedAt       DateTime?
 
   createdAt DateTime @default(now())
@@ -171,8 +177,8 @@ model Like {
   createdAt DateTime @default(now())
 
   @@unique([userId, projetoId])
-  @@index([projetoId])
   @@index([userId])
+  @@index([projetoId])
 }
 
 model Notification {
@@ -194,6 +200,20 @@ model Notification {
   @@index([userId, lida])
   @@index([createdAt(sort: Desc)])
   @@index([tipo])
+}
+
+model Favorite {
+  id        String  @id @default(uuid()) @db.Uuid
+  userId    String  @db.Uuid
+  usuario   User    @relation("UserFavorites", fields: [userId], references: [id], onDelete: Cascade)
+  projetoId String  @db.Uuid
+  projeto   Projeto @relation("ProjectFavorites", fields: [projetoId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, projetoId])
+  @@index([userId])
+  @@index([projetoId])
 }
 
 enum NotificationType {

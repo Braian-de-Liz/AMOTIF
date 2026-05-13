@@ -54,13 +54,8 @@ Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '2d' } 
 Fastify.register(Plugin_Routes);
 Fastify.register(health_route);
 
-import { monitorEventLoopDelay } from 'perf_hooks';
-
 const start = async () => {
     const port: number = Number(process.env.PORT) || 3333;
-
-    const histogram = monitorEventLoopDelay({ resolution: 10 });
-    histogram.enable();
 
     try {
         await Fastify.ready();
