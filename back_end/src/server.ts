@@ -93,4 +93,4 @@ const start = async () => {
 
 start();
 
-export { Fastify, start };
+// export { Fastify, start };
