@@ -21,9 +21,9 @@ if (!process.env.JWT_PASSOWORD) {
 
 const JWT_PASSOWORD: string = process.env.JWT_PASSOWORD;
 
-const Fastify: FastifyInstance = fastify({/*  logger: true  */}).withTypeProvider<TypeBoxTypeProvider>();
+const Fastify: FastifyInstance = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
 
-Fastify.register(swagger, {
+await Fastify.register(swagger, {
     openapi: {
         info: {
             title: 'AMOTIF API',
@@ -42,17 +42,17 @@ Fastify.register(swagger, {
     }
 });
 
-Fastify.register(swaggerUi, { routePrefix: '/docs', });
+await Fastify.register(swaggerUi, { routePrefix: '/docs', });
 
-Fastify.register(prisma_plugin);
+await Fastify.register(prisma_plugin);
 
-Fastify.setErrorHandler(globalErrorHandler);
+await Fastify.setErrorHandler(globalErrorHandler);
 
-Fastify.register(cors, { origin: true });
-Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '2d' } });
+await Fastify.register(cors, { origin: true });
+await Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '2d' } });
 
-Fastify.register(Plugin_Routes);
-Fastify.register(health_route);
+await Fastify.register(Plugin_Routes);
+await Fastify.register(health_route);
 
 const start = async () => {
     const port: number = Number(process.env.PORT) || 3333;

@@ -49,7 +49,7 @@ export const Notificacoes = () => {
 
         fetchNotificacoes();
 
-        const interval = setInterval(fetchNotificacoes, 10000);
+        const interval = setInterval(fetchNotificacoes, 20000);
 
         return () => clearInterval(interval);
     }, []);

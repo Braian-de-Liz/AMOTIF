@@ -14,7 +14,7 @@ function FollowersList({ userId }) {
                 const response = await fetch(`${URL_API_TESTE}/follows`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-
+                console.log("olhe quantas repetições");
                 const data = await response.json();
                 
                 if (response.ok) {

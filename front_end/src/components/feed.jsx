@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { URL_API_TESTE } from "../utility/url_apis";
 import '../styles/Shared.css';
 import {ProjectCard} from './project_Card'
@@ -9,15 +9,27 @@ function Feed() {
     const [, setErro] = useState(null);
     const [filtroInstrumento, setFiltroInstrumento] = useState(""); 
 
-    async function carregarFeed() {
+    const abortControllerRef = useRef(null);
+
+    const carregarFeed = useCallback(async () => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+        }
+
+        abortControllerRef.current = new AbortController();
+        const signal = abortControllerRef.current.signal;
+
         setLoading(true);
         try {
             const token = localStorage.getItem("token");
             const url = new URL(`${URL_API_TESTE}/projetos/feed`);
-            
-            if (filtroInstrumento) url.searchParams.append("instrumentoFaltante", filtroInstrumento);
+
+            if (filtroInstrumento) {
+                url.searchParams.append("instrumentoFaltante", filtroInstrumento);
+            }
 
             const response = await fetch(url, {
+                signal,
                 headers: token ? { 'Authorization': `Bearer ${token}` } : {}
             });
 
@@ -27,14 +39,26 @@ function Feed() {
             } else {
                 setErro(data.mensagem);
             }
-        } catch {
-            setErro("Erro de conexão.");
+        } catch (err) {
+            if (err.name !== 'AbortError') {
+                setErro("Erro de conexão.");
+            }
         } finally {
-            setLoading(false);
+            if (!signal.aborted) {
+                setLoading(false);
+            }
         }
-    }
+    }, [filtroInstrumento]);
 
-    useEffect(() => { carregarFeed(); }, [filtroInstrumento, carregarFeed]); 
+    useEffect(() => {
+        carregarFeed();
+
+        return () => {
+            if (abortControllerRef.current) {
+                abortControllerRef.current.abort();
+            }
+        };
+    }, [carregarFeed]); 
 
     if (loading && projetos.length === 0) return <div>Carregando...</div>;
 
