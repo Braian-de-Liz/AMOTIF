@@ -19,7 +19,7 @@ A arquitetura utiliza uma abordagem de **microsserviços híbridos**, garantindo
 
 | Componente | Tecnologia | Logo | Motivação |
 | :--- | :--- | :---: | :--- |
-| **Backend API** | **Fastify (Node.js)** | ![Fastify](https://img.shields.io/badge/fastify-%23000000.svg?style=for-the-badge&logo=fastify&logoColor=white) | Gestão de rotas e permissões com validação rigorosa via **TypeBox**. |
+| **Backend API** | **Fastify (Bun)** | ![Fastify](https://img.shields.io/badge/fastify-%23000000.svg?style=for-the-badge&logo=fastify&logoColor=white) | Gestão de rotas e permissões com validação rigorosa via **TypeBox**. |
 | **Upload Service** | **Go (Fiber)** | ![Go](https://img.shields.io/badge/go-%2300ADD8.svg?style=for-the-badge&logo=go&logoColor=white) | Microsserviço especializado em tráfego de áudio com latência mínima e concorrência nativa. |
 | **Banco de Dados** | **PostgreSQL** | ![PostgreSQL](https://img.shields.io/badge/postgresql-%23316192.svg?style=for-the-badge&logo=postgresql&logoColor=white) | Persistência relacional robusta e integridade de dados. |
 | **ORM** | **Prisma** | ![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white) | Abstração de banco de dados para garantir agilidade entre TypeScript e SQL. |
