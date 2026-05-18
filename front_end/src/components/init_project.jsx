@@ -79,8 +79,14 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
         const token = localStorage.getItem("token");
 
         try {
+            const sanitizedFileName = file.name
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .replace(/\s+/g, '_');
+            const sanitizedFile = new File([file], sanitizedFileName, { type: file.type });
+
             const uploadData = new FormData();
-            uploadData.append('audio', file);
+            uploadData.append('audio', sanitizedFile);
 
             const uploadResponse = await fetch(`${UPLOAD_URL}/upload`, {
                 method: 'POST',

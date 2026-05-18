@@ -19,7 +19,7 @@ func LoadConfig() *Config {
 	loadEnvFile(".env")
 
 	return &Config{
-		SupabaseURL:   getEnv("SUPABASE_URL", ""),
+		SupabaseURL:   normalizeURL(getEnv("SUPABASE_URL", "")),
 		SupabaseKey:   getEnv("SUPABASE_KEY", ""),
 		StorageBucket: getEnv("StorageBucket", "audios-projetos"),
 		JwtPassword:   getEnv("JWT_PASSWORD", ""), 
@@ -58,6 +58,16 @@ func getEnv(key, defaultValue string) string {
 		return value
 	}
 	return defaultValue
+}
+
+func normalizeURL(url string) string {
+	if url == "" {
+		return ""
+	}
+	if !strings.HasPrefix(url, "http://") && !strings.HasPrefix(url, "https://") {
+		return "https://" + url
+	}
+	return url
 }
 
 func (c *Config) Validate() error {
