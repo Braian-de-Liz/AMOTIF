@@ -21,7 +21,7 @@ if (!process.env.JWT_PASSOWORD) {
 
 const JWT_PASSOWORD: string = process.env.JWT_PASSOWORD;
 
-const Fastify: FastifyInstance = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
+const Fastify: FastifyInstance = fastify(/* { logger: true } */).withTypeProvider<TypeBoxTypeProvider>();
 
 await Fastify.register(swagger, {
     openapi: {
@@ -93,4 +93,4 @@ const start = async () => {
 
 start();
 
-// export { Fastify, start };
+// export { Fastify, start }; 

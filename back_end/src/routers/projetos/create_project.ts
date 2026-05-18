@@ -7,7 +7,7 @@ const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.post("/projetos", schema_post_project, async (request, reply) => {
         const userId = request.user.id;
-        const { titulo, genero, bpm, audio_guia, descricao, escala } = request.body;
+        const { titulo, genero, bpm, audio_guia, descricao, escala, audio_metadata } = request.body;
 
         const novo_projeto = await Fastify.prisma.projeto.create({
             data: {
@@ -15,6 +15,7 @@ const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                 genero,
                 bpm,
                 audio_guia,
+                audio_metadata: audio_metadata ?? undefined,
                 descricao,
                 escala,
                 userId: userId

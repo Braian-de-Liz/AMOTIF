@@ -21,7 +21,14 @@ const schema_post_project = {
             bpm: Type.Number({ minimum: 40, maximum: 300 }),
             escala: Type.Optional(Type.String()),
             descricao: Type.Optional(Type.String()),
-            audio_guia: Type.String({ format: 'uri' })
+            audio_guia: Type.String({ format: 'uri' }),
+            audio_metadata: Type.Optional(Type.Object({
+                nome: Type.String(),
+                tamanhoMB: Type.Number(),
+                duracaoSegundos: Type.Number(),
+                codec: Type.String(),
+                sampleRate: Type.Number()
+            }))
         }),
         response: {
             201: Type.Object({

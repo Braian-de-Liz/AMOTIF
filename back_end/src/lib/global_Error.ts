@@ -47,7 +47,7 @@ interface ErrorResponse {
   codigo?: string;
 }
 
-export const globalErrorHandler = async (
+const globalErrorHandler = async (
   error: FastifyError,
   request: FastifyRequest,
   reply: FastifyReply
@@ -165,3 +165,5 @@ export const globalErrorHandler = async (
     mensagem: "Erro interno no servidor. Tente novamente mais tarde.",
   });
 };
+
+export { globalErrorHandler };

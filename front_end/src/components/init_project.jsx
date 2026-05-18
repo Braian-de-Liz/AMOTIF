@@ -1,6 +1,10 @@
 import { useState } from 'react';
+import { parseBlob } from 'music-metadata';
 import { URL_API_TESTE, UPLOAD_URL } from '../utility/url_apis';
 import '../styles/User.css';
+
+const DURACAO_MAXIMA_SEGUNDOS = 300;
+const generos = ["ROCK", "POP", "JAZZ", "BLUES", "FORRO", "METAL", "HIP_HOP", "ELECTRONIC", "CLASSICAL", "LO_FI", "INDIE", "SERTANEJO", "SAMBA", "MPB", "COUNTRY", "FUNK", "SOUNDTRACK", "REGGAE"];
 
 function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
     const [file, setFile] = useState(null);
@@ -13,34 +17,95 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
     });
 
     const [loading, setLoading] = useState(false);
-    const generos = ["ROCK", "POP", "JAZZ", "BLUES", "FORRO", "METAL", "HIP_HOP", "ELECTRONIC", "CLASSICAL", "LO_FI", "INDIE", "SERTANEJO", "SAMBA", "MPB", "COUNTRY", "FUNK", "SOUNDTRACK", "REGGAE"];
+    const [audioMeta, setAudioMeta] = useState(null);
+    const [audioAnalyzing, setAudioAnalyzing] = useState(false);
+    const [audioError, setAudioError] = useState(null);
 
     if (!isOpen) return null;
+
+    async function handleFileChange(arquivo) {
+        if (!arquivo) return;
+
+        setAudioAnalyzing(true);
+        setAudioError(null);
+        setAudioMeta(null);
+        setFile(arquivo);
+
+        try {
+            const metadata = await parseBlob(arquivo);
+            const duracao = metadata.format.duration;
+
+            if (duracao > DURACAO_MAXIMA_SEGUNDOS) {
+                setAudioError(`Áudio muito longo! Máximo de ${DURACAO_MAXIMA_SEGUNDOS / 60} minutos. Este áudio tem ${duracao.toFixed(1)}s.`);
+                setFile(null);
+                return;
+            }
+
+            if (!metadata.format.codec) {
+                setAudioError("Formato de áudio não reconhecido ou arquivo corrompido.");
+                setFile(null);
+                return;
+            }
+
+            const bpmExtraido = metadata.common.bpm;
+            if (bpmExtraido && bpmExtraido > 0) {
+                setFormData(prev => ({ ...prev, bpm: Math.round(bpmExtraido) }));
+            }
+
+            const meta = {
+                nome: arquivo.name,
+                tamanhoMB: +(arquivo.size / 1024 / 1024).toFixed(2),
+                duracaoSegundos: +duracao.toFixed(2),
+                codec: metadata.format.codec,
+                sampleRate: metadata.format.sampleRate || 0
+            };
+
+            setAudioMeta(meta);
+        } catch (err) {
+            console.error("Erro ao analisar áudio:", err);
+            setAudioError("Não foi possível ler os metadados do arquivo. O arquivo pode estar corrompido ou em um formato não suportado.");
+            setFile(null);
+        } finally {
+            setAudioAnalyzing(false);
+        }
+    }
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         if (!file) return alert("Por favor, selecione um áudio guia.");
+        if (!audioMeta) return alert("Aguardando análise do áudio...");
 
         setLoading(true);
         const token = localStorage.getItem("token");
 
         try {
             const uploadData = new FormData();
-            uploadData.append('file', file);
+            uploadData.append('audio', file);
 
-            const uploadResponse = await fetch(UPLOAD_URL, {
+            const uploadResponse = await fetch(`${UPLOAD_URL}/upload`, {
                 method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                },
                 body: uploadData,
             });
 
-            if (!uploadResponse.ok) throw new Error("Falha ao subir áudio para o servidor de storage.");
+            if (!uploadResponse.ok) {
+                const errBody = await uploadResponse.json().catch(() => ({}));
+                throw new Error(errBody.error || "Falha ao enviar áudio para o servidor de storage.");
+            }
 
             const uploadResult = await uploadResponse.json();
-            const url_final_audio = uploadResult.url;
+            const url_final_audio = uploadResult.path;
 
             const projectBody = {
-                ...formData,
-                audio_guia: url_final_audio
+                titulo: formData.titulo,
+                genero: formData.genero,
+                bpm: Number(formData.bpm),
+                escala: formData.escala || undefined,
+                descricao: formData.descricao || undefined,
+                audio_guia: url_final_audio,
+                audio_metadata: audioMeta
             };
 
             const response = await fetch(`${URL_API_TESTE}/projetos`, {
@@ -91,22 +156,14 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                         </select>
                     </div>
 
-                    <div className="form-row">
-                        <div className="form-group flex-1">
-                            <label>BPM</label>
-                            <input type="number" value={formData.bpm}
-                                onChange={e => setFormData({ ...formData, bpm: e.target.value })}
-                            />
-                        </div>
-                        <div className="form-group flex-1">
-                            <label>Escala (Opcional)</label>
-                            <input
-                                type="text"
-                                placeholder="Ex: Am, C# Major"
-                                value={formData.escala}
-                                onChange={e => setFormData({ ...formData, escala: e.target.value })}
-                            />
-                        </div>
+                    <div className="form-group">
+                        <label>Escala (Opcional)</label>
+                        <input
+                            type="text"
+                            placeholder="Ex: Am, C# Major"
+                            value={formData.escala}
+                            onChange={e => setFormData({ ...formData, escala: e.target.value })}
+                        />
                     </div>
 
                     <div className="upload-group">
@@ -114,13 +171,22 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                         <label className="file-drop-area">
                             <span className="upload-icon">🎵</span>
                             <span className="file-msg">
-                                {file ? "Arquivo capturado!" : "Clique para selecionar o áudio"}
+                                {audioAnalyzing ? "Analisando áudio..." :
+                                 audioError ? "Clique para tentar novamente" :
+                                 audioMeta ? "Áudio validado!" :
+                                 "Clique para selecionar o áudio"}
                             </span>
-                            {file && <span className="file-name-badge">{file.name}</span>}
+                            {audioAnalyzing && <span className="analyzing-badge">Analisando...</span>}
+                            {audioError && <span className="error-badge">{audioError}</span>}
+                            {audioMeta && (
+                                <span className="meta-badge">
+                                    {audioMeta.nome} — {audioMeta.duracaoSegundos}s · {audioMeta.codec} · {audioMeta.sampleRate}Hz
+                                </span>
+                            )}
                             <input
                                 type="file" accept="audio/*" required
                                 className="modal-file-input"
-                                onChange={e => setFile(e.target.files[0])}
+                                onChange={e => handleFileChange(e.target.files[0])}
                             />
                         </label>
                     </div>
@@ -137,8 +203,10 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                         <button type="button" onClick={onClose} className="btn-small btn-modal-cancel">
                             Cancelar
                         </button>
-                        <button type="submit" id="btn_envia" className="btn-modal-submit" disabled={loading}>
-                            {loading ? 'Publicando...' : 'Publicar Projeto'}
+                        <button type="submit" id="btn_envia" className="btn-modal-submit" disabled={loading || audioAnalyzing || !!audioError}>
+                            {loading ? 'Publicando...' :
+                             audioAnalyzing ? 'Analisando...' :
+                             'Publicar Projeto'}
                         </button>
                     </div>
                 </form>
