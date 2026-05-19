@@ -31,7 +31,8 @@ const get_feed_schema = {
                         camadas: Type.Number(),
                         colaboradores: Type.Number()
                     }),
-                    userHasLiked: Type.Boolean()
+                    userHasLiked: Type.Boolean(),
+                    userHasFavorited: Type.Boolean()
                 }))
             }),
             ...Error_schema

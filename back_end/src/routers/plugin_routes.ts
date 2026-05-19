@@ -25,6 +25,7 @@ import { Accept_invite } from "./colaboration/accept_invite.js";
 import { list_invite } from "./colaboration/list_invite.js";
 import { Delete_Colab } from "./colaboration/delete_colab.js";
 import { Reject_Invite } from "./colaboration/reject_invite.js";
+import { list_user_invites } from "./colaboration/list_user_invites.js";
 
 import { create_Layer } from "./layers/create_layer.js";
 import { delete_layer } from "./layers/delete_layer.js";
@@ -71,6 +72,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(list_invite, { prefix: '/api' });
     Fastify.register(Delete_Colab, { prefix: '/api' });
     Fastify.register(Reject_Invite, { prefix: '/api' });
+    Fastify.register(list_user_invites, { prefix: '/api' });
 
     Fastify.register(delete_layer, { prefix: '/api' });
     Fastify.register(create_Layer, { prefix: '/api' });

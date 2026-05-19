@@ -448,3 +448,262 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* Page Header */
+.page-header {
+  text-align: left;
+  margin-bottom: 2rem;
+  padding: 2rem;
+  background-color: var(--branco);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px var(--sombra);
+  border-left: 8px solid var(--verde-medio);
+}
+
+.page-header h1 {
+  color: var(--verde-escuro);
+  font-size: 2rem;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-header p {
+  color: var(--texto-secundario);
+  margin: 0;
+}
+
+.heart-icon {
+  color: #e74c3c;
+}
+
+/* Profile Page */
+.profile-header {
+  display: flex;
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+.profile-avatar img,
+.profile-avatar .avatar-placeholder {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.profile-avatar .avatar-placeholder.large {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  background: var(--verde-pastel);
+  color: var(--verde-escuro);
+}
+
+.profile-info {
+  flex: 1;
+}
+
+.profile-bio {
+  color: var(--texto-secundario);
+  margin-bottom: 1rem;
+}
+
+.profile-instruments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.profile-stats {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.profile-stats .stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profile-stats .stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--verde-escuro);
+}
+
+.profile-stats .stat-label {
+  font-size: 0.85rem;
+  color: var(--texto-secundario);
+}
+
+.btn-follow-profile {
+  padding: 0.6rem 1.5rem;
+  background: var(--verde-medio);
+  color: var(--verde-escuro);
+  border: none;
+  border-radius: 25px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-follow-profile:hover {
+  background: var(--verde-claro);
+}
+
+.btn-follow-profile.following {
+  background: transparent;
+  border: 2px solid var(--verde-medio);
+  color: var(--verde-medio);
+}
+
+.profile-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 2px solid var(--borda);
+}
+
+.profile-content {
+  min-height: 300px;
+}
+
+/* Invites Page */
+.invites-page,
+.favorites-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.invites-content,
+.favorites-content {
+  padding: 1rem 0;
+}
+
+.invites-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.invite-card {
+  display: flex;
+  gap: 1rem;
+  padding: 1.5rem;
+  background: var(--branco);
+  border-radius: 16px;
+  border: 1px solid var(--verde-pastel);
+  box-shadow: 0 4px 12px var(--sombra);
+}
+
+.invite-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--verde-pastel);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--verde-escuro);
+  flex-shrink: 0;
+}
+
+.invite-details {
+  flex: 1;
+}
+
+.invite-details h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--verde-escuro);
+}
+
+.invite-project,
+.invite-role {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: var(--texto);
+}
+
+.invite-message {
+  margin: 0.5rem 0;
+  font-style: italic;
+  color: var(--texto-secundario);
+}
+
+.invite-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: var(--texto-secundario);
+}
+
+.invite-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.invite-actions .btn-accept,
+.invite-actions .btn-reject,
+.invite-actions .btn-view-project {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.invite-actions .btn-accept {
+  background: var(--verde-medio);
+  color: var(--verde-escuro);
+  border: none;
+}
+
+.invite-actions .btn-reject {
+  background: transparent;
+  border: 2px solid #dc2626;
+  color: #dc2626;
+}
+
+.invite-actions .btn-view-project {
+  background: var(--fundo);
+  border: 2px solid var(--borda);
+  color: var(--texto);
+}
+
+.empty-invites,
+.empty-favorites {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--texto-secundario);
+}
+
+.empty-invites svg,
+.empty-favorites svg {
+  opacity: 0.5;
+  margin-bottom: 1rem;
+  color: var(--verde-medio);
+}
+
+.empty-invites h3,
+.empty-favorites h3 {
+  color: var(--texto);
+  margin: 0 0 0.5rem 0;
+}
+
+.empty-invites p,
+.empty-favorites p {
+  margin: 0;
+}

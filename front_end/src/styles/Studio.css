@@ -15,6 +15,180 @@
     gap: 1rem;
 }
 
+.studio-tracks {
+    margin-top: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.studio-tracks h3 {
+    margin-bottom: 0.5rem;
+    color: var(--texto-principal);
+}
+
+.waveform-track {
+    background: var(--fundo-secundario);
+    border-radius: 12px;
+    padding: 1rem;
+    border: 1px solid var(--borda);
+}
+
+.track-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+.track-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.track-info h4 {
+    margin: 0;
+    color: var(--texto-principal);
+    font-size: 1rem;
+}
+
+.track-info small {
+    color: var(--texto-secundario);
+    font-size: 0.85rem;
+}
+
+.guia-badge {
+    background: var(--verde-medio);
+    color: #000;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.track-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.btn-icon {
+    background: transparent;
+    border: 1px solid var(--borda);
+    border-radius: 6px;
+    padding: 6px;
+    cursor: pointer;
+    color: var(--texto-principal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.btn-icon:hover {
+    background: var(--fundo);
+    border-color: var(--verde-medio);
+}
+
+.btn-icon.active {
+    background: var(--verde-medio);
+    color: #000;
+}
+
+.volume-slider {
+    width: 80px;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--borda);
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--verde-medio);
+    cursor: pointer;
+}
+
+.delay-control {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.delay-control label {
+    font-size: 0.8rem;
+    color: var(--texto-secundario);
+}
+
+.delay-input {
+    width: 70px;
+    padding: 4px 8px;
+    border: 1px solid var(--borda);
+    border-radius: 4px;
+    background: var(--fundo);
+    color: var(--texto-principal);
+    font-size: 0.85rem;
+}
+
+.btn-save {
+    background: var(--verde-medio);
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    color: #000;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.btn-save:hover {
+    background: var(--verde-claro);
+}
+
+.btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.waveform-container {
+    width: 100%;
+    min-height: 100px;
+    background: var(--fundo);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.track-time {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--texto-secundario);
+}
+
 audio {
     width: 100%;
     border-radius: 10px;
@@ -30,4 +204,389 @@ audio::-webkit-media-controls-panel {
         padding: 1rem;
         padding-bottom: 100px;
     }
+
+    .track-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .track-controls {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .volume-slider {
+        width: 60px;
+    }
+}
+
+/* STUDIO TABS */
+.studio-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin: 2rem 0 1.5rem 0;
+    border-bottom: 2px solid var(--borda);
+    padding-bottom: 0.5rem;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    border: none;
+    color: var(--texto-secundario);
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 8px 8px 0 0;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: var(--texto-principal);
+    background: var(--fundo);
+}
+
+.tab-btn.active {
+    color: var(--verde-medio);
+    border-bottom: 3px solid var(--verde-medio);
+}
+
+.studio-content {
+    min-height: 300px;
+}
+
+/* MURAL */
+.studio-mural {
+    padding: 1rem 0;
+}
+
+.mural-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: var(--fundo-secundario);
+    border-radius: 12px;
+    border: 1px solid var(--borda);
+}
+
+.mural-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: var(--fundo);
+    color: var(--texto-principal);
+    font-size: 0.95rem;
+    resize: vertical;
+    min-height: 80px;
+}
+
+.mural-input:focus {
+    outline: none;
+    border-color: var(--verde-medio);
+}
+
+.btn-post {
+    align-self: flex-end;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: var(--verde-medio);
+    color: var(--verde-escuro);
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-post:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.mural-posts {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.mural-post {
+    padding: 1.25rem;
+    background: var(--branco);
+    border-radius: 12px;
+    border: 1px solid var(--verde-pastel);
+}
+
+.post-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+.post-author-avatar img,
+.post-author-avatar .avatar-placeholder {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+}
+
+.post-author-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.post-author-info strong {
+    font-size: 0.95rem;
+    color: var(--verde-escuro);
+}
+
+.post-author-info span {
+    font-size: 0.75rem;
+    color: var(--texto-secundario);
+}
+
+.post-content {
+    color: var(--texto-principal);
+    line-height: 1.5;
+}
+
+.empty-mural {
+    text-align: center;
+    padding: 3rem;
+    color: var(--texto-secundario);
+}
+
+.empty-mural svg {
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+
+/* COLABORADORES */
+.studio-colaboradores {
+    padding: 1rem 0;
+}
+
+.btn-invite {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--verde-medio);
+    color: var(--verde-escuro);
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-bottom: 1.5rem;
+}
+
+.btn-invite:hover {
+    background: var(--verde-claro);
+}
+
+.invite-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.invite-modal {
+    background: var(--branco);
+    padding: 2rem;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+}
+
+.invite-modal h3 {
+    margin: 0 0 1.5rem 0;
+    color: var(--verde-escuro);
+}
+
+.invite-input {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--borda);
+    border-radius: 8px;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.invite-input:focus {
+    outline: none;
+    border-color: var(--verde-medio);
+}
+
+.invite-actions {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+}
+
+.btn-cancel {
+    padding: 0.5rem 1rem;
+    background: transparent;
+    border: 2px solid var(--borda);
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--texto-secundario);
+}
+
+.btn-confirm {
+    padding: 0.5rem 1rem;
+    background: var(--verde-medio);
+    border: none;
+    border-radius: 8px;
+    color: var(--verde-escuro);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-confirm:disabled {
+    opacity: 0.6;
+}
+
+.pending-invites {
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: var(--fundo-secundario);
+    border-radius: 12px;
+}
+
+.pending-invites h4 {
+    margin: 0 0 1rem 0;
+    color: var(--texto-principal);
+}
+
+.invites-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.invite-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--branco);
+    border-radius: 8px;
+    border: 1px solid var(--borda);
+}
+
+.invite-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.invite-info strong {
+    font-size: 0.9rem;
+}
+
+.invite-info span {
+    font-size: 0.75rem;
+    color: var(--texto-secundario);
+}
+
+.invite-item .invite-actions {
+    gap: 0.5rem;
+}
+
+.btn-accept {
+    background: var(--verde-medio);
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--verde-escuro);
+}
+
+.btn-reject {
+    background: #fee2e2;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #dc2626;
+}
+
+.colaboradores-list h4 {
+    margin: 0 0 1rem 0;
+    color: var(--texto-principal);
+}
+
+.colab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.colab-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: var(--branco);
+    border-radius: 12px;
+    border: 1px solid var(--verde-pastel);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.colab-card:hover {
+    border-color: var(--verde-medio);
+    transform: translateY(-2px);
+}
+
+.colab-avatar img,
+.colab-avatar .avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.colab-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.colab-info strong {
+    font-size: 0.95rem;
+    color: var(--verde-escuro);
+}
+
+.colab-role {
+    font-size: 0.75rem;
+    color: var(--texto-secundario);
+    text-transform: capitalize;
+}
+
+.empty-colabs {
+    text-align: center;
+    padding: 2rem;
+    color: var(--texto-secundario);
+    background: var(--fundo-secundario);
+    border-radius: 12px;
 }

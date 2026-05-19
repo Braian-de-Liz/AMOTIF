@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { URL_API_TESTE } from "../utility/url_apis";
+import { SearchBar } from "./SearchBar";
+import { UserCard } from "./UserCard";
 import '../styles/Shared.css';
 import {ProjectCard} from './project_Card'
 
@@ -8,8 +11,10 @@ function Feed() {
     const [loading, setLoading] = useState(true);
     const [, setErro] = useState(null);
     const [filtroInstrumento, setFiltroInstrumento] = useState(""); 
+    const [searchResults, setSearchResults] = useState(null);
 
     const abortControllerRef = useRef(null);
+    const navigate = useNavigate();
 
     const carregarFeed = useCallback(async () => {
         if (abortControllerRef.current) {
@@ -60,32 +65,83 @@ function Feed() {
         };
     }, [carregarFeed]); 
 
+    const handleSearchResults = (results) => {
+        setSearchResults(results);
+    };
+
+    const handleUserClick = (userId) => {
+        navigate(`/usuario/${userId}`);
+    };
+
     if (loading && projetos.length === 0) return <div>Carregando...</div>;
 
     return (
         <div className="feed-container">
-            <header className="feed-header">
-                <h2 className="feed-title">Explorar Projetos</h2>
-                
-                <select 
-                    className="filter-select"
-                    onChange={(e) => setFiltroInstrumento(e.target.value)}
-                >
-                    <option value="">Todos os instrumentos</option>
-                    <option value="Baixo">Precisando de Baixo</option>
-                    <option value="Guitarra">Precisando de Guitarra</option>
-                    <option value="Vocal">Precisando de Vocal</option>
-                </select>
-            </header>
+            <SearchBar onSearchResults={handleSearchResults} />
 
-            {projetos.length > 0 ? (
-                <div className="feed-grid">
-                    {projetos.map(proj => (
-                        <ProjectCard key={proj.id} proj={proj} />
-                    ))}
+            {searchResults ? (
+                <div className="search-results">
+                    <div className="search-results-header">
+                        <h3>
+                            {searchResults.type === 'projetos' 
+                                ? `Encontrados: ${searchResults.data.length} projeto(s)`
+                                : `Encontrados: ${searchResults.data.length} músico(s)`
+                            }
+                        </h3>
+                    </div>
+
+                    {searchResults.type === 'projetos' ? (
+                        searchResults.data.length > 0 ? (
+                            <div className="feed-grid">
+                                {searchResults.data.map(proj => (
+                                    <ProjectCard key={proj.id} proj={proj} />
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="empty-state">Nenhum projeto encontrado.</p>
+                        )
+                    ) : (
+                        searchResults.data.length > 0 ? (
+                            <div className="users-grid">
+                                {searchResults.data.map(user => (
+                                    <UserCard 
+                                        key={user.id} 
+                                        user={user} 
+                                        onClick={() => handleUserClick(user.id)}
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <p className="empty-state">Nenhum musician encontrado.</p>
+                        )
+                    )}
                 </div>
             ) : (
-                <p className="empty-state">Nenhum projeto precisando de {filtroInstrumento || 'músicos'} no momento.</p>
+                <>
+                    <header className="feed-header">
+                        <h2 className="feed-title">Explorar Projetos</h2>
+                        
+                        <select 
+                            className="filter-select"
+                            onChange={(e) => setFiltroInstrumento(e.target.value)}
+                        >
+                            <option value="">Todos os instrumentos</option>
+                            <option value="Baixo">Precisando de Baixo</option>
+                            <option value="Guitarra">Precisando de Guitarra</option>
+                            <option value="Vocal">Precisando de Vocal</option>
+                        </select>
+                    </header>
+
+                    {projetos.length > 0 ? (
+                        <div className="feed-grid">
+                            {projetos.map(proj => (
+                                <ProjectCard key={proj.id} proj={proj} />
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="empty-state">Nenhum projeto precisando de {filtroInstrumento || 'músicos'} no momento.</p>
+                    )}
+                </>
             )}
         </div>
     );

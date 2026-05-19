@@ -1,6 +1,5 @@
 import { useState } from 'react'; 
 import { MyProjetosLoader } from '../components/MyLoadProjects';
-import { Nav } from '../components/nav';
 import { CreateProjectModal } from '../components/init_project';
 import { FollowersList, UserStats } from '../components/FollowersComponents';
 import '../styles/User.css';
@@ -14,7 +13,6 @@ function UserPage() {
 
     return (
         <div className="user-dashboard">
-            <Nav />
             
             <header className="user-header">
                 <h1>Minha Estante Musical</h1>

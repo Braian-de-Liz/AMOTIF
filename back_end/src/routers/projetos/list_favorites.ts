@@ -48,7 +48,7 @@ const Favorites_plugin: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         return reply.status(200).send({
             status: 'sucesso',
-            Favotitos,
+            favoritos: Favotitos,
             total: Favotitos.length
         });
 

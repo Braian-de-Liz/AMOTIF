@@ -6,10 +6,10 @@ const search_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
 
     Fastify.get("/search/projects", search_project_schema, async (request, reply) => {
-
+        const userId = request.user.id;
         const { query, escala, bpm_min, bpm_max, genero } = request.query;
 
-        const projetos = await Fastify.prisma.projeto.findMany({
+        const projetosRaw = await Fastify.prisma.projeto.findMany({
             where: {
                 AND: [
                     query ? {
@@ -43,11 +43,27 @@ const search_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                         camadas: true,
                         colaboradores: true
                     }
+                },
+                likes: {
+                    where: { userId },
+                    select: { id: true }
+                },
+                favoritos: {
+                    where: { userId },
+                    select: { id: true }
                 }
             },
             orderBy: { createdAt: 'desc' },
             take: 30
         });
+
+        const projetos = projetosRaw.map((projeto: any) => ({
+            ...projeto,
+            userHasLiked: projeto.likes.length > 0,
+            userHasFavorited: projeto.favoritos.length > 0,
+            likes: undefined,
+            favoritos: undefined
+        }));
 
         return reply.status(200).send({
             status: "sucesso",

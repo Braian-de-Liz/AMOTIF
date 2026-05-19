@@ -6,8 +6,12 @@ import { Login } from './pages/login';
 import { Cadastro } from './pages/cadastro';
 import { Home } from './pages/home';
 import { UserPage } from './pages/user';
+import { UserProfile } from './pages/userProfile';
 import { Studio } from './pages/studio';
+import { InvitesPage } from './pages/invitesPage';
+import { FavoritesPage } from './pages/favoritesPage';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { AppLayout } from './components/AppLayout';
 
 function App() {
   return (
@@ -17,25 +21,18 @@ function App() {
         <Route path='/' element={<Login />} />
         <Route path='/cadastro' element={<Cadastro />} />
 
-        <Route path='/home' element={
+        <Route element={
           <ProtectedRoute>
-            <Home />
+            <AppLayout />
           </ProtectedRoute>
-        } />
-
-
-        <Route path='/usuario' element={
-          <ProtectedRoute>
-            <UserPage />
-          </ProtectedRoute>
-        } />
-
-
-        <Route path='/studio/:id' element={
-          <ProtectedRoute>
-            <Studio />
-          </ProtectedRoute>
-        } />
+        }>
+          <Route path='/home' element={<Home />} />
+          <Route path='/usuario' element={<UserPage />} />
+          <Route path='/studio/:id' element={<Studio />} />
+          <Route path='/usuario/:id' element={<UserProfile />} />
+          <Route path='/convites' element={<InvitesPage />} />
+          <Route path='/favoritos' element={<FavoritesPage />} />
+        </Route>
 
       </Routes>
     </Router>

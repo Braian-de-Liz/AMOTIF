@@ -39,7 +39,9 @@ const search_project_schema = {
                     _count: Type.Object({
                         camadas: Type.Number(),
                         colaboradores: Type.Number()
-                    })
+                    }),
+                    userHasLiked: Type.Boolean(),
+                    userHasFavorited: Type.Boolean()
                 }))
             }),
             ...Error_schema

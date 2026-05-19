@@ -27,7 +27,7 @@ const list_favorites_schema = {
         response: {
             200: Type.Object({
                 status: Type.String(),
-                Favotitos: Type.Array(Type.Object({
+                favoritos: Type.Array(Type.Object({
                     id: Type.String({ format: 'uuid' }),
                     titulo: Type.String(),
                     genero: Type.String(),

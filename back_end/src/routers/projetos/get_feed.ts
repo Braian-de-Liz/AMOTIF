@@ -42,6 +42,10 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
                 likes: {
                     where: { userId },
                     select: { id: true }
+                },
+                favoritos: {
+                    where: { userId },
+                    select: { id: true }
                 }
             }
         });
@@ -49,7 +53,9 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
         const projetos = projetosRaw.map((projeto: any) => ({
             ...projeto,
             userHasLiked: projeto.likes.length > 0,
-            likes: undefined
+            userHasFavorited: projeto.favoritos.length > 0,
+            likes: undefined,
+            favoritos: undefined
         }));
 
         return reply.status(200).send({
