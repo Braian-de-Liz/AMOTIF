@@ -5,8 +5,6 @@ import cors from "@fastify/cors";
 import fastifyJwt from "@fastify/jwt";
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
-import dotenv from 'dotenv';
-dotenv.config();
 
 import prisma_plugin from './lib/prisma.js';
 import { globalErrorHandler } from './lib/global_Error.js';
@@ -14,12 +12,12 @@ import { Plugin_Routes } from './routers/plugin_routes.js';
 import { health_route } from './routers/health/health.js';
 
 
-if (!process.env.JWT_PASSOWORD) {
+if (!Bun.env.JWT_PASSOWORD) {
     console.error("ERRO FATAL: A variável de ambiente JWT_PASSOWORD não foi definida.");
     process.exit(1);
 }
 
-const JWT_PASSOWORD: string = process.env.JWT_PASSOWORD;
+const JWT_PASSOWORD: string = Bun.env.JWT_PASSOWORD;
 
 const Fastify: FastifyInstance = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
 
@@ -55,7 +53,7 @@ await Fastify.register(Plugin_Routes);
 await Fastify.register(health_route);
 
 const start = async () => {
-    const port: number = Number(process.env.PORT) || 3333;
+    const port: number = Number(Bun.env.PORT) || 3333;
 
     try {
         await Fastify.ready();

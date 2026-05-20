@@ -1,6 +1,8 @@
+import { MusicGenre } from "@prisma/client";
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { get_feed_schema } from "../../schemas/projetos/get_explorer.js";
+
 
 const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
@@ -11,7 +13,7 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         const projetosRaw = await Fastify.prisma.projeto.findMany({
             where: {
-                ...(genero && { genero: genero as any }),
+                ...(genero && { genero: genero as MusicGenre }),
                 ...(instrumentoFaltante && {
                     NOT: {
                         camadas: {
@@ -50,7 +52,7 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         });
 
-        const projetos = projetosRaw.map((projeto: any) => ({
+        const projetos = projetosRaw.map((projeto) => ({
             ...projeto,
             userHasLiked: projeto.likes.length > 0,
             userHasFavorited: projeto.favoritos.length > 0,

@@ -35,7 +35,7 @@ const Reject_Invite: FastifyPluginAsyncTypebox = async (Fastify) => {
                 tipo: "PROJECT_REJECT",
                 mensagem: `${request.user.nome} recusou o convite para o projeto ${convite.projeto.titulo}.`
             }
-        }).catch((e: any) => Fastify.log.error("Erro notif rejeição: " + e));
+        });
 
         return reply.status(200).send({
             status: "sucesso",

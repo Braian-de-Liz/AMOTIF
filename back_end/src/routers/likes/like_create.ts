@@ -10,7 +10,7 @@ const Create_like: FastifyPluginAsyncTypebox = async (Fastify) => {
         const { projetoId } = request.params;
         const userId = request.user.id;
 
-        const result = await Fastify.prisma.$transaction(async (ctx: any) => {
+        const result = await Fastify.prisma.$transaction(async (ctx) => {
 
             const existingLike = await ctx.like.findUnique({
                 where: { userId_projetoId: { userId, projetoId } }

@@ -1,7 +1,7 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { recupere_senha_schema } from '../../schemas/user_schema/forgot_password.schema.js'
-import argon2 from "argon2";
+
 
 const Recuperar_senha: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
@@ -19,7 +19,7 @@ const Recuperar_senha: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
-        const validate_senha = await argon2.verify(user.senha, senha);
+        const validate_senha = await Bun.password.verify(user.senha, senha);
 
         if (!validate_senha) {
             return reply.status(401).send({
@@ -29,10 +29,10 @@ const Recuperar_senha: FastifyPluginAsyncTypebox = async (Fastify) => {
         }
 
 
-        const nova_senha_hash = await argon2.hash(nova_senha, {
-            memoryCost: 2 ** 15,
+        const nova_senha_hash = await Bun.password.hash(nova_senha, {
+            algorithm: "argon2id",
             timeCost: 2,
-            parallelism: 1
+            memoryCost: 4096
         });
 
 

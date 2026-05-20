@@ -29,7 +29,7 @@ const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
 
             if (seguidores.length > 0) {
-                const notificationsData = seguidores.map((f: any) => ({
+                const notificationsData = seguidores.map((f) => ({
                     userId: f.followerId,
                     actorId: userId,
                     projetoId: novo_projeto.id,

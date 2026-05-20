@@ -9,7 +9,7 @@ const Update_project: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.patch("/projetos/:id", update_project_schema, async (request, reply) => {
         const { id } = request.params;
-        const dadosAtualizados = request.body as any;
+        const dadosAtualizados = request.body;
 
         const projeto = await Fastify.prisma.projeto.update({
             where: { id },

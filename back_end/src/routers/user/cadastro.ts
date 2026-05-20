@@ -1,5 +1,4 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import argon2 from "argon2";
 import { schema_register } from "../../schemas/user_schema/cadastroUSer_sche.js";
 
 const User_register: FastifyPluginAsyncTypebox = async (Fastify) => {
@@ -26,12 +25,11 @@ const User_register: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
-        const senha_hash = await argon2.hash(senha, {
-            type: argon2.argon2id,
-            memoryCost: 2 ** 15,
-            timeCost: 2,
-            parallelism: 1
-        });
+        const senha_hash = await Bun.password.hash(senha, {
+            algorithm: "argon2id",
+            memoryCost: 4096,
+            timeCost: 2
+        })
 
         const user = await Fastify.prisma.user.create({
             data: {

@@ -1,5 +1,4 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import argon2 from "argon2";
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { Schema_del_user } from "../../schemas/user_schema/delete_user_schema.js";
@@ -23,7 +22,7 @@ const Deletar_user: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
-        const senha_true = await argon2.verify(encontrar_user.senha, senha);
+        const senha_true = await Bun.password.verify(encontrar_user.senha, senha);
 
         if (!senha_true) {
             Fastify.log.error("senha incorreta");

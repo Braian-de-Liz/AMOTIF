@@ -1,5 +1,4 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
-import argon2 from "argon2";
 import { schema_login } from "../../schemas/user_schema/schema_login.js";
 
 const login_user: FastifyPluginAsyncTypebox = async (Fastify) => {
@@ -19,7 +18,7 @@ const login_user: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
-        const senhaValida = await argon2.verify(check_user.senha, senha);
+        const senhaValida = await Bun.password.verify(check_user.senha, senha);
 
         if (!senhaValida) {
             Fastify.log.error("Dados incorretos");

@@ -57,7 +57,7 @@ const search_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             take: 30
         });
 
-        const projetos = projetosRaw.map((projeto: any) => ({
+        const projetos = projetosRaw.map((projeto) => ({
             ...projeto,
             userHasLiked: projeto.likes.length > 0,
             userHasFavorited: projeto.favoritos.length > 0,

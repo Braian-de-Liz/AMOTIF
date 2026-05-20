@@ -11,10 +11,10 @@ declare module 'fastify' {
     }
 }
 
-const prisma_plugin: FastifyPluginAsync = fp(async (fastify) => {
+const prisma_plugin: FastifyPluginAsync = fp(async (Fastify) => {
 
     const pool = new pg.Pool({
-        connectionString: process.env.DATABASE_URL,
+        connectionString: Bun.env.DATABASE_URL!,
         max: 10,              
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 10000,
@@ -30,14 +30,14 @@ const prisma_plugin: FastifyPluginAsync = fp(async (fastify) => {
     try {
         await prisma.$connect();
 
-        fastify.addHook('onClose', async (instance) => {
+        Fastify.addHook('onClose', async (instance) => {
             await instance.prisma.$disconnect();
             await pool.end();
             console.log("Conexões com o banco encerradas com sucesso.");
         });
 
-        fastify.decorate('prisma', prisma);
-        fastify.decorate('notiType', NotificationType); 
+        Fastify.decorate('prisma', prisma);
+        Fastify.decorate('notiType', NotificationType); 
         
         console.log("NeonDB conectado");
 

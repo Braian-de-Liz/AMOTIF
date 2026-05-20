@@ -3,7 +3,6 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 import { Schema_del_project } from "../../schemas/projetos/del_project.schema.js";
-import argon2 from "argon2";
 
 const del_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
@@ -24,7 +23,7 @@ const del_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             return reply.status(404).send({ status: 'erro', mensagem: "Usuário não encontrado" });
         }
 
-        const check_password = await argon2.verify(user.senha, senha);
+        const check_password = await Bun.password.verify(user.senha, senha);
 
         if (!check_password) {
             Fastify.log.error("erro au autenticar senha");
@@ -40,7 +39,10 @@ const del_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             where: { id }
         });
 
-        return reply.status(202).send({ status: "sucesso", mensagem: "Projeto deletado" });
+        return reply.status(202).send({
+            status: "sucesso",
+            mensagem: "Projeto deletado"
+        });
 
     });
 }

@@ -43,7 +43,7 @@ const connectionErrorCodes = new Set(["P1000", "P1001", "P1002", "P1003", "P1008
 interface ErrorResponse {
   status: string;
   mensagem: string;
-  erros?: any;
+  erros?: unknown;
   codigo?: string;
 }
 
