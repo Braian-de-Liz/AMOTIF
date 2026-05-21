@@ -60,9 +60,9 @@ const start = async () => {
         await Fastify.listen({ port: port, host: '0.0.0.0' });
 
         const usedMemory = process.memoryUsage();
-        const heapUsedMB = (usedMemory.heapUsed / 1024 / 1024).toFixed(2);
-        const rssMB = (usedMemory.rss / 1024 / 1024).toFixed(2);
-        const bootTime = process.uptime().toFixed(2);
+        const heapUsedMB = (usedMemory.heapUsed / 1024 / 1024).toFixed(4);
+        const rssMB = (usedMemory.rss / 1024 / 1024).toFixed(4);
+        const bootTime = process.uptime().toFixed(3);
 
         console.log(`
             AMOTIF Back-end Online!
@@ -76,10 +76,6 @@ const start = async () => {
         
             -----------------------------------------
         `);
-
-        Fastify.log.info(`Servidor iniciado na porta ${port}`);
-
-
 
     }
     catch (erro) {
