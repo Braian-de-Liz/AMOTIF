@@ -1,6 +1,7 @@
 // front_end\src\App.jsx
 import './styles/Global.css';
 import './styles/Shared.css';
+import './styles/Form.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Login } from './pages/login';
 import { Cadastro } from './pages/cadastro';

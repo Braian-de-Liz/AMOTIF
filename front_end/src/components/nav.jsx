@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, User, Music, Heart, Mail, Bell } from 'lucide-react';
+import { Home, User, Music, Heart, Mail } from 'lucide-react';
 import { Notificacoes } from './pull_notifications';
 import '../styles/Navbar.css';
 

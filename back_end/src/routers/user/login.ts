@@ -18,7 +18,7 @@ const login_user: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
-        const senhaValida = await Bun.password.verify(check_user.senha, senha);
+        const senhaValida = await Bun.password.verify(senha, check_user.senha);
 
         if (!senhaValida) {
             Fastify.log.error("Dados incorretos");

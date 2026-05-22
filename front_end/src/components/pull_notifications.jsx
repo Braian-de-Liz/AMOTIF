@@ -1,12 +1,28 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { URL_API_TESTE } from '../utility/url_apis';
 
 export const Notificacoes = () => {
     const [notificacoes, setNotificacoes] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const popupRef = useRef(null);
+    const bellButtonRef = useRef(null);
 
     const naoLidas = notificacoes.filter(n => !n.lida).length;
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') setIsOpen(false);
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen]);
+
+    const togglePopup = useCallback(() => {
+        setIsOpen(prev => !prev);
+    }, []);
 
     useEffect(() => {
         const fetchNotificacoes = async () => {
@@ -68,14 +84,15 @@ export const Notificacoes = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const togglePopup = () => setIsOpen(!isOpen);
-
     return (
         <div className="notifications-wrapper">
             <button 
                 className="notifications-bell" 
                 onClick={togglePopup}
                 aria-label="Notificações"
+                aria-expanded={isOpen}
+                aria-controls="notifications-popup"
+                ref={bellButtonRef}
             >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
@@ -87,10 +104,10 @@ export const Notificacoes = () => {
             </button>
 
             {isOpen && (
-                <div className="notifications-popup" ref={popupRef}>
+                <div className="notifications-popup" ref={popupRef} id="notifications-popup" role="dialog" aria-label="Notificações">
                     <div className="notifications-popup-header">
-                        <h3>Notificações</h3>
-                        <button className="notifications-popup-close" onClick={() => setIsOpen(false)}>&times;</button>
+                        <h3 id="notifications-popup-title">Notificações</h3>
+                        <button className="notifications-popup-close" onClick={() => setIsOpen(false)} aria-label="Fechar notificações">&times;</button>
                     </div>
                     <div className="notifications-popup-content">
                         <div className="notifications-container">

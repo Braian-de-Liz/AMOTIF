@@ -1,6 +1,5 @@
 /* front_end/src/styles/Studio.css */
 @import './User.css';
-@import './Shared.css';
 
 .studio-page {
     max-width: 1200px;
@@ -200,7 +199,23 @@ audio::-webkit-media-controls-panel {
 }
 
 @media (max-width: 768px) {
-    .studio-page {
+.studio-controls {
+    margin-top: 1rem;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.btn-stop {
+    border-color: var(--erro) !important;
+    color: var(--erro) !important;
+}
+
+.btn-gravar {
+    border-color: var(--verde-medio);
+}
+
+.studio-page {
         padding: 1rem;
         padding-bottom: 100px;
     }

@@ -21,6 +21,61 @@
   --texto-secundario: #4a5e4a;
   --borda: #c2d6c2;
   --badge-bpm: #b8d9b8;
+
+  /* Cores semânticas */
+  --erro: #dc2626;
+  --erro-bg: #fee2e2;
+  --erro-texto: #991b1b;
+  --sucesso: #16a34a;
+  --sucesso-bg: #dcfce7;
+  --sucesso-texto: #166534;
+  --aviso: #d97706;
+  --aviso-bg: #fef3c7;
+  --aviso-texto: #92400e;
+  --info: #2563eb;
+  --info-bg: #dbeafe;
+  --info-texto: #1e40af;
+
+  /* Escala de spacing */
+  --space-2xs: 0.25rem;
+  --space-xs: 0.5rem;
+  --space-sm: 0.75rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 2.5rem;
+  --space-3xl: 3rem;
+  --space-4xl: 4rem;
+
+  /* Escala tipográfica */
+  --text-xs: 0.75rem;
+  --text-sm: 0.85rem;
+  --text-base: 0.95rem;
+  --text-lg: 1.1rem;
+  --text-xl: 1.3rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.8rem;
+  --text-4xl: 2rem;
+  --text-5xl: 2.2rem;
+
+  /* Escala de border-radius */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 25px;
+  --radius-full: 9999px;
+
+  /* Escala de z-index */
+  --z-base: 1;
+  --z-dropdown: 100;
+  --z-sticky: 200;
+  --z-popup: 1000;
+  --z-overlay: 2000;
+  --z-modal: 2000;
+  --z-toast: 3000;
+  --z-max: 9999;
 }
 
 body {
@@ -68,4 +123,60 @@ h1, h2, h3 {
 hr {
   border: 1px solid var(--verde-pastel);
   margin: 1rem 0;
+}
+
+/* Utilitários de formulário compartilhados */
+.form-title {
+  text-align: center;
+  margin-bottom: var(--space-lg);
+  font-size: var(--text-3xl);
+  color: var(--verde-escuro);
+}
+
+.form-error {
+  text-align: center;
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--erro-bg);
+  color: var(--erro-texto);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--erro);
+  margin-bottom: var(--space-md);
+  font-size: var(--text-sm);
+}
+
+/* Acessibilidade: reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Scrollbar personalizada - Webkit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(107, 142, 77, 0.3);
+  border-radius: var(--radius-full);
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 142, 77, 0.6);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(107, 142, 77, 0.3) transparent;
 }

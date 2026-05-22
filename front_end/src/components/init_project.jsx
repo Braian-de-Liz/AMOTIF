@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { parseBlob } from 'music-metadata';
 import { URL_API_TESTE, UPLOAD_URL } from '../utility/url_apis';
 import '../styles/User.css';
@@ -20,6 +20,19 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
     const [audioMeta, setAudioMeta] = useState(null);
     const [audioAnalyzing, setAudioAnalyzing] = useState(false);
     const [audioError, setAudioError] = useState(null);
+    const [submitError, setSubmitError] = useState(null);
+    const modalRef = useRef(null);
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') onClose();
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, onClose]);
 
     if (!isOpen) return null;
 
@@ -72,8 +85,9 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!file) return alert("Por favor, selecione um áudio guia.");
-        if (!audioMeta) return alert("Aguardando análise do áudio...");
+        setSubmitError(null);
+        if (!file) { setSubmitError("Por favor, selecione um áudio guia."); return; }
+        if (!audioMeta) { setSubmitError("Aguardando análise do áudio..."); return; }
 
         setLoading(true);
         const token = localStorage.getItem("token");
@@ -128,20 +142,22 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
                 onClose();
             } else {
                 const data = await response.json();
-                alert(`Erro: ${data.mensagem}`);
+                setSubmitError(`Erro: ${data.mensagem}`);
             }
         } catch (error) {
             console.error(error);
-            alert(error.message);
+            setSubmitError(error.message);
         } finally {
             setLoading(false);
         }
     };
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content form_login" onClick={e => e.stopPropagation()}>
-                <h2 className="modal-title">Novo Projeto</h2>
+        <div className="modal-overlay" onClick={onClose} role="presentation">
+            <div className="modal-content form_login" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="modal-title" ref={modalRef}>
+                <h2 className="modal-title" id="modal-title">Novo Projeto</h2>
+
+                {submitError && <div className="error-badge">{submitError}</div>}
 
                 <form onSubmit={handleSubmit}>
                     <div className="form-group">

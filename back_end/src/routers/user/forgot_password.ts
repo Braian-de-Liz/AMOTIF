@@ -19,7 +19,7 @@ const Recuperar_senha: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
-        const validate_senha = await Bun.password.verify(user.senha, senha);
+        const validate_senha = await Bun.password.verify(senha, user.senha);
 
         if (!validate_senha) {
             return reply.status(401).send({

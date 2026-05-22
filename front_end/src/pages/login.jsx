@@ -11,18 +11,20 @@ function Login() {
     const navigate = useNavigate(); 
     const [email, Setemail] = useState('');
     const [senha, Setsenha] = useState('');
+    const [erro, setErro] = useState('');
 
     
     async function request_log(e) {
         e.preventDefault();
+        setErro('');
 
         if (!validar_email(email)) {
-            alert("email inválido");
+            setErro("Email inválido");
             return false;
         }
     
         if (senha.length < 8) {
-            alert("A senha deve ter pelo menos 8 caracteres.");
+            setErro("A senha deve ter pelo menos 8 caracteres.");
             return false;
         }
 
@@ -37,8 +39,6 @@ function Login() {
                 body: JSON.stringify(dados_login)
             })
 
-
-
             const data = await try_login.json();
 
             if (!try_login.ok) {
@@ -50,23 +50,23 @@ function Login() {
             localStorage.setItem("usuario_id", data.usuario.id);
             localStorage.setItem("usuario_nome", data.usuario.nome);
 
-            
-
             navigate("/home");
         }
         catch (erro) {
             console.error('Erro no login:', erro);
-            alert('Erro ao fazer login: ' + erro.message);
+            setErro('Erro ao fazer login: ' + erro.message);
         }
     }
 
     return (
         <div className="login-page">
             <form className='form_login' onSubmit={request_log}>
-                <h1 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.8rem' }}>AMOTIF</h1>
+                <h1 className="form-title">AMOTIF</h1>
+
+                {erro && <div className="form-error" role="alert">{erro}</div>}
 
                 <div>
-                    <label>Email</label>
+                    <label>E-mail</label>
                     <input type="email" value={email} onChange={(e) => Setemail(e.target.value)} placeholder="seu@email.com" />
                 </div>
 

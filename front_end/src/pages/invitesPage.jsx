@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { Mail, Check, X, Clock } from 'lucide-react';
 import '../styles/User.css';
 
 function InvitesPage() {
+    const navigate = useNavigate();
     const [convites, setConvites] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -66,7 +68,7 @@ function InvitesPage() {
     };
 
     const handleNavigateToStudio = (projetoId) => {
-        window.location.href = `/studio/${projetoId}`;
+        navigate(`/studio/${projetoId}`);
     };
 
     if (loading) return <div className="loading-txt">Carregando convites...</div>;

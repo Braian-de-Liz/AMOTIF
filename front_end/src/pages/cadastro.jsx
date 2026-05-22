@@ -4,6 +4,7 @@ import { validar_cpf } from "../utility/validar_cpf";
 import { validar_email } from "../utility/validar_email";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
+import '../styles/Cadastro.css';
 
 function Cadastro() {
 
@@ -12,24 +13,28 @@ function Cadastro() {
     const [email, Setemail] = useState('');
     const [senha, Setsenha] = useState('');
     const [cpf, Setcpf] = useState('');
+    const [erro, setErro] = useState('');
+    const [sucesso, setSucesso] = useState('');
 
     async function cadastrar(e) {
         e.preventDefault();
+        setErro('');
+        setSucesso('');
 
         if(!nome_completo || !email || !senha || !cpf){
-            alert("preencha os dados para cadastrar-se");
+            setErro("Preencha todos os campos para cadastrar-se");
             return false;
         }
 
         
         if (!validar_email(email)) {
-            alert("email inválido");
+            setErro("Email inválido");
             return false;
         }
         
         const cpfLimpo = cpf.replace(/\D/g, '');
         if (!validar_cpf(cpfLimpo)) {
-            alert("cpf inválido");
+            setErro("CPF inválido");
             return false;
         }
 
@@ -48,24 +53,27 @@ function Cadastro() {
             const data = await cadastro.json().catch(() => cadastro.text());
 
             if(!cadastro.ok){
-                alert("erro ao cadastrar :" + data);
+                setErro("Erro ao cadastrar: " + data);
                 return false;
             }
 
-            alert("cadastrado com sucesso");
-            navigate("/");
+            setSucesso("Cadastrado com sucesso!");
+            setTimeout(() => navigate("/"), 1500);
         }
 
         catch(erro) {
             console.error("Erro na requisição:", erro);
-            alert("Erro de conexão com o servidor.");
+            setErro("Erro de conexão com o servidor.");
         }
     }
 
     return (
         <div className="cadastro-page">
             <form className="form_login" onSubmit={cadastrar}>
-                <h1 style={{ textAlign: 'center', marginBottom: '1.5rem', fontSize: '1.8rem' }}>Criar Conta</h1>
+                <h1 className="form-title">Criar Conta</h1>
+
+                {erro && <div className="form-error" role="alert">{erro}</div>}
+                {sucesso && <div className="form-error" role="status" style={{ backgroundColor: 'var(--sucesso-bg)', color: 'var(--sucesso-texto)', borderColor: 'var(--sucesso)' }}>{sucesso}</div>}
 
                 <div>
                     <label>Nome Completo</label>

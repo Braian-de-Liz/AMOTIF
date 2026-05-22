@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { Bell } from 'lucide-react';
 import '../styles/Shared.css';
@@ -7,8 +7,24 @@ function FloatingNotifications() {
     const [notificacoes, setNotificacoes] = useState([]);
     const [isOpen, setIsOpen] = useState(false);
     const popupRef = useRef(null);
+    const fabButtonRef = useRef(null);
 
     const naoLidas = notificacoes.filter(n => !n.lida).length;
+
+    useEffect(() => {
+        if (!isOpen) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') setIsOpen(false);
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen]);
+
+    const togglePopup = useCallback(() => {
+        setIsOpen(prev => !prev);
+    }, []);
 
     useEffect(() => {
         const fetchNotificacoes = async () => {
@@ -60,8 +76,11 @@ function FloatingNotifications() {
         <>
             <button 
                 className="floating-notifications-btn" 
-                onClick={() => setIsOpen(!isOpen)}
+                onClick={togglePopup}
                 aria-label="Notificações"
+                aria-expanded={isOpen}
+                aria-controls="floating-notifications-popup"
+                ref={fabButtonRef}
             >
                 <Bell size={24} />
                 {naoLidas > 0 && (
@@ -70,10 +89,10 @@ function FloatingNotifications() {
             </button>
 
             {isOpen && (
-                <div className="floating-notifications-popup" ref={popupRef}>
+                <div className="floating-notifications-popup" ref={popupRef} id="floating-notifications-popup" role="dialog" aria-label="Notificações">
                     <div className="floating-notifications-header">
-                        <h3>Notificações</h3>
-                        <button className="notifications-popup-close" onClick={() => setIsOpen(false)}>&times;</button>
+                        <h3 id="floating-notifications-title">Notificações</h3>
+                        <button className="notifications-popup-close" onClick={() => setIsOpen(false)} aria-label="Fechar notificações">&times;</button>
                     </div>
                     <div className="floating-notifications-content">
                         {notificacoes.length > 0 ? (

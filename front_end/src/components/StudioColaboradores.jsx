@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { UserPlus, X, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +10,21 @@ function StudioColaboradores({ projetoId, isOwner }) {
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [inviteEmail, setInviteEmail] = useState('');
     const [inviting, setInviting] = useState(false);
+    const [inviteErro, setInviteErro] = useState(null);
+    const [inviteSucesso, setInviteSucesso] = useState(null);
     const navigate = useNavigate();
+    const inviteModalRef = useRef(null);
+
+    useEffect(() => {
+        if (!showInviteModal) return;
+
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') setShowInviteModal(false);
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [showInviteModal]);
 
     useEffect(() => {
         fetchData();
@@ -50,6 +64,8 @@ function StudioColaboradores({ projetoId, isOwner }) {
         if (!inviteEmail.trim()) return;
 
         setInviting(true);
+        setInviteErro(null);
+        setInviteSucesso(null);
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/colaboration/${projetoId}/invite`, {
@@ -62,15 +78,19 @@ function StudioColaboradores({ projetoId, isOwner }) {
             });
 
             if (response.ok) {
-                alert('Convite enviado!');
+                setInviteSucesso('Convite enviado!');
                 setInviteEmail('');
-                setShowInviteModal(false);
+                setTimeout(() => {
+                    setShowInviteModal(false);
+                    setInviteSucesso(null);
+                }, 1500);
             } else {
                 const data = await response.json();
-                alert(data.mensagem || 'Erro ao enviar convite');
+                setInviteErro(data.mensagem || 'Erro ao enviar convite');
             }
         } catch (err) {
             console.error("Erro ao convidar:", err);
+            setInviteErro('Erro ao enviar convite');
         } finally {
             setInviting(false);
         }
@@ -130,9 +150,11 @@ function StudioColaboradores({ projetoId, isOwner }) {
             )}
 
             {showInviteModal && (
-                <div className="invite-modal-overlay" onClick={() => setShowInviteModal(false)}>
-                    <div className="invite-modal" onClick={e => e.stopPropagation()}>
-                        <h3>Convidar Colaborador</h3>
+                <div className="invite-modal-overlay" onClick={() => setShowInviteModal(false)} role="presentation">
+                    <div className="invite-modal" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="invite-modal-title" ref={inviteModalRef}>
+                        <h3 id="invite-modal-title">Convidar Colaborador</h3>
+                        {inviteErro && <div className="form-error">{inviteErro}</div>}
+                        {inviteSucesso && <div className="form-error" style={{ backgroundColor: 'var(--sucesso-bg)', color: 'var(--sucesso-texto)', borderColor: 'var(--sucesso)' }}>{inviteSucesso}</div>}
                         <form onSubmit={handleInvite}>
                             <input
                                 type="email"

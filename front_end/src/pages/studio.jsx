@@ -16,6 +16,7 @@ function Studio() {
     const [isPlayingAll, setIsPlayingAll] = useState(false);
     const [saving, setSaving] = useState(null);
     const [activeTab, setActiveTab] = useState('tracks');
+    const [saveErro, setSaveErro] = useState(null);
 
     const wavesurferRefs = useRef({});
 
@@ -105,12 +106,13 @@ function Studio() {
                         c.id === layerId ? { ...c, ...changes } : c
                     )
                 }));
+                setSaveErro(null);
             } else {
-                alert('Erro ao salvar alterações');
+                setSaveErro('Erro ao salvar alterações');
             }
         } catch (err) {
             console.error('Erro ao salvar:', err);
-            alert('Erro ao salvar alterações');
+            setSaveErro('Erro ao salvar alterações');
         } finally {
             setSaving(null);
         }
@@ -127,7 +129,7 @@ function Studio() {
             <div className="user-header">
                 <h1>Estúdio: {projeto.titulo}</h1>
                 <p>BPM: <strong>{projeto.bpm}</strong> | Gênero: {projeto.genero}</p>
-                <div style={{ marginTop: '1rem', display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                <div className="studio-controls">
                     <button 
                         className="btn-create-proj"
                         onClick={playAll}
@@ -137,14 +139,13 @@ function Studio() {
                     </button>
                     {isPlayingAll && (
                         <button 
-                            className="btn-small" 
+                            className="btn-small btn-stop" 
                             onClick={handleStopAll}
-                            style={{borderColor: '#ef4444', color: '#ef4444'}}
                         >
                             Stop
                         </button>
                     )}
-                    <button className="btn-small" style={{borderColor: 'var(--verde-medio)'}}>
+                    <button className="btn-small btn-gravar">
                         <Mic size={18}/> Gravar
                     </button>
                 </div>
@@ -175,6 +176,7 @@ function Studio() {
             </div>
 
             <main className="studio-content">
+                {saveErro && <div className="error-msg">{saveErro}</div>}
                 {activeTab === 'tracks' && (
                     <div className="studio-tracks">
                         <WaveformTrack

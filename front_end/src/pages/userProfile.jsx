@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ProjectCard } from '../components/project_Card';
 import { UserCard } from '../components/UserCard';
 import { URL_API_TESTE } from '../utility/url_apis';
@@ -7,6 +7,7 @@ import '../styles/User.css';
 
 function UserProfile() {
     const { id } = useParams();
+    const navigate = useNavigate();
     const [user, setUser] = useState(null);
     const [projetos, setProjetos] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -71,7 +72,7 @@ function UserProfile() {
     };
 
     const handleNavigateToStudio = (projetoId) => {
-        window.location.href = `/studio/${projetoId}`;
+        navigate(`/studio/${projetoId}`);
     };
 
     if (loading) return <div className="loading-txt">Carregando perfil...</div>;

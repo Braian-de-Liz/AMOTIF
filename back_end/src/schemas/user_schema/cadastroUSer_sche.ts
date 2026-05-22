@@ -9,7 +9,7 @@ const schema_register = {
             nome_completo: Type.String({ minLength: 6, maxLength: 87 }),
             email: Type.String({ format: 'email', minLength: 8 }),
             senha: Type.String({ minLength: 8, maxLength: 87 }),
-            cpf: Type.String({ pattern: '^[0-9]{11}$' })
+            cpf: Type.String({ pattern: "^\\d{11}$|^\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2}$" })
         }),
         response: {
             201: Type.Object({
