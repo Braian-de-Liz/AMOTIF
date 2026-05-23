@@ -1,6 +1,5 @@
 import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
-import { projetoSchema } from './get_schemaPROJETC.js';
 
 const GeneroEnum = Type.Union([
     Type.Literal("ROCK"), Type.Literal("POP"), Type.Literal("JAZZ"), Type.Literal("BLUES"),

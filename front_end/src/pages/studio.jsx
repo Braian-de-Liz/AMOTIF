@@ -8,7 +8,7 @@ import { URL_API_TESTE } from "../utility/url_apis";
 import { Play, Pause, Mic, Music, Users, MessageSquare } from "lucide-react";
 import '../styles/Studio.css';
 
-function Studio() { 
+function Studio() {
     const { id } = useParams();
     const [projeto, setProjeto] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -27,11 +27,11 @@ function Studio() {
                 const response = await fetch(`${URL_API_TESTE}/projetos/${id}`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
-                
+
                 const data = await response.json();
 
                 if (response.ok) {
-                    setProjeto(data.projeto || data); 
+                    setProjeto(data.projeto || data);
                 } else {
                     setErro(data.mensagem || "Erro ao carregar projeto.");
                 }
@@ -51,9 +51,9 @@ function Studio() {
 
     const playAll = async () => {
         if (!projeto) return;
-        
+
         const allWavesurfers = wavesurferRefs.current;
-        
+
         const guideWs = allWavesurfers['__guide__'];
         const layerWses = projeto.camadas?.map(c => allWavesurfers[c.id]).filter(Boolean) || [];
 
@@ -72,7 +72,7 @@ function Studio() {
 
     const handleStopAll = () => {
         const allWavesurfers = wavesurferRefs.current;
-        
+
         const guideWs = allWavesurfers['__guide__'];
         const layerWses = projeto.camadas?.map(c => allWavesurfers[c.id]).filter(Boolean) || [];
 
@@ -82,7 +82,7 @@ function Studio() {
             ws?.pause();
             ws?.seekTo(0);
         });
-        
+
         setIsPlayingAll(false);
     };
 
@@ -102,7 +102,7 @@ function Studio() {
             if (response.ok) {
                 setProjeto(prev => ({
                     ...prev,
-                    camadas: prev.camadas.map(c => 
+                    camadas: prev.camadas.map(c =>
                         c.id === layerId ? { ...c, ...changes } : c
                     )
                 }));
@@ -125,48 +125,48 @@ function Studio() {
     const isOwner = projeto.autor?.id === localStorage.getItem("usuario_id");
 
     return (
-        <div className="studio-page"> 
+        <div className="studio-page">
             <div className="user-header">
                 <h1>Estúdio: {projeto.titulo}</h1>
                 <p>BPM: <strong>{projeto.bpm}</strong> | Gênero: {projeto.genero}</p>
                 <div className="studio-controls">
-                    <button 
+                    <button
                         className="btn-create-proj"
                         onClick={playAll}
                     >
-                        {isPlayingAll ? <Pause size={18}/> : <Play size={18}/>} 
+                        {isPlayingAll ? <Pause size={18} /> : <Play size={18} />}
                         {isPlayingAll ? ' Pausar Tudo' : ' Ouvir Tudo'}
                     </button>
                     {isPlayingAll && (
-                        <button 
-                            className="btn-small btn-stop" 
+                        <button
+                            className="btn-small btn-stop"
                             onClick={handleStopAll}
                         >
                             Stop
                         </button>
                     )}
                     <button className="btn-small btn-gravar">
-                        <Mic size={18}/> Gravar
+                        <Mic size={18} /> Gravar
                     </button>
                 </div>
             </div>
 
             <div className="studio-tabs">
-                <button 
+                <button
                     className={`tab-btn ${activeTab === 'tracks' ? 'active' : ''}`}
                     onClick={() => setActiveTab('tracks')}
                 >
                     <Music size={18} />
                     Tracks
                 </button>
-                <button 
+                <button
                     className={`tab-btn ${activeTab === 'mural' ? 'active' : ''}`}
                     onClick={() => setActiveTab('mural')}
                 >
                     <MessageSquare size={18} />
                     Mural
                 </button>
-                <button 
+                <button
                     className={`tab-btn ${activeTab === 'colaboradores' ? 'active' : ''}`}
                     onClick={() => setActiveTab('colaboradores')}
                 >
@@ -218,8 +218,8 @@ function Studio() {
                     <StudioColaboradores projetoId={id} isOwner={isOwner} />
                 )}
             </main>
-            </div>
+        </div>
     );
 }
 
-export {Studio};
+export { Studio };

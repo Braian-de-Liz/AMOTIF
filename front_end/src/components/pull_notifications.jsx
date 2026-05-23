@@ -1,5 +1,8 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { URL_API_TESTE } from '../utility/url_apis';
+import { Bell } from 'lucide-react';
+import '../styles/Shared.css';
 
 export const Notificacoes = () => {
     const [notificacoes, setNotificacoes] = useState([]);
@@ -65,7 +68,7 @@ export const Notificacoes = () => {
 
         fetchNotificacoes();
 
-        const interval = setInterval(fetchNotificacoes, 20000);
+        const interval = setInterval(fetchNotificacoes, 180000);
 
         return () => clearInterval(interval);
     }, []);
@@ -74,7 +77,10 @@ export const Notificacoes = () => {
         const handleClickOutside = (event) => {
             if (popupRef.current && !popupRef.current.contains(event.target)) {
                 const bellButton = document.querySelector('.notifications-bell');
-                if (bellButton && !bellButton.contains(event.target)) {
+                const fabButton = document.querySelector('.floating-notifications-btn');
+                const isBellClick = bellButton && bellButton.contains(event.target);
+                const isFabClick = fabButton && fabButton.contains(event.target);
+                if (!isBellClick && !isFabClick) {
                     setIsOpen(false);
                 }
             }
@@ -85,25 +91,24 @@ export const Notificacoes = () => {
     }, []);
 
     return (
-        <div className="notifications-wrapper">
-            <button 
-                className="notifications-bell" 
-                onClick={togglePopup}
-                aria-label="Notificações"
-                aria-expanded={isOpen}
-                aria-controls="notifications-popup"
-                ref={bellButtonRef}
-            >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
-                    <path d="M13.73 21a2 2 0 0 1-3.46 0" />
-                </svg>
-                {naoLidas > 0 && (
-                    <span className="notifications-badge">{naoLidas}</span>
-                )}
-            </button>
+        <>
+            <div className="notifications-wrapper">
+                <button 
+                    className="notifications-bell" 
+                    onClick={togglePopup}
+                    aria-label="Notificações"
+                    aria-expanded={isOpen}
+                    aria-controls="notifications-popup"
+                    ref={bellButtonRef}
+                >
+                    <Bell size={20} />
+                    {naoLidas > 0 && (
+                        <span className="notifications-badge">{naoLidas}</span>
+                    )}
+                </button>
+            </div>
 
-            {isOpen && (
+            {isOpen && createPortal(
                 <div className="notifications-popup" ref={popupRef} id="notifications-popup" role="dialog" aria-label="Notificações">
                     <div className="notifications-popup-header">
                         <h3 id="notifications-popup-title">Notificações</h3>
@@ -139,8 +144,25 @@ export const Notificacoes = () => {
                             )}
                         </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
-        </div>
+
+            {createPortal(
+                <button
+                    className="floating-notifications-btn"
+                    onClick={togglePopup}
+                    aria-label="Notificações"
+                    aria-expanded={isOpen}
+                    aria-controls="notifications-popup"
+                >
+                    <Bell size={24} />
+                    {naoLidas > 0 && (
+                        <span className="notifications-badge">{naoLidas}</span>
+                    )}
+                </button>,
+                document.body
+            )}
+        </>
     );
 };

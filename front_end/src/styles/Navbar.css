@@ -23,6 +23,7 @@ nav ul {
 
 nav ul li.notifications-item {
   margin-left: auto;
+  position: relative;
 }
 
 nav ul li a {

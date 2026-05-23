@@ -22,7 +22,7 @@ const Deletar_user: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
-        const senha_true = await Bun.password.verify(encontrar_user.senha, senha);
+        const senha_true = await Bun.password.verify(senha, encontrar_user.senha);
 
         if (!senha_true) {
             Fastify.log.error("senha incorreta");
