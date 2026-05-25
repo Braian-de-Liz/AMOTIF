@@ -13,9 +13,15 @@ declare module 'fastify' {
 
 const prisma_plugin: FastifyPluginAsync = fp(async (Fastify) => {
 
+    const databaseUrl = Bun.env.DATABASE_URL;
+    if (!databaseUrl) {
+        console.error("ERRO FATAL: A variável de ambiente DATABASE_URL não foi definida.");
+        process.exit(1);
+    }
+
     const pool = new pg.Pool({
-        connectionString: Bun.env.DATABASE_URL!,
-        max: 10,              
+        connectionString: databaseUrl,
+        max: 10,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 10000,
     })
@@ -47,4 +53,4 @@ const prisma_plugin: FastifyPluginAsync = fp(async (Fastify) => {
     }
 });
 
-export default prisma_plugin;
+export {prisma_plugin};

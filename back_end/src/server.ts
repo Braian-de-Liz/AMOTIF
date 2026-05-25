@@ -6,7 +6,7 @@ import fastifyJwt from "@fastify/jwt";
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 
-import prisma_plugin from './lib/prisma.js';
+import { prisma_plugin } from './lib/prisma.js';
 import { globalErrorHandler } from './lib/global_Error.js';
 import { Plugin_Routes } from './routers/plugin_routes.js';
 import { health_route } from './routers/health/health.js';
