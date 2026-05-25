@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { parseBlob } from 'music-metadata';
 import { URL_API_TESTE, UPLOAD_URL } from '../utility/url_apis';
+import { projectSchema, generos } from '../schemas/projectSchema'
+import { formatZodErrors } from '../utility/validationHelpers'
 import '../styles/User.css';
 
 const DURACAO_MAXIMA_SEGUNDOS = 300;
-const generos = ["ROCK", "POP", "JAZZ", "BLUES", "FORRO", "METAL", "HIP_HOP", "ELECTRONIC", "CLASSICAL", "LO_FI", "INDIE", "SERTANEJO", "SAMBA", "MPB", "COUNTRY", "FUNK", "SOUNDTRACK", "REGGAE"];
 
 function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
     const [file, setFile] = useState(null);
@@ -88,6 +89,15 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }) {
         setSubmitError(null);
         if (!file) { setSubmitError("Por favor, selecione um áudio guia."); return; }
         if (!audioMeta) { setSubmitError("Aguardando análise do áudio..."); return; }
+
+        const validate = projectSchema.safeParse({
+            ...formData,
+            bpm: Number(formData.bpm),
+        })
+        if (!validate.success) {
+            setSubmitError(formatZodErrors(validate.error))
+            return
+        }
 
         setLoading(true);
         const token = localStorage.getItem("token");

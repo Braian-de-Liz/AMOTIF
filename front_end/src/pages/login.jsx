@@ -1,10 +1,9 @@
-// front_end\src\pages\login.jsx
 import { useState } from 'react';
 import '../styles/Login.css';
-import { validar_email } from '../utility/validar_email';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
-import { URL_API, URL_API_TESTE } from '../utility/url_apis'
+import { useNavigate, Link } from 'react-router-dom';
+import { URL_API_TESTE } from '../utility/url_apis'
+import { loginSchema } from '../schemas/loginSchema'
+import { formatZodErrors } from '../utility/validationHelpers'
 
 function Login() {
 
@@ -18,14 +17,10 @@ function Login() {
         e.preventDefault();
         setErro('');
 
-        if (!validar_email(email)) {
-            setErro("Email inválido");
-            return false;
-        }
-    
-        if (senha.length < 8) {
-            setErro("A senha deve ter pelo menos 8 caracteres.");
-            return false;
+        const result = loginSchema.safeParse({ email, senha })
+        if (!result.success) {
+            setErro(formatZodErrors(result.error))
+            return
         }
 
         try {

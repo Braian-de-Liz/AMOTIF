@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { UserPlus, X, Check } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { inviteSchema } from '../schemas/colaborationSchema'
+import { formatZodErrors } from '../utility/validationHelpers'
 
 function StudioColaboradores({ projetoId, isOwner }) {
     const [colaboradores, setColaboradores] = useState([]);
@@ -61,11 +63,16 @@ function StudioColaboradores({ projetoId, isOwner }) {
 
     const handleInvite = async (e) => {
         e.preventDefault();
-        if (!inviteEmail.trim()) return;
-
-        setInviting(true);
         setInviteErro(null);
         setInviteSucesso(null);
+
+        const validate = inviteSchema.safeParse({ email_destinatario: inviteEmail })
+        if (!validate.success) {
+            setInviteErro(formatZodErrors(validate.error))
+            return
+        }
+
+        setInviting(true);
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/colaboration/${projetoId}/invite`, {

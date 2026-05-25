@@ -5,9 +5,10 @@ const search_instrumento = {
     schema: {
         tags: ['search'],
         security: [{ bearerAuth: [] }],
-        description: 'Procurar projetos com filtro por instrumento',
+        description: 'Procurar músicos por instrumento ou nome',
         querystring: Type.Object({
-            instrumento: Type.String({ minLength: 2 }),
+            instrumento: Type.Optional(Type.String({ minLength: 2 })),
+            query: Type.Optional(Type.String({ minLength: 2 })),
             limite: Type.Optional(Type.Number()),
             pagina: Type.Optional(Type.Number())
         }),

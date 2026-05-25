@@ -12,6 +12,7 @@
     "bun_start": "bun dist/server.js",
     "start_exe": "./dist/server",
     "check": "tsc --noEmit",
+    "clmodules": "rm -rf node_modules",
     "clean": "rm -rf dist",
     "conectDB": "bunx prisma validate",
     "db:migrate": "bunx prisma migrate dev",

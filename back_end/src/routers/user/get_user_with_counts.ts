@@ -8,6 +8,7 @@ const Get_user_with_counts: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.get("/usuario/:id/completo", get_user_with_counts_schema, async (request, reply) => {
 
         const { id } = request.params;
+        const usuarioLogadoId = request.user.id;
 
         const check_user = await Fastify.prisma.user.findUnique({
             where: { id },
@@ -37,9 +38,22 @@ const Get_user_with_counts: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
+        let isFollowing = false;
+        if (usuarioLogadoId !== id) {
+            const follow = await Fastify.prisma.follows.findUnique({
+                where: {
+                    followerId_followingId: {
+                        followerId: usuarioLogadoId,
+                        followingId: id
+                    }
+                }
+            });
+            isFollowing = !!follow;
+        }
+
         return reply.status(200).send({
             status: 'sucesso',
-            usuario: check_user
+            usuario: { ...check_user, isFollowing } as typeof check_user & { isFollowing: boolean }
         });
 
     });

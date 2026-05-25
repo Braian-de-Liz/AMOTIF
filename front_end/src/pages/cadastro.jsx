@@ -1,10 +1,9 @@
-// front_end\src\pages\cadastro.jsx
 import { URL_API_TESTE } from "../utility/url_apis";
-import { validar_cpf } from "../utility/validar_cpf";
-import { validar_email } from "../utility/validar_email";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import '../styles/Cadastro.css';
+import { cadastroSchema } from '../schemas/cadastroSchema'
+import { formatZodErrors } from '../utility/validationHelpers'
 
 function Cadastro() {
 
@@ -21,24 +20,13 @@ function Cadastro() {
         setErro('');
         setSucesso('');
 
-        if(!nome_completo || !email || !senha || !cpf){
-            setErro("Preencha todos os campos para cadastrar-se");
-            return false;
+        const result = cadastroSchema.safeParse({ nome_completo, email, senha, cpf })
+        if (!result.success) {
+            setErro(formatZodErrors(result.error))
+            return
         }
 
-        
-        if (!validar_email(email)) {
-            setErro("Email inválido");
-            return false;
-        }
-        
-        const cpfLimpo = cpf.replace(/\D/g, '');
-        if (!validar_cpf(cpfLimpo)) {
-            setErro("CPF inválido");
-            return false;
-        }
-
-
+        const { cpf: cpfLimpo } = result.data
         const usuario = { nome_completo, email, senha, cpf: cpfLimpo };
 
         try{

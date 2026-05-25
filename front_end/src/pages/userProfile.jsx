@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ProjectCard } from '../components/project_Card';
-import { UserCard } from '../components/UserCard';
+import { FollowButton } from '../components/FollowButton';
 import { URL_API_TESTE } from '../utility/url_apis';
 import '../styles/User.css';
 
@@ -12,7 +12,6 @@ function UserProfile() {
     const [projetos, setProjetos] = useState([]);
     const [loading, setLoading] = useState(true);
     const [erro, setErro] = useState(null);
-    const [isFollowing, setIsFollowing] = useState(false);
     const [activeTab, setActiveTab] = useState('projetos');
 
     const currentUserId = localStorage.getItem("usuario_id");
@@ -39,7 +38,6 @@ function UserProfile() {
 
             if (userRes.ok) {
                 setUser(userData.usuario);
-                setIsFollowing(userData.usuario.isFollowing || false);
             }
 
             if (projectsRes.ok) {
@@ -50,24 +48,6 @@ function UserProfile() {
             console.error(err);
         } finally {
             setLoading(false);
-        }
-    };
-
-    const handleFollow = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const method = isFollowing ? 'DELETE' : 'POST';
-            
-            const response = await fetch(`${URL_API_TESTE}/follows/${id}`, {
-                method,
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (response.ok) {
-                setIsFollowing(!isFollowing);
-            }
-        } catch (err) {
-            console.error("Erro ao seguir/deixar de seguir:", err);
         }
     };
 
@@ -123,12 +103,7 @@ function UserProfile() {
                     </div>
 
                     {!isOwnProfile && (
-                        <button 
-                            className={`btn-follow-profile ${isFollowing ? 'following' : ''}`}
-                            onClick={handleFollow}
-                        >
-                            {isFollowing ? 'Seguindo' : 'Seguir'}
-                        </button>
+                        <FollowButton targetUserId={id} initialFollowing={user.isFollowing} className="btn-follow-profile" />
                     )}
                 </div>
             </header>

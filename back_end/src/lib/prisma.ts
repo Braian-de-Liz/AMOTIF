@@ -1,26 +1,26 @@
 import fp from "fastify-plugin"
 import { FastifyPluginAsync } from "fastify"
-import { PrismaClient, NotificationType } from '@prisma/client' 
+import { PrismaClient, NotificationType } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
 
 declare module 'fastify' {
     interface FastifyInstance {
         prisma: PrismaClient;
-        notiType: typeof NotificationType; 
+        notiType: typeof NotificationType;
     }
 }
 
 const prisma_plugin: FastifyPluginAsync = fp(async (Fastify) => {
 
-    const databaseUrl = Bun.env.DATABASE_URL;
+    const databaseUrl = Bun.env.DATABASE_URL!;
     if (!databaseUrl) {
         console.error("ERRO FATAL: A variável de ambiente DATABASE_URL não foi definida.");
         process.exit(1);
     }
 
     const pool = new pg.Pool({
-        connectionString: databaseUrl,
+        connectionString: Bun.env.DATABASE_URL!,
         max: 10,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 10000,
@@ -43,8 +43,8 @@ const prisma_plugin: FastifyPluginAsync = fp(async (Fastify) => {
         });
 
         Fastify.decorate('prisma', prisma);
-        Fastify.decorate('notiType', NotificationType); 
-        
+        Fastify.decorate('notiType', NotificationType);
+
         console.log("NeonDB conectado");
 
     } catch (error) {
@@ -53,4 +53,4 @@ const prisma_plugin: FastifyPluginAsync = fp(async (Fastify) => {
     }
 });
 
-export {prisma_plugin};
+export { prisma_plugin };
