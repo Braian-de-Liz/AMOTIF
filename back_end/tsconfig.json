@@ -5,7 +5,7 @@
     "moduleResolution": "NodeNext",
     "target": "esnext",
     
-    "types": ["node","bun"],
+    "types": ["bun"],
     
     "sourceMap": true,
     "declaration": true,

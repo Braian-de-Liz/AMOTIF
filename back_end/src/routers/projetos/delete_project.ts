@@ -1,12 +1,10 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
-import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 import { Schema_del_project } from "../../schemas/projetos/del_project.schema.js";
 
 const del_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("preValidation", autenticarJWT);
-    Fastify.addHook("preHandler", verificar_permissao);
     Fastify.addHook("preHandler", verificar_dono_projeto);
 
     Fastify.delete("/projetos/:id", Schema_del_project, async (request, reply) => {
