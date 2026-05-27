@@ -12,6 +12,7 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
     const [searchType, setSearchType] = useState('projetos');
     const [loading, setLoading] = useState(false);
     const [hasSearched, setHasSearched] = useState(false);
+    const [erro, setErro] = useState<string | null>(null);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -34,8 +35,10 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
 
                 if (response.ok) {
                     onSearchResults({ type: 'projetos', data: data.resultados || [] });
+                    setErro(null);
                 } else {
                     onSearchResults({ type: 'projetos', data: [] });
+                    setErro(data.mensagem || "Nenhum resultado encontrado.");
                 }
             } else {
                 const url = new URL(`${URL_API_TESTE}/search/user`);
@@ -53,12 +56,14 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
 
                 if (response.ok) {
                     onSearchResults({ type: 'usuarios', data: data.resultados || [] });
+                    setErro(null);
                 } else {
                     onSearchResults({ type: 'usuarios', data: [] });
+                    setErro(data.mensagem || "Nenhum músico encontrado.");
                 }
             }
         } catch (err) {
-            console.error("Erro na busca:", err);
+            setErro("Erro de conexão ao buscar.");
         } finally {
             setLoading(false);
         }
@@ -67,6 +72,7 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
     const clearSearch = () => {
         setQuery('');
         setHasSearched(false);
+        setErro(null);
         onSearchResults(null);
     };
 
@@ -105,6 +111,7 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
                     {loading ? '...' : 'Buscar'}
                 </button>
             </form>
+            {erro && <div className="error-msg" style={{ marginTop: '0.5rem' }}>{erro}</div>}
         </div>
     );
 }

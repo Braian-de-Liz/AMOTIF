@@ -13,6 +13,7 @@ function StudioMural({ projetoId, isOwner }: StudioMuralProps) {
     const [loading, setLoading] = useState(true);
     const [newPost, setNewPost] = useState('');
     const [posting, setPosting] = useState(false);
+    const [erro, setErro] = useState<string | null>(null);
 
     useEffect(() => {
         if (projetoId) fetchMural();
@@ -28,9 +29,11 @@ function StudioMural({ projetoId, isOwner }: StudioMuralProps) {
 
             if (response.ok) {
                 setPosts(data.mural || []);
+            } else {
+                setErro(data.mensagem || "Erro ao carregar mural.");
             }
         } catch (err) {
-            console.error("Erro ao carregar mural:", err);
+            setErro("Erro de conexão ao carregar mural.");
         } finally {
             setLoading(false);
         }
@@ -55,9 +58,13 @@ function StudioMural({ projetoId, isOwner }: StudioMuralProps) {
             if (response.ok) {
                 setNewPost('');
                 fetchMural();
+                setErro(null);
+            } else {
+                const data = await response.json();
+                setErro(data.mensagem || "Erro ao postar.");
             }
         } catch (err) {
-            console.error("Erro ao postar:", err);
+            setErro("Erro de conexão ao postar.");
         } finally {
             setPosting(false);
         }
@@ -67,6 +74,8 @@ function StudioMural({ projetoId, isOwner }: StudioMuralProps) {
 
     return (
         <div className="studio-mural">
+            {erro && <div className="error-msg">{erro}</div>}
+
             <div className="mural-posts">
                 {posts.length === 0 ? (
                     <p className="empty-state">Nenhum post no mural ainda.</p>

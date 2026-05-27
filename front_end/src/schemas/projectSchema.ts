@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const generos = ["ROCK", "POP", "JAZZ", "BLUES", "FORRO", "METAL", "HIP_HOP", "ELECTRONIC", "CLASSICAL", "LO_FI", "INDIE", "SERTANEJO", "SAMBA", "MPB", "COUNTRY", "FUNK", "SOUNDTRACK", "REGGAE"] as const
+const generos = ["ROCK", "POP", "JAZZ", "BLUES", "FORRO", "METAL", "HIP_HOP", "ELECTRONIC", "CLASSICAL", "LO_FI", "INDIE", "SERTANEJO", "SAMBA", "MPB", "COUNTRY", "FUNK", "SOUNDTRACK", "REGGAE"]
 
 export const projectSchema = z.object({
   titulo: z.string().min(2, 'Título deve ter pelo menos 2 caracteres'),
@@ -12,4 +12,4 @@ export const projectSchema = z.object({
 
 export type ProjectSchema = z.infer<typeof projectSchema>
 
-export { generos }
+export { generos };

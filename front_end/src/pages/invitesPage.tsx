@@ -9,6 +9,7 @@ function InvitesPage() {
     const navigate = useNavigate();
     const [convites, setConvites] = useState<Convite[]>([]);
     const [loading, setLoading] = useState(true);
+    const [erro, setErro] = useState<string | null>(null);
 
     useEffect(() => {
         fetchConvites();
@@ -24,9 +25,11 @@ function InvitesPage() {
 
             if (response.ok) {
                 setConvites(data.convites || []);
+            } else {
+                setErro(data.mensagem || "Erro ao carregar convites.");
             }
         } catch (err) {
-            console.error("Erro ao carregar convites:", err);
+            setErro("Erro de conexão ao carregar convites.");
         } finally {
             setLoading(false);
         }
@@ -46,9 +49,13 @@ function InvitesPage() {
 
             if (response.ok) {
                 setConvites(prev => prev.filter(c => c.id !== convite.id));
+                setErro(null);
+            } else {
+                const data = await response.json();
+                setErro(data.mensagem || "Erro ao aceitar convite.");
             }
         } catch (err) {
-            console.error("Erro ao aceitar convite:", err);
+            setErro("Erro de conexão ao aceitar convite.");
         }
     };
 
@@ -62,9 +69,13 @@ function InvitesPage() {
 
             if (response.ok) {
                 setConvites(prev => prev.filter(c => c.id !== convite.id));
+                setErro(null);
+            } else {
+                const data = await response.json();
+                setErro(data.mensagem || "Erro ao recusar convite.");
             }
         } catch (err) {
-            console.error("Erro ao rejeitar convite:", err);
+            setErro("Erro de conexão ao recusar convite.");
         }
     };
 
@@ -85,7 +96,9 @@ function InvitesPage() {
             </header>
 
             <main className="invites-content">
-                {convites.length === 0 ? (
+                {erro && <div className="error-msg">{erro}</div>}
+
+                {convites.length === 0 && !erro ? (
                     <div className="empty-state">
                         <p>Você não tem convites pendentes no momento.</p>
                     </div>

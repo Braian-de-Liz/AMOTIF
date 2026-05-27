@@ -19,7 +19,7 @@ if (!Bun.env.JWT_PASSOWORD) {
 
 const JWT_PASSOWORD: string = Bun.env.JWT_PASSOWORD;
 
-const Fastify: FastifyInstance = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
+const Fastify: FastifyInstance = fastify(/* { logger: true } */).withTypeProvider<TypeBoxTypeProvider>();
 
 await Fastify.register(swagger, {
     openapi: {

@@ -11,6 +11,7 @@ interface FollowButtonProps {
 function FollowButton({ targetUserId, initialFollowing = false, onToggle, className = '' }: FollowButtonProps) {
     const [isFollowing, setIsFollowing] = useState(initialFollowing)
     const [loading, setLoading] = useState(false)
+    const [erro, setErro] = useState<string | null>(null)
 
     async function handleClick(e: React.MouseEvent) {
         e.stopPropagation()
@@ -28,22 +29,31 @@ function FollowButton({ targetUserId, initialFollowing = false, onToggle, classN
                 const data = await response.json()
                 setIsFollowing(data.seguindo)
                 onToggle?.(data.seguindo)
+                setErro(null)
+            } else {
+                const data = await response.json()
+                setErro(data.mensagem || "Erro ao seguir.")
+                setTimeout(() => setErro(null), 3000)
             }
         } catch (err) {
-            console.error("Erro ao seguir/deixar de seguir:", err)
+            setErro("Erro de conexão.")
+            setTimeout(() => setErro(null), 3000)
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <button
-            className={`btn-follow ${isFollowing ? 'following' : ''} ${className}`}
-            onClick={handleClick}
-            disabled={loading}
-        >
-            {loading ? '...' : isFollowing ? 'Seguindo' : 'Seguir'}
-        </button>
+        <>
+            <button
+                className={`btn-follow ${isFollowing ? 'following' : ''} ${className}`}
+                onClick={handleClick}
+                disabled={loading}
+            >
+                {loading ? '...' : isFollowing ? 'Seguindo' : 'Seguir'}
+            </button>
+            {erro && <small style={{ color: '#b34a4a', display: 'block', marginTop: '0.25rem' }}>{erro}</small>}
+        </>
     )
 }
 

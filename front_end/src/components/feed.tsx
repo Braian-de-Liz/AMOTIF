@@ -14,7 +14,7 @@ interface UserWithFollowing extends User {
 function Feed() {
     const [projetos, setProjetos] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
-    const [, setErro] = useState<string | null>(null);
+    const [erro, setErro] = useState<string | null>(null);
     const [filtroInstrumento, setFiltroInstrumento] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResults | null>(null);
 
@@ -51,7 +51,7 @@ function Feed() {
             }
         } catch (err) {
             if (err instanceof Error && err.name !== 'AbortError') {
-                setErro("Erro de conexão.");
+                setErro("Erro de conexão ao carregar o feed.");
             }
         } finally {
             if (!signal.aborted) {
@@ -136,6 +136,8 @@ function Feed() {
                             <option value="Vocal">Precisando de Vocal</option>
                         </select>
                     </header>
+
+                    {erro && <div className="error-msg">{erro}</div>}
 
                     {projetos.length > 0 ? (
                         <div className="feed-grid">

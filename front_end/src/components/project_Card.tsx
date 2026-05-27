@@ -14,6 +14,7 @@ function ProjectCard({ proj }: ProjectCardProps) {
     const [isLiked, setIsLiked] = useState(proj.userHasLiked);
     const [likesCount, setLikesCount] = useState(proj._count.likes);
     const [isFavorited, setIsFavorited] = useState(proj.userHasFavorited || false);
+    const [erro, setErro] = useState<string | null>(null);
 
     async function handleLike() {
         try {
@@ -27,9 +28,14 @@ function ProjectCard({ proj }: ProjectCardProps) {
             if (response.ok) {
                 setIsLiked(data.liked);
                 setLikesCount(data.count);
+                setErro(null);
+            } else {
+                setErro(data.mensagem || "Erro ao curtir.");
+                setTimeout(() => setErro(null), 3000);
             }
         } catch (err) {
-            console.error("Erro ao curtir:", err);
+            setErro("Erro de conexão ao curtir.");
+            setTimeout(() => setErro(null), 3000);
         }
     }
 
@@ -45,14 +51,20 @@ function ProjectCard({ proj }: ProjectCardProps) {
             const data = await response.json();
             if (response.ok) {
                 setIsFavorited(data.favoritado);
+                setErro(null);
+            } else {
+                setErro(data.mensagem || "Erro ao favoritar.");
+                setTimeout(() => setErro(null), 3000);
             }
         } catch (err) {
-            console.error("Erro ao favoritar:", err);
+            setErro("Erro de conexão ao favoritar.");
+            setTimeout(() => setErro(null), 3000);
         }
     }
 
     return (
         <article className="feed-card">
+            {erro && <div className="form-error" style={{ marginBottom: '0.5rem' }}>{erro}</div>}
             <div className="feed-card-header">
                 <h3>{proj.titulo}</h3>
                 <span className="badge-bpm">{proj.bpm} BPM</span>
