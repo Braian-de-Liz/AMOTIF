@@ -3,7 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { get_notifications_schema } from "../../schemas/notification/get_a_notificarion.schema.js";
 
 const get_notifications: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.get("/notifications", get_notifications_schema, async (request, reply) => {
 
@@ -22,7 +22,17 @@ const get_notifications: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         return reply.status(200).send({
             status: "sucesso",
-            notificacoes
+            notificacoes: notificacoes.map(({ id, tipo, mensagem, lida, createdAt, userId, actorId, projetoId, origem }) => ({
+                id,
+                tipo,
+                mensagem,
+                lida,
+                createdAt: createdAt.toISOString(),
+                userId,
+                actorId,
+                projetoId,
+                origem
+            }))
         });
 
     });

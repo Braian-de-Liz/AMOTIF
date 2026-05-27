@@ -4,7 +4,7 @@ import { recupere_senha_schema } from '../../schemas/user_schema/forgot_password
 
 
 const Recuperar_senha: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.patch("/forgot/password", recupere_senha_schema, async (request, reply) => {
         const { senha, nova_senha } = request.body;

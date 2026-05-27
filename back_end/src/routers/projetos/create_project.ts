@@ -3,7 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_post_project } from "../../schemas/projetos/creat_project_schema.js";
 
 const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.post("/projetos", schema_post_project, async (request, reply) => {
         const userId = request.user.id;
@@ -48,7 +48,18 @@ const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
         return reply.status(201).send({
             status: "sucesso",
             mensagem: "Projeto criado com sucesso!",
-            projeto: novo_projeto
+            projeto: {
+                id: novo_projeto.id,
+                titulo: novo_projeto.titulo,
+                genero: novo_projeto.genero,
+                bpm: novo_projeto.bpm,
+                escala: novo_projeto.escala,
+                descricao: novo_projeto.descricao,
+                audio_guia: novo_projeto.audio_guia,
+                userId: novo_projeto.userId,
+                createdAt: novo_projeto.createdAt.toISOString(),
+                updatedAt: novo_projeto.updatedAt.toISOString()
+            }
         });
 
     });

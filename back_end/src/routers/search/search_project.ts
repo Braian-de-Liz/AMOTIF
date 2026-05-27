@@ -3,7 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { search_project_schema } from "../../schemas/search/search_project.schema.js";
 
 const search_project: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.get("/search/projects", search_project_schema, async (request, reply) => {
         const userId = request.user.id;
@@ -57,12 +57,18 @@ const search_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             take: 30
         });
 
-        const projetos = projetosRaw.map((projeto) => ({
-            ...projeto,
-            userHasLiked: projeto.likes.length > 0,
-            userHasFavorited: projeto.favoritos.length > 0,
-            likes: undefined,
-            favoritos: undefined
+        const projetos = projetosRaw.map(({ id, titulo, bpm, genero, escala, descricao, createdAt, autor, _count, likes, favoritos }) => ({
+            id,
+            titulo,
+            bpm,
+            genero,
+            escala,
+            descricao,
+            createdAt: createdAt.toISOString(),
+            autor,
+            _count,
+            userHasLiked: likes.length > 0,
+            userHasFavorited: favoritos.length > 0,
         }));
 
         return reply.status(200).send({

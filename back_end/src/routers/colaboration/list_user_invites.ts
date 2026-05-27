@@ -3,7 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { list_user_invites_schema } from "../../schemas/colaboration/list_user_invites_schema.js";
 
 const list_user_invites: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.get("/convites", list_user_invites_schema, async (request, reply) => {
         const userEmail = request.user.email;

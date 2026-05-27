@@ -3,7 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_auth_layer } from "../../schemas/layers/auth_layer.js";
 
 const patch_layer_status: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.patch("/layer/:layerId/status", schema_auth_layer, async (request, reply) => {
         const { layerId } = request.params;

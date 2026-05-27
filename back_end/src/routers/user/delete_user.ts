@@ -4,7 +4,7 @@ import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { Schema_del_user } from "../../schemas/user_schema/delete_user_schema.js";
 
 const Deletar_user: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
     Fastify.addHook("preHandler", verificar_permissao);
 
     Fastify.delete("/usuario/:id", Schema_del_user, async (request, reply) => {

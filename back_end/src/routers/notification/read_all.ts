@@ -3,7 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { read_all_notifications_schema } from "../../schemas/notification/read_all_notifications_schema.js";
 
 const read_all_notifications: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.patch("/notifications/read-all", read_all_notifications_schema, async (request, reply) => {
         const userId = request.user.id;

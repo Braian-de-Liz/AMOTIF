@@ -4,7 +4,7 @@ import { schema_convite } from "../../schemas/colaboration/schema_convite.js";
 import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 
 const convite_project: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
     Fastify.addHook("preHandler", verificar_dono_projeto);
 
     Fastify.post("/colaboration/:id/invite", schema_convite, async (request, reply) => {

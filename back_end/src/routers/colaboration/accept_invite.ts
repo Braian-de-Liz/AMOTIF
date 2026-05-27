@@ -4,7 +4,7 @@ import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { aceitar_convite_schema } from "../../schemas/colaboration/accept_invite.schema.js";
 
 const Accept_invite: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
     Fastify.addHook("preHandler", verificar_permissao);
 
     Fastify.post("/colaboration/:id/accept", aceitar_convite_schema, async (request, reply) => {

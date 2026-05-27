@@ -3,7 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_layer } from "../../schemas/layers/create_schema_lyr.js";
 
 const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.post("/layer/:projetoId", schema_layer, async (request, reply) => {
         const userId = request.user.id;
@@ -57,7 +57,18 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
         return reply.status(201).send({
             status: "sucesso",
             mensagem: "Colaboração enviada com sucesso!",
-            camada: nova_camada
+            camada: {
+                id: nova_camada.id,
+                nome_trilha: nova_camada.nome_trilha,
+                audio_url: nova_camada.audio_url,
+                instrumento_tag: nova_camada.instrumento_tag,
+                delay_offset: nova_camada.delay_offset,
+                volume_padrao: nova_camada.volume_padrao,
+                esta_aprovada: nova_camada.esta_aprovada,
+                projetoId: nova_camada.projetoId,
+                userId: nova_camada.userId,
+                createdAt: nova_camada.createdAt.toISOString()
+            }
         });
     });
 

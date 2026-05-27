@@ -4,7 +4,7 @@ import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { get_mural_schema } from "../../schemas/projetos/get_mural.schema.js";
 
 const get_mural: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
     Fastify.addHook("preHandler", verificar_permissao);
 
     Fastify.get('/mural/:projeto_id', get_mural_schema, async (request, reply) => {
@@ -27,7 +27,13 @@ const get_mural: FastifyPluginAsyncTypebox = async (Fastify) => {
         return reply.status(200).send({
             status: "success",
             mensagem: "Mural encontrado",
-            mural
+            mural: mural.map(({ id, conteudo, projetoId, autorId, createdAt }) => ({
+                id,
+                conteudo,
+                projetoId,
+                autorId,
+                createdAt: createdAt.toISOString()
+            }))
         });
 
     });

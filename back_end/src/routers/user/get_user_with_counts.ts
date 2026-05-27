@@ -3,7 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { get_user_with_counts_schema } from "../../schemas/user_schema/get_user_with_counts_schema.js";
 
 const Get_user_with_counts: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.get("/usuario/:id/completo", get_user_with_counts_schema, async (request, reply) => {
 
@@ -53,7 +53,17 @@ const Get_user_with_counts: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         return reply.status(200).send({
             status: 'sucesso',
-            usuario: { ...check_user, isFollowing } as typeof check_user & { isFollowing: boolean }
+            usuario: {
+                id: check_user.id,
+                nome_completo: check_user.nome_completo,
+                email: check_user.email,
+                bio: check_user.bio,
+                instrumentos: check_user.instrumentos,
+                avatar_url: check_user.avatar_url,
+                createdAt: check_user.createdAt.toISOString(),
+                _count: check_user._count,
+                isFollowing
+            } as any
         });
 
     });

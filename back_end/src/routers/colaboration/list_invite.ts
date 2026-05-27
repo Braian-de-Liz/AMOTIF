@@ -4,7 +4,7 @@ import { List_invite_schema } from "../../schemas/colaboration/list_invite.js";
 import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 
 const list_invite: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
     Fastify.addHook("preHandler", verificar_permissao);
 
     Fastify.get("/colaboration/:id/invite", List_invite_schema, async (request, reply) => {

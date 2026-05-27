@@ -4,7 +4,7 @@ import { verificar_permissao_layer } from "../../hooks/verificar_dono_layer.js";
 import { delete_lay_schema } from "../../schemas/layers/delete_a_layer.js";
 
 const delete_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
     Fastify.addHook("preHandler", verificar_permissao_layer);
 
     Fastify.delete("/layer/:id", delete_lay_schema, async (request, reply) => {

@@ -4,7 +4,7 @@ import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { schema_get_user } from "../../schemas/user_schema/get_user_schema.js";
 
 const Get_user: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
     Fastify.addHook("preHandler", verificar_permissao);
 
     Fastify.get("/usuario/:id", schema_get_user, async (request, reply) => {
@@ -34,7 +34,14 @@ const Get_user: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         return reply.status(200).send({
             status: 'sucesso',
-            usuario: check_user
+            usuario: {
+                id: check_user.id,
+                nome_completo: check_user.nome_completo,
+                email: check_user.email,
+                bio: check_user.bio,
+                instrumentos: check_user.instrumentos,
+                createdAt: check_user.createdAt.toISOString()
+            }
         });
 
     });

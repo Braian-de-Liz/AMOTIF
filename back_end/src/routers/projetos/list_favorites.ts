@@ -4,7 +4,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 
 
 const Favorites_plugin: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.get("/projetos/favoritos", list_favorites_schema, async (request, reply) => {
         

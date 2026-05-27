@@ -4,7 +4,7 @@ import { search_instrumento } from "../../schemas/search/search_by_instrument_sc
 import type { Prisma } from '@prisma/client'
 
 const search_user_by_instruments: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.get("/search/user", search_instrumento, async (request, reply) => {
 

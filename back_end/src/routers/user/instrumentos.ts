@@ -4,7 +4,7 @@ import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { instrumentos_schema } from "../../schemas/user_schema/instrumentos_schema.js";
 
 const Patch_Instrumentos: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
     Fastify.addHook("preHandler", verificar_permissao)
 
     Fastify.patch("/usuario/:id/instrumentos", instrumentos_schema, async (request, reply) => {

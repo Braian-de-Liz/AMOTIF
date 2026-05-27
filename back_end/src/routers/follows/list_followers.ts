@@ -3,7 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { list_followers_schema } from "../../schemas/follows/list_followers.schema.js";
 
 const list_followers: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.get("/follows", list_followers_schema, async (request, reply) => {
         const UserId = request.user.id;

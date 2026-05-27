@@ -4,7 +4,7 @@ import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { schema_bio } from "../../schemas/user_schema/bio_schema.js";
 
 const Patch_bio: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
     Fastify.addHook("preHandler", verificar_permissao);
 
     Fastify.patch("/usuario_bio/:id", schema_bio, async (request, reply) => {

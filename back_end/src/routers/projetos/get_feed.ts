@@ -5,7 +5,7 @@ import { get_feed_schema } from "../../schemas/projetos/get_explorer.js";
 
 
 const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.get("/projetos/feed", get_feed_schema, async (request, reply) => {
         const userId = request.user.id;
@@ -52,12 +52,19 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         });
 
-        const projetos = projetosRaw.map((projeto) => ({
-            ...projeto,
-            userHasLiked: projeto.likes.length > 0,
-            userHasFavorited: projeto.favoritos.length > 0,
-            likes: undefined,
-            favoritos: undefined
+        const projetos = projetosRaw.map(({ id, titulo, genero, bpm, escala, descricao, audio_guia, createdAt, autor, _count, likes, favoritos }) => ({
+            id,
+            titulo,
+            genero,
+            bpm,
+            escala,
+            descricao,
+            audio_guia,
+            createdAt: createdAt.toISOString(),
+            autor,
+            _count,
+            userHasLiked: likes.length > 0,
+            userHasFavorited: favoritos.length > 0,
         }));
 
         return reply.status(200).send({

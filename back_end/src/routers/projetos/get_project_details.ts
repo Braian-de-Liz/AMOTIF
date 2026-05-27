@@ -3,7 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_details_project } from "../../schemas/projetos/get_one_project.js";
 
 const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.get("/projetos/:id", schema_details_project, async (request, reply) => {
 
@@ -44,7 +44,27 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
         return reply.status(200).send({
             status: 'sucesso',
             mensagem: 'projeto carregado',
-            projeto
+            projeto: {
+                id: projeto.id,
+                titulo: projeto.titulo,
+                bpm: projeto.bpm,
+                audio_guia: projeto.audio_guia,
+                descricao: projeto.descricao,
+                escala: projeto.escala,
+                createdAt: projeto.createdAt.toISOString(),
+                autor: projeto.autor,
+                camadas: projeto.camadas.map(({ id, nome_trilha, audio_url, instrumento_tag, volume_padrao, delay_offset, esta_aprovada, createdAt, autor }) => ({
+                    id,
+                    nome_trilha,
+                    audio_url,
+                    instrumento_tag,
+                    volume_padrao,
+                    delay_offset,
+                    esta_aprovada,
+                    createdAt: createdAt.toISOString(),
+                    autor
+                }))
+            }
         })
 
     });

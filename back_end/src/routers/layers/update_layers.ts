@@ -4,7 +4,7 @@ import { verificar_permissao_layer } from "../../hooks/verificar_dono_layer.js";
 import { update_layer_schema } from "../../schemas/layers/update_layer.schema.js";
 
 const update_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
     Fastify.addHook("preHandler", verificar_permissao_layer);
 
     Fastify.put("/layer/:id", update_layer_schema, async (request, reply) => {

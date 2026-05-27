@@ -3,7 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_colaboretors } from "../../schemas/colaboration/colaboretors_schema.js";
 
 const colaborators: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.get("/colaboration/:id", schema_colaboretors, async (request, reply) => {
 

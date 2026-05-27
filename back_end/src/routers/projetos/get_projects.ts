@@ -4,7 +4,7 @@ import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { get_schemaPROJETC } from "../../schemas/projetos/get_schemaPROJETC.js";
 
 const Get_projects_user: FastifyPluginAsyncTypebox = async (Fastify) => {
-    Fastify.addHook("preValidation", autenticarJWT);
+    Fastify.addHook("onRequest", autenticarJWT);
     Fastify.addHook("preHandler", verificar_permissao);
 
     Fastify.get("/projetos/:id/get", get_schemaPROJETC, async (request, reply) => {
@@ -30,7 +30,15 @@ const Get_projects_user: FastifyPluginAsyncTypebox = async (Fastify) => {
         return reply.status(200).send({
             status: 'sucesso',
             mensagem: 'Projetos encontrados com sucesso.',
-            projetos
+            projetos: projetos.map(({ id, titulo, genero, descricao, bpm, escala, createdAt }) => ({
+                id,
+                titulo,
+                genero,
+                descricao,
+                bpm,
+                escala,
+                createdAt: createdAt.toISOString()
+            }))
         });
 
     });
