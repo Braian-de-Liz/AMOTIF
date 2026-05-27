@@ -1,8 +1,9 @@
 import fp from "fastify-plugin"
-import { FastifyPluginAsync } from "fastify"
+import fastify, { FastifyPluginAsync } from "fastify"
 import { PrismaClient, NotificationType } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
+import { Fastify } from "../server.js"
 
 declare module 'fastify' {
     interface FastifyInstance {

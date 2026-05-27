@@ -32,7 +32,7 @@ func main() {
 	app.Use(logger.New())
 
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "https://amotif.app,https://www.amotif.app,http://localhost:5173,http://localhost:3000",
+		AllowOrigins: "https://amotif.app,https://www.amotif.app,http://localhost:5173,http://localhost:3333",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 		AllowMethods: "GET, POST",
 	}))

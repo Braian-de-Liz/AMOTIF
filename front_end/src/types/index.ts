@@ -3,5 +3,5 @@ export type { Project, ProjectCount, ProjectAuthor, Camada, AudioMeta, Genre } f
 export type {
   ApiResponse, ApiError, SearchResults, LoginResponse,
   Notification, Convite, Colaborador, MuralPost
-} from './api'
+} from './types'
 export type { ModalProps, ChildrenProps, SetState } from './common'
