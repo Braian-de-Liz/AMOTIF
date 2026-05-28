@@ -7,7 +7,7 @@ const health_route: FastifyPluginAsyncTypebox = async (Fastify) => {
             response: {
                 200: Type.Object({
                     status: Type.String(),
-                    timestamp: Type.String(),
+                    timestamp: Type.String({ format: "date-time" }),
                     uptime: Type.Number()
                 })
             }
