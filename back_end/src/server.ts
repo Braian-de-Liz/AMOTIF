@@ -1,6 +1,5 @@
 import fastify from 'fastify';
 import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
-import type { FastifyInstance } from 'fastify';
 import cors from "@fastify/cors";
 import fastifyJwt from "@fastify/jwt";
 import swagger from '@fastify/swagger';
@@ -19,7 +18,7 @@ if (!Bun.env.JWT_PASSOWORD) {
 
 const JWT_PASSOWORD: string = Bun.env.JWT_PASSOWORD;
 
-const Fastify = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
+const Fastify = fastify(/* { logger: true } */).withTypeProvider<TypeBoxTypeProvider>();
 
 await Fastify.register(swagger, {
     openapi: {
