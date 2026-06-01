@@ -18,7 +18,7 @@ const get_mural_schema = {
                     conteudo: Type.String(),
                     projetoId: Type.String({ format: 'uuid' }),
                     autorId: Type.String({ format: 'uuid' }),
-                    createdAt: Type.Unknown()
+                    createdAt: Type.String({ format: 'date-time' })
                 }))
             }),
             ...Error_schema

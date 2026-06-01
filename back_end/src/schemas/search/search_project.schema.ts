@@ -31,7 +31,7 @@ const search_project_schema = {
                     genero: Type.String(),
                     escala: Type.Union([Type.String(), Type.Null()]),
                     descricao: Type.Union([Type.String(), Type.Null()]),
-                    createdAt: Type.Unknown(),
+                    createdAt: Type.String({ format: 'date-time' }),
                     autor: Type.Object({
                         nome_completo: Type.String(),
                         avatar_url: Type.Union([Type.String(), Type.Null()])

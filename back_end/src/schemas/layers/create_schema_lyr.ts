@@ -30,7 +30,7 @@ const schema_layer = {
                     esta_aprovada: Type.Boolean(),
                     projetoId: Type.String(),
                     userId: Type.String(),
-                    createdAt: Type.Unknown()
+                    createdAt: Type.String({ format: "date-time" })
                 })
             }),
             ...Error_schema

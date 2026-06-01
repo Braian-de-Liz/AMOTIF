@@ -42,8 +42,8 @@ const schema_post_project = {
                     descricao: Type.Union([Type.String(), Type.Null()]),
                     audio_guia: Type.String(),
                     userId: Type.String(),
-                    createdAt: Type.Unknown(),
-                    updatedAt: Type.Unknown()
+                    createdAt: Type.String({format: 'date-time'}),
+                    updatedAt: Type.String({format: 'date-time'})
                 })
             }),
             ...Error_schema

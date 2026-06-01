@@ -17,7 +17,7 @@ const List_invite_schema = {
                     email_destinatario: Type.String(),
                     cargo: Type.String(),
                     mensagem: Type.Union([Type.String(), Type.Null()]),
-                    expira_em: Type.Unknown(),
+                    expira_em: Type.String({ format: 'date-time' }),
                     projetoId: Type.String()
                 }))
             }),

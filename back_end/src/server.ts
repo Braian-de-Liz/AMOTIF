@@ -40,6 +40,7 @@ await Fastify.register(swagger, {
 });
 
 await Fastify.register(swaggerUi, { routePrefix: '/docs', });
+Fastify.register(health_route);
 
 await Fastify.register(prisma_plugin);
 
@@ -49,7 +50,6 @@ await Fastify.register(cors, { origin: true });
 await Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '2d' } });
 
 Fastify.register(Plugin_Routes);
-Fastify.register(health_route);
 
 const start = async () => {
     const port: number = Number(Bun.env.PORT) || 3333;

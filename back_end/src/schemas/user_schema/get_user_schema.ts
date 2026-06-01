@@ -18,7 +18,7 @@ const schema_get_user = {
                     email: Type.String({ format: 'email' }),
                     bio: Type.Union([Type.String(), Type.Null()]),
                     instrumentos: Type.Array(Type.String()),
-                    createdAt: Type.Unknown()
+                    createdAt: Type.String({ format: 'date-time' })
                 })
             }),
             ...Error_schema

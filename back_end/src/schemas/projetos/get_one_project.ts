@@ -20,7 +20,7 @@ const schema_details_project = {
                     audio_guia: Type.String(),
                     descricao: Type.Union([Type.String(), Type.Null()]),
                     escala: Type.Union([Type.String(), Type.Null()]),
-                    createdAt: Type.Unknown(),
+                    createdAt: Type.String({ format: 'date-time' }),
                     autor: Type.Object({
                         nome_completo: Type.String(),
                         avatar_url: Type.Union([Type.String(), Type.Null()])
@@ -33,7 +33,7 @@ const schema_details_project = {
                         volume_padrao: Type.Number(),
                         delay_offset: Type.Number(),
                         esta_aprovada: Type.Boolean(),
-                        createdAt: Type.Unknown(),
+                        createdAt: Type.String({ format: 'date-time' }),
                         autor: Type.Object({
                             nome_completo: Type.String()
                         })

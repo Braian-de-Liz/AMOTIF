@@ -16,7 +16,7 @@ const projetoSchema = Type.Object({
     descricao: Type.Union([Type.String(), Type.Null()]),
     bpm: Type.Number(),
     escala: Type.Union([Type.String(), Type.Null()]),
-    createdAt: Type.Unknown()
+    createdAt: Type.String({ format: 'date-time' })
 });
 
 const get_schemaPROJETC = {

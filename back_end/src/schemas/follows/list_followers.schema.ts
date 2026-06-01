@@ -13,7 +13,7 @@ const list_followers_schema = {
                 follows: Type.Array(Type.Object({
                     followerId: Type.String({ format: 'uuid' }),
                     followingId: Type.String({ format: 'uuid' }),
-                    createdAt: Type.Unknown(),
+                    createdAt: Type.String({ format: "date-time" }),
                     follower: Type.Object({
                         id: Type.String({ format: 'uuid' }),
                         nome_completo: Type.String(),

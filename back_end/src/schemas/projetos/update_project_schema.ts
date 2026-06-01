@@ -35,7 +35,7 @@ const update_project_schema = {
                     bpm: Type.Number(),
                     descricao: Type.Union([Type.String(), Type.Null()]),
                     escala: Type.Union([Type.String(), Type.Null()]),
-                    updatedAt: Type.Unknown()
+                    updatedAt: Type.String({ format: 'date-time' })
                 })
             }),
             ...Error_schema

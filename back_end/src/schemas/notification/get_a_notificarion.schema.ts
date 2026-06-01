@@ -14,7 +14,7 @@ const get_notifications_schema = {
                     tipo: Type.String(),
                     mensagem: Type.String(),
                     lida: Type.Boolean(),
-                    createdAt: Type.Unknown(),
+                    createdAt: Type.String({ format: "date-time" }),
                     userId: Type.String({ format: 'uuid' }),
                     actorId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
                     projetoId: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
