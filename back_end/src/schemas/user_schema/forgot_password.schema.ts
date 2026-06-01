@@ -4,6 +4,7 @@ import { Error_schema } from '../error/erro_schema.js';
 const recupere_senha_schema = {
     schema: {
         tags: ['usuario'],
+        description: 'Recupera/redefine a senha do usuário',
         body: Type.Object({
             senha: Type.String({ minLength: 8 }),
             nova_senha: Type.String({ minLength: 8 })

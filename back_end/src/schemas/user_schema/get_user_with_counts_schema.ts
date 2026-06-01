@@ -19,7 +19,7 @@ const get_user_with_counts_schema = {
                     bio: Type.Union([Type.String(), Type.Null()]),
                     instrumentos: Type.Array(Type.String()),
                     avatar_url: Type.Union([Type.String(), Type.Null()]),
-                    createdAt: Type.Unknown(),
+                    createdAt: Type.String({ format: "date-time" }),
                     _count: Type.Object({
                         seguidores: Type.Number(),
                         seguindo: Type.Number()

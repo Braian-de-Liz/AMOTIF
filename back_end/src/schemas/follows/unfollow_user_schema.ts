@@ -9,7 +9,13 @@ const unfollow_schema = {
         params: Type.Object({
             id: Type.String({ format: 'uuid' })
         }),
-        ...Error_schema
+        response: {
+            200: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String()
+            }),
+            ...Error_schema
+        }
     }
 }
 export { unfollow_schema };

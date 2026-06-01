@@ -9,7 +9,14 @@ const follow_schema = {
         params: Type.Object({
             followingId: Type.String({ format: 'uuid' })
         }),
-        ...Error_schema
+        response: {
+            200: Type.Object({
+                status: Type.String(),
+                mensagem: Type.String(),
+                seguindo: Type.Boolean()
+            }),
+            ...Error_schema
+        }
     }
 }
 
