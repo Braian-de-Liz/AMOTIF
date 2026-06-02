@@ -21,7 +21,7 @@ const prisma_plugin: FastifyPluginAsync = fp(async (Fastify) => {
 
     const pool = new pg.Pool({
         connectionString: Bun.env.DATABASE_URL!,
-        max: 50,
+        max: 10,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 10000,
     })

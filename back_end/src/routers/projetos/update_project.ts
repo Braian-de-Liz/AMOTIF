@@ -14,12 +14,24 @@ const Update_project: FastifyPluginAsyncTypebox = async (Fastify) => {
         const projeto = await Fastify.prisma.projeto.update({
             where: { id },
             data: dadosAtualizados,
+            select: {
+                id: true,
+                titulo: true,
+                genero: true,
+                bpm: true,
+                descricao: true,
+                escala: true,
+                updatedAt: true,
+            }
         });
 
         return reply.status(200).send({
             status: "sucesso",
             mensagem: "projeto atualizado com sucesso",
-            projeto,
+            projeto: {
+                ...projeto,
+                updatedAt: projeto.updatedAt.toISOString()
+            },
         });
     });
 };

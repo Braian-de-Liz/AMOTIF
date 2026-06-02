@@ -15,18 +15,28 @@ const list_invite: FastifyPluginAsyncTypebox = async (Fastify) => {
             where: {
                 projetoId: id
             },
-            include: {
-                projeto: {
-                    select: {
-                        titulo: true
-                    }
-                }
+            select: {
+                id: true,
+                projetoId: true,
+                cargo: true,
+                email_destinatario: true,
+                mensagem: true,
+                expira_em: true
             }
         });
 
+        const convites = Check_invites.map(c => ({
+            id: c.id,
+            projetoId: c.projetoId,
+            cargo: c.cargo,
+            email_destinatario: c.email_destinatario,
+            mensagem: c.mensagem,
+            expira_em: c.expira_em.toISOString()
+        }));
+
         return reply.status(200).send({
             status: 'sucesso',
-            convites: Check_invites
+            convites
         });
     });
 }

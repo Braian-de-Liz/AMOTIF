@@ -8,7 +8,7 @@ const list_followers: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.get("/follows", list_followers_schema, async (request, reply) => {
         const UserId = request.user.id;
 
-        const follows = await Fastify.prisma.follows.findMany({
+        const rawFollows = await Fastify.prisma.follows.findMany({
             where: {
                 followingId: UserId
             },
@@ -23,6 +23,11 @@ const list_followers: FastifyPluginAsyncTypebox = async (Fastify) => {
                 }
             }
         });
+
+        const follows = rawFollows.map(f => ({
+            ...f,
+            createdAt: f.createdAt.toISOString()
+        }));
 
         const followers_count = follows.length;
 

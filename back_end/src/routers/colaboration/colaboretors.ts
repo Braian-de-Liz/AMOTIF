@@ -40,10 +40,22 @@ const colaborators: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
+        const colaboradores = cooll.colaboradores.map(c => ({
+            cargo: c.cargo,
+            joinedAt: c.joinedAt.toISOString(),
+            usuario: {
+                id: c.usuario.id,
+                nome_completo: c.usuario.nome_completo,
+                email: c.usuario.email,
+                instrumentos: c.usuario.instrumentos,
+                avatar_url: c.usuario.avatar_url
+            }
+        }));
+
         return reply.status(200).send({
             status: 'sucesso',
             mensagem: 'colaboradores do projeto encontrados',
-            colaborators: cooll
+            colaborators: { colaboradores }
         })
 
     });
