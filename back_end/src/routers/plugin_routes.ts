@@ -48,49 +48,49 @@ import { Favorites_plugin } from "./projetos/list_favorites.js";
 
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
-    Fastify.register(User_register, { prefix: '/api' });
-    Fastify.register(login_user, { prefix: '/api' });
-    Fastify.register(Deletar_user, { prefix: '/api' });
-    Fastify.register(Get_user, { prefix: '/api' });
-    Fastify.register(Get_user_with_counts, { prefix: '/api' });
-    Fastify.register(Patch_bio, { prefix: '/api' });
-    Fastify.register(Patch_Instrumentos, { prefix: '/api' });
-    Fastify.register(Recuperar_senha, {prefix: '/api'});
+    Fastify.register(User_register);
+    Fastify.register(login_user);
+    Fastify.register(Deletar_user);
+    Fastify.register(Get_user);
+    Fastify.register(Get_user_with_counts);
+    Fastify.register(Patch_bio);
+    Fastify.register(Patch_Instrumentos);
+    Fastify.register(Recuperar_senha);
 
-    Fastify.register(post_project, { prefix: '/api' });
-    Fastify.register(del_project, { prefix: '/api' });
-    Fastify.register(Get_projects_user, { prefix: '/api' });
-    Fastify.register(searth_feed, { prefix: '/api' });
-    Fastify.register(Get_a_project, { prefix: '/api' });
-    Fastify.register(Update_project, { prefix: '/api' });
-    Fastify.register(mural_project, { prefix: '/api' });
-    Fastify.register(get_mural, { prefix: '/api' });
+    Fastify.register(post_project);
+    Fastify.register(del_project);
+    Fastify.register(Get_projects_user);
+    Fastify.register(searth_feed);
+    Fastify.register(Get_a_project);
+    Fastify.register(Update_project);
+    Fastify.register(mural_project);
+    Fastify.register(get_mural);
 
-    Fastify.register(convite_project, { prefix: '/api' });
-    Fastify.register(Accept_invite, { prefix: '/api' });
-    Fastify.register(colaborators, { prefix: '/api' });
-    Fastify.register(list_invite, { prefix: '/api' });
-    Fastify.register(Delete_Colab, { prefix: '/api' });
-    Fastify.register(Reject_Invite, { prefix: '/api' });
-    Fastify.register(list_user_invites, { prefix: '/api' });
+    Fastify.register(convite_project);
+    Fastify.register(Accept_invite);
+    Fastify.register(colaborators);
+    Fastify.register(list_invite);
+    Fastify.register(Delete_Colab);
+    Fastify.register(Reject_Invite);
+    Fastify.register(list_user_invites);
 
-    Fastify.register(delete_layer, { prefix: '/api' });
-    Fastify.register(create_Layer, { prefix: '/api' });
-    Fastify.register(patch_layer_status, { prefix: '/api' });
-    Fastify.register(update_layer, { prefix: '/api' });
+    Fastify.register(delete_layer);
+    Fastify.register(create_Layer);
+    Fastify.register(patch_layer_status);
+    Fastify.register(update_layer);
 
-    Fastify.register(search_project, { prefix: '/api' });
-    Fastify.register(search_user_by_instruments, { prefix: '/api' });
+    Fastify.register(search_project);
+    Fastify.register(search_user_by_instruments);
 
-    Fastify.register(follow_user, { prefix: '/api' });
-    Fastify.register(Unfollow_route, { prefix: '/api' });
-    Fastify.register(list_followers, { prefix: '/api' });
-    Fastify.register(Create_like, { prefix: '/api' });
+    Fastify.register(follow_user);
+    Fastify.register(Unfollow_route);
+    Fastify.register(list_followers);
+    Fastify.register(Create_like);
 
-    Fastify.register(get_notifications, { prefix: '/api' });
-    Fastify.register(read_all_notifications, { prefix: '/api' });
-    Fastify.register(Toggle_favorite , { prefix: '/api' });
-    Fastify.register(Favorites_plugin , { prefix: '/api' });
+    Fastify.register(get_notifications);
+    Fastify.register(read_all_notifications);
+    Fastify.register(Toggle_favorite);
+    Fastify.register(Favorites_plugin);
 }
 
 

@@ -3,7 +3,6 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { get_feed_schema } from "../../schemas/projetos/get_explorer.js";
 
-
 const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
 
@@ -15,12 +14,10 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
             where: {
                 ...(genero && { genero: genero as MusicGenre }),
                 ...(instrumentoFaltante && {
-                    NOT: {
-                        camadas: {
-                            some: {
-                                instrumento_tag: instrumentoFaltante,
-                                esta_aprovada: true
-                            }
+                    camadas: {
+                        none: {
+                            instrumento_tag: instrumentoFaltante,
+                            esta_aprovada: true
                         }
                     }
                 })
@@ -52,26 +49,25 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         });
 
-        const projetos = projetosRaw.map(({ id, titulo, genero, bpm, escala, descricao, audio_guia, createdAt, autor, _count, likes, favoritos }) => ({
-            id,
-            titulo,
-            genero,
-            bpm,
-            escala,
-            descricao,
-            audio_guia,
-            createdAt: createdAt.toISOString(),
-            autor,
-            _count,
-            userHasLiked: likes.length > 0,
-            userHasFavorited: favoritos.length > 0,
+        const projetos = projetosRaw.map((p) => ({
+            id: p.id,
+            titulo: p.titulo,
+            genero: p.genero,
+            bpm: p.bpm,
+            escala: p.escala,
+            descricao: p.descricao,
+            audio_guia: p.audio_guia,
+            createdAt: p.createdAt.toISOString(),
+            autor: p.autor,
+            _count: p._count,
+            userHasLiked: p.likes.length > 0,
+            userHasFavorited: p.favoritos.length > 0,
         }));
 
         return reply.status(200).send({
             status: 'sucesso',
             projetos
         });
-
     });
 }
 

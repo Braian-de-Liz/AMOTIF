@@ -49,7 +49,7 @@ Fastify.setErrorHandler(globalErrorHandler);
 await Fastify.register(cors, { origin: true });
 await Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '2d' } });
 
-Fastify.register(Plugin_Routes);
+Fastify.register(Plugin_Routes, { prefix: "/api" });
 
 const start = async () => {
     const port: number = Number(Bun.env.PORT) || 3333;

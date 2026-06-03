@@ -15,8 +15,9 @@
     "clmodules": "rm -rf node_modules",
     "clean": "rm -rf dist",
     "health": "npx autocannon -c 100 -d 10 http://localhost:3333/health",
-    "bench":"bun test tests/performance.test.ts",
+    "bench": "bun test tests/performance.test.ts",
     "conectDB": "bunx prisma validate",
+    "tables":"bun x prisma db push",
     "db:migrate": "bunx prisma migrate dev",
     "db:generate": "bunx prisma generate",
     "db:studio": "bunx prisma studio"

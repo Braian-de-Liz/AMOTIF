@@ -70,7 +70,7 @@ model Projeto {
   likes         Like[]        @relation("ProjectLikes")
 
   @@index([userId])
-  @@index([createdAt])
+  @@index([createdAt, genero])
   @@index([genero])
   @@index([userId, deletedAt])
 }
@@ -162,10 +162,10 @@ model Camada {
 
   createdAt DateTime @default(now())
 
-  @@index([projetoId])
+  @@index([projetoId, instrumento_tag, esta_aprovada])
+  @@index([projetoId, esta_aprovada])
   @@index([userId])
   @@index([createdAt])
-  @@index([esta_aprovada])
 }
 
 model Like {
