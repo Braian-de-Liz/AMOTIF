@@ -31,7 +31,7 @@ const get_feed_schema = {
                     audio_guia: Type.String(),
                     createdAt: Type.String({ format: 'date-time' }),
                     autor: Type.Object({
-                        nome_completo: Type.String(),
+                        nome_completo: Type.String({ minLength: 6 }),
                         instrumentos: Type.Array(Type.String())
                     }),
                     _count: Type.Object({

@@ -707,3 +707,89 @@
 .empty-favorites p {
   margin: 0;
 }
+
+/* Bio Editor */
+.bio-editor {
+  margin-top: 1rem;
+}
+
+.bio-display {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.bio-text {
+  color: var(--texto);
+  font-size: 1rem;
+  line-height: 1.6;
+  flex: 1;
+  margin: 0;
+}
+
+.bio-empty {
+  color: var(--texto-secundario);
+  font-style: italic;
+  flex: 1;
+  margin: 0;
+}
+
+.bio-edit-btn {
+  background: transparent;
+  border: 2px solid var(--verde-medio);
+  color: var(--verde-medio);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.bio-edit-btn:hover {
+  background: var(--verde-medio);
+  color: white;
+}
+
+.bio-edit-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bio-textarea {
+  width: 100%;
+  border: 2px solid var(--cinza-suave);
+  border-radius: 12px;
+  padding: 0.8rem;
+  font-family: inherit;
+  font-size: 1rem;
+  resize: vertical;
+  background-color: var(--fundo);
+  color: var(--texto);
+  box-sizing: border-box;
+}
+
+.bio-textarea:focus {
+  outline: none;
+  border-color: var(--verde-medio);
+  background-color: var(--branco);
+}
+
+.bio-edit-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.bio-char-count {
+  font-size: 0.8rem;
+  color: var(--texto-secundario);
+}
+
+.bio-actions {
+  display: flex;
+  gap: 0.5rem;
+}

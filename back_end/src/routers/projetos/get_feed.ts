@@ -22,7 +22,7 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
                     }
                 })
             },
-            take: 20,
+            take: 50,
             orderBy: { createdAt: 'desc' },
             include: {
                 autor: {

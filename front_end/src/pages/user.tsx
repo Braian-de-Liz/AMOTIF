@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { MyProjetosLoader } from '../components/MyLoadProjects';
 import { CreateProjectModal } from '../components/init_project';
 import { FollowersList, UserStats } from '../components/FollowersComponents';
+import { BioEditor } from '../components/BioEditor';
 import '../styles/User.css';
 
 function UserPage() {
@@ -17,6 +18,7 @@ function UserPage() {
             <header className="user-header">
                 <h1>Minha Estante Musical</h1>
                 <p>Bem-vindo de volta, <strong>{nomeUsuario}</strong></p>
+                <BioEditor />
                 <UserStats userId={usuarioId} />
                 <hr />
             </header>

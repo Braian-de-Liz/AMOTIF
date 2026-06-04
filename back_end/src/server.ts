@@ -18,7 +18,7 @@ if (!Bun.env.JWT_PASSOWORD) {
 
 const JWT_PASSOWORD: string = Bun.env.JWT_PASSOWORD;
 
-const Fastify = fastify(/* { logger: true } */).withTypeProvider<TypeBoxTypeProvider>();
+const Fastify = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
 
 await Fastify.register(swagger, {
     openapi: {
@@ -46,8 +46,8 @@ await Fastify.register(prisma_plugin);
 
 Fastify.setErrorHandler(globalErrorHandler);
 
-await Fastify.register(cors, { origin: true });
 await Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '2d' } });
+await Fastify.register(cors, { origin: true, methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"] });
 
 Fastify.register(Plugin_Routes, { prefix: "/api" });
 
