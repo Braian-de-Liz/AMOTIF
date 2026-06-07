@@ -17,7 +17,7 @@
     "health": "npx autocannon -c 100 -d 10 http://localhost:3333/health",
     "bench": "bun test tests/performance.test.ts",
     "conectDB": "bunx prisma validate",
-    "tables":"bun x prisma db push",
+    "tables": "bun x prisma db push",
     "db:migrate": "bunx prisma migrate dev",
     "db:generate": "bunx prisma generate",
     "db:studio": "bunx prisma studio"
@@ -36,7 +36,8 @@
     "@sinclair/typebox": "^0.34.49",
     "fastify": "^5.7.4",
     "fastify-plugin": "^5.1.0",
-    "pg": "^8.21.0"
+    "pg": "^8.21.0",
+    "schema-shield": "^1.0.5"
   },
   "devDependencies": {
     "@prisma/config": "^7.3.0",

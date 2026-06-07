@@ -68,6 +68,19 @@ const globalErrorHandler = async (
     });
   }
 
+
+  if ((error as any).validationContext) {
+    return reply.status(400).send({
+      status: "erro",
+      mensagem: `Erro de validação nos dados enviados`,
+      codigo: "VALIDATION_ERROR",
+      erros: {
+        origem: (error as any).validationContext,
+        detalhe: error.message,
+      },
+    });
+  }
+
   if (error.code === "FST_REQ_ID_MAX_REQ" || error.code === "FST_REQ_ID_DUPLICATE") {
     return reply.status(429).send({
       status: "erro",

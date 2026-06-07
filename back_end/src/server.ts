@@ -6,6 +6,7 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 
 import { prisma_plugin } from './lib/prisma.js';
+import { Schema_Shield } from './lib/schema-shield.validator.js';
 import { globalErrorHandler } from './lib/global_Error.js';
 import { Plugin_Routes } from './routers/plugin_routes.js';
 import { health_route } from './routers/health/health.js';
@@ -19,6 +20,8 @@ if (!Bun.env.JWT_PASSOWORD) {
 const JWT_PASSOWORD: string = Bun.env.JWT_PASSOWORD;
 
 const Fastify = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
+
+await Fastify.register(Schema_Shield);
 
 await Fastify.register(swagger, {
     openapi: {
