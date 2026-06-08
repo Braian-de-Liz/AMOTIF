@@ -4,6 +4,7 @@ import { Type } from '@sinclair/typebox';
 const health_route: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.get("/health", {
         schema: {
+            tag: ['testes'],
             response: {
                 200: Type.Object({
                     status: Type.String(),

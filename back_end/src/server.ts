@@ -6,10 +6,10 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 
 import { prisma_plugin } from './lib/prisma.js';
-import { Schema_Shield } from './lib/schema-shield.validator.js';
 import { globalErrorHandler } from './lib/global_Error.js';
 import { Plugin_Routes } from './routers/plugin_routes.js';
 import { health_route } from './routers/health/health.js';
+import { Validacao_pesada } from './routers/health/validation.js';
 
 
 if (!Bun.env.JWT_PASSOWORD) {
@@ -20,8 +20,6 @@ if (!Bun.env.JWT_PASSOWORD) {
 const JWT_PASSOWORD: string = Bun.env.JWT_PASSOWORD;
 
 const Fastify = fastify(/* { logger: true } */).withTypeProvider<TypeBoxTypeProvider>();
-
-await Fastify.register(Schema_Shield);
 
 await Fastify.register(swagger, {
     openapi: {
@@ -53,6 +51,8 @@ await Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '
 await Fastify.register(cors, { origin: true, methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"] });
 
 Fastify.register(Plugin_Routes, { prefix: "/api" });
+
+Fastify.register(Validacao_pesada); // teste de desempenho em validação
 
 const start = async () => {
     const port: number = Number(Bun.env.PORT) || 3333;

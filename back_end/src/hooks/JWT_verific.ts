@@ -11,15 +11,7 @@ declare module '@fastify/jwt' {
 }
 
 async function autenticarJWT(request: FastifyRequest, reply: FastifyReply) {
-    try {
-        await request.jwtVerify();
-    } 
-    catch (erro) {
-        return reply.status(401).send({
-            status: 'erro',
-            mensagem: 'Não autorizado.'
-        });
-    }
+    await request.jwtVerify();
 }
 
 export { autenticarJWT };
