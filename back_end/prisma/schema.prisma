@@ -69,7 +69,7 @@ model Projeto {
   deletedAt     DateTime?
   likes         Like[]        @relation("ProjectLikes")
 
-  @@index([userId])
+  @@index([userId, createdAt(sort: Desc)])
   @@index([createdAt, genero])
   @@index([genero])
   @@index([userId, deletedAt])
@@ -197,10 +197,10 @@ model Notification {
   projetoId String?  @db.Uuid
   createdAt DateTime @default(now())
 
-  @@index([userId])
+  @@index([userId, createdAt(sort: Desc)])
   @@index([userId, lida])
-  @@index([createdAt(sort: Desc)])
   @@index([tipo])
+  @@index([actorId])
 }
 
 model Favorite {

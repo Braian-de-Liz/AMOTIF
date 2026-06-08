@@ -19,7 +19,7 @@ if (!Bun.env.JWT_PASSOWORD) {
 
 const JWT_PASSOWORD: string = Bun.env.JWT_PASSOWORD;
 
-const Fastify = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
+const Fastify = fastify(/* { logger: true } */).withTypeProvider<TypeBoxTypeProvider>();
 
 await Fastify.register(Schema_Shield);
 

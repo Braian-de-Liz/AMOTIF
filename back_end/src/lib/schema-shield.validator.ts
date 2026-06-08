@@ -3,7 +3,8 @@ import { SchemaShield, ValidationError } from "schema-shield";
 import type { FastifyPluginAsync } from "fastify";
 
 const Schema_Shield: FastifyPluginAsync = fp(async (Fastify) => {
-    const shield = new SchemaShield({ failFast: false });
+    
+    const shield = new SchemaShield({ failFast: true });
 
     Fastify.setValidatorCompiler(({ schema, httpPart }) => {
         const validation = shield.compile(schema);
