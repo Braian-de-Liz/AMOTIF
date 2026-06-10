@@ -75,11 +75,11 @@ beforeAll(async () => {
 
 describe("Benchmark - Validação /StronValid", () => {
     test(
-        "POST /StronValid | 100 conexões, 10s",
+        "POST /StronValid | 10000 conexões, 10s",
         async () => {
             const resultado = await autocannon({
                 url: `${BASE_URL}/StronValid`,
-                connections: 100,
+                connections: 10000,
                 duration: 10,
                 method: "POST",
                 headers: {

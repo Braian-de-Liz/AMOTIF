@@ -41,9 +41,7 @@ const Validacao_pesada: FastifyPluginAsyncTypebox = async (Fastify) => {
     };
 
     Fastify.post("/StronValid", Schema_validacao, async (request, reply) => {
-        return reply.send({
-            status: "ok, funcionando"
-        });
+        return reply.send("validado");
     });
 };
 
