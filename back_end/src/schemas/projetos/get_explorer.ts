@@ -16,11 +16,13 @@ const get_feed_schema = {
         security: [{ bearerAuth: [] }],
         querystring: Type.Object({
             genero: Type.Optional(GeneroEnum),
-            instrumentoFaltante: Type.Optional(Type.String())
+            instrumentoFaltante: Type.Optional(Type.String()),
+            cursor: Type.Optional(Type.String({ format: 'uuid' }))
         }),
         response: {
             200: Type.Object({
                 status: Type.String(),
+                nextCursor: Type.Union([Type.String({ format: 'uuid' }), Type.Null()]),
                 projetos: Type.Array(Type.Object({
                     id: Type.String({ format: 'uuid' }),
                     titulo: Type.String(),

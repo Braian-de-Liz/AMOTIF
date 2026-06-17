@@ -4,6 +4,7 @@ import cors from "@fastify/cors";
 import fastifyJwt from "@fastify/jwt";
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
+import compress from '@fastify/compress';
 
 import { prisma_plugin } from './lib/prisma.js';
 import { globalErrorHandler } from './lib/global_Error.js';
@@ -49,6 +50,7 @@ Fastify.setErrorHandler(globalErrorHandler);
 
 await Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '2d' } });
 await Fastify.register(cors, { origin: true, methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"] });
+// await Fastify.register(compress, { global: true });
 
 Fastify.register(Plugin_Routes, { prefix: "/api" });
 

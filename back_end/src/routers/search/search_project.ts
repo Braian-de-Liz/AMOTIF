@@ -31,7 +31,14 @@ const search_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                     }
                 ]
             },
-            include: {
+            select: {
+                id: true,
+                titulo: true,
+                bpm: true,
+                genero: true,
+                escala: true,
+                descricao: true,
+                createdAt: true,
                 autor: {
                     select: {
                         nome_completo: true,
