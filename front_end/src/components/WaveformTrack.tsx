@@ -27,8 +27,11 @@ interface WaveformTrackProps {
     volume?: number
     colorIndex?: number
     isGuia?: boolean
+    estaAprovada?: boolean
+    isOwner?: boolean
     onSave?: (layerId: string, changes: LayerChanges) => void
     onRegister?: (layerId: string, ws: WaveSurfer | null) => void
+    onAuthorize?: (layerId: string, aprovada: boolean) => void
     saving?: boolean
 }
 
@@ -41,8 +44,11 @@ function WaveformTrack({
     volume = 1.0,
     colorIndex = 0,
     isGuia = false,
+    estaAprovada = false,
+    isOwner = false,
     onSave,
     onRegister,
+    onAuthorize,
     saving = false
 }: WaveformTrackProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -201,6 +207,33 @@ function WaveformTrack({
                         </button>
                     )}
                 </div>
+                {!isGuia && (
+                    <div className="track-actions">
+                        <span className={`status-badge ${estaAprovada ? 'approved' : 'pending'}`}>
+                            {estaAprovada ? 'Aprovada' : 'Pendente'}
+                        </span>
+                        {isOwner && (
+                            <>
+                                {!estaAprovada && (
+                                    <button
+                                        className="btn-auth approve"
+                                        onClick={() => onAuthorize?.(layerId, true)}
+                                        title="Aprovar camada"
+                                    >
+                                        Aprovar
+                                    </button>
+                                )}
+                                <button
+                                    className="btn-auth reject"
+                                    onClick={() => onAuthorize?.(layerId, false)}
+                                    title={estaAprovada ? 'Rejeitar camada' : 'Rejeitar camada'}
+                                >
+                                    Rejeitar
+                                </button>
+                            </>
+                        )}
+                    </div>
+                )}
             </div>
             <div className="waveform-container" ref={containerRef}></div>
             <div className="track-time">

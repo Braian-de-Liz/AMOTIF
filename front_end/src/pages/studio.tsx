@@ -127,6 +127,37 @@ function Studio() {
     if (erro) return <div className="error-msg">{erro}</div>;
     if (!projeto) return <div className="error-msg">Projeto não encontrado.</div>;
 
+    const handleAuthorizeLayer = async (layerId: string, aprovada: boolean) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${URL_API_TESTE}/layer/${layerId}/status`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ aprovada })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                setProjeto(prev => prev ? {
+                    ...prev,
+                    camadas: (prev.camadas || []).map(c =>
+                        c.id === layerId ? { ...c, esta_aprovada: aprovada } : c
+                    )
+                } : prev);
+                setSaveErro(null);
+            } else {
+                setSaveErro(data.mensagem || 'Erro ao atualizar status da camada');
+            }
+        } catch (err) {
+            console.error('Erro ao autorizar camada:', err);
+            setSaveErro('Erro ao conectar ao servidor');
+        }
+    };
+
     const isOwner = projeto.autor?.id === localStorage.getItem("usuario_id");
 
     return (
@@ -207,9 +238,12 @@ function Studio() {
                                 volume={camada.volume_padrao}
                                 colorIndex={index + 1}
                                 isGuia={false}
+                                estaAprovada={camada.esta_aprovada}
+                                isOwner={isOwner}
                                 saving={saving === camada.id}
                                 onSave={handleSaveLayer}
                                 onRegister={registerWavesurfer}
+                                onAuthorize={handleAuthorizeLayer}
                             />
                         ))}
                     </div>

@@ -4,7 +4,6 @@ import cors from "@fastify/cors";
 import fastifyJwt from "@fastify/jwt";
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
-import compress from '@fastify/compress';
 
 import { prisma_plugin } from './lib/prisma.js';
 import { globalErrorHandler } from './lib/global_Error.js';
