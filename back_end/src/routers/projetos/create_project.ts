@@ -22,28 +22,30 @@ const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         });
 
-        try {
-            const seguidores = await Fastify.prisma.follows.findMany({
-                where: { followingId: userId },
-                select: { followerId: true }
-            });
-
-            if (seguidores.length > 0) {
-                const notificationsData = seguidores.map((f) => ({
-                    userId: f.followerId,
-                    actorId: userId,
-                    projetoId: novo_projeto.id,
-                    tipo: Fastify.notiType.PROJECT_RELEASED,
-                    mensagem: `${request.user.nome} lançou um novo projeto de ${genero}: "${titulo}"!`
-                }));
-
-                await Fastify.prisma.notification.createMany({
-                    data: notificationsData
+        queueMicrotask(async () => {
+            try {
+                const seguidores = await Fastify.prisma.follows.findMany({
+                    where: { followingId: userId },
+                    select: { followerId: true }
                 });
+
+                if (seguidores.length > 0) {
+                    const notificationsData = seguidores.map((f) => ({
+                        userId: f.followerId,
+                        actorId: userId,
+                        projetoId: novo_projeto.id,
+                        tipo: Fastify.notiType.PROJECT_RELEASED,
+                        mensagem: `${request.user.nome} lançou um novo projeto de ${genero}: "${titulo}"!`
+                    }));
+
+                    await Fastify.prisma.notification.createMany({
+                        data: notificationsData
+                    });
+                }
+            } catch (notifErr) {
+                Fastify.log.error("Falha ao notificar seguidores: " + notifErr);
             }
-        } catch (notifErr) {
-            Fastify.log.error("Falha ao notificar seguidores: " + notifErr);
-        }
+        });
 
         return reply.status(201).send({
             status: "sucesso",

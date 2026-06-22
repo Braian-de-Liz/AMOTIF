@@ -53,20 +53,14 @@ const search_user_by_instruments: FastifyPluginAsyncTypebox = async (Fastify) =>
             }
         });
 
-        const resultados = await Promise.all(usuarios.map(async (user) => {
-            let isFollowing = false;
-            if (usuarioLogadoId !== user.id) {
-                const follow = await Fastify.prisma.follows.findUnique({
-                    where: {
-                        followerId_followingId: {
-                            followerId: usuarioLogadoId,
-                            followingId: user.id
-                        }
-                    }
-                });
-                isFollowing = !!follow;
-            }
-            return { ...user, isFollowing } as typeof user & { isFollowing: boolean };
+        const userIds = usuarios.map(u => u.id).filter(id => id !== usuarioLogadoId);
+        const follows = await Fastify.prisma.follows.findMany({
+            where: { followerId: usuarioLogadoId, followingId: { in: userIds } }
+        });
+        const followingSet = new Set(follows.map(f => f.followingId));
+        const resultados = usuarios.map(user => ({
+            ...user,
+            isFollowing: user.id !== usuarioLogadoId ? followingSet.has(user.id) : false
         }));
 
         return reply.status(200).send({
