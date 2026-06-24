@@ -1,50 +1,18 @@
-import { useState, useEffect } from "react";
-import { URL_API_TESTE } from "../utility/url_apis";
-import type { Project } from "../types";
+import { useApi } from '../hooks/useApi';
+import type { Project } from '../types';
 import '../styles/Shared.css';
 
-function MyProjetosLoader() {
-    const [projetos, setProjetos] = useState<Project[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [erro, setErro] = useState<string | null>(null);
-
-    useEffect(() => {
-        async function load() {
-            const token = localStorage.getItem("token");
-            const usuarioId = localStorage.getItem("usuario_id");
-
-            if (!token || !usuarioId) {
-                setErro("Sessão expirada. Por favor, faça login novamente.");
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const response = await fetch(`${URL_API_TESTE}/projetos/${usuarioId}/get`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    setProjetos(data.projetos || []);
-                } else {
-                    setErro(data.mensagem || "Erro ao carregar projetos.");
-                }
-            } catch {
-                setErro("Não foi possível conectar ao servidor.");
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        load();
-    }, []);
+function MyProjectsList() {
+    const usuarioId = localStorage.getItem("usuario_id");
+    const { data, loading, error } = useApi<{ projetos: Project[] }>(
+        `/projetos/${usuarioId}/get`,
+        { immediate: !!usuarioId }
+    );
 
     if (loading) return <div className="loading-txt">Sintonizando sua estante musical...</div>;
-    if (erro) return <div className="error-msg">{erro}</div>;
+    if (error) return <div className="error-msg">{error}</div>;
+
+    const projetos = data?.projetos || [];
 
     return (
         <div className="card-container">
@@ -68,4 +36,4 @@ function MyProjetosLoader() {
     );
 }
 
-export { MyProjetosLoader };
+export { MyProjectsList };

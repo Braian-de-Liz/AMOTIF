@@ -35,7 +35,7 @@ function FollowButton({ targetUserId, initialFollowing = false, onToggle, classN
                 setErro(data.mensagem || "Erro ao seguir.")
                 setTimeout(() => setErro(null), 3000)
             }
-        } catch (err) {
+        } catch {
             setErro("Erro de conexão.")
             setTimeout(() => setErro(null), 3000)
         } finally {
@@ -49,10 +49,12 @@ function FollowButton({ targetUserId, initialFollowing = false, onToggle, classN
                 className={`btn-follow ${isFollowing ? 'following' : ''} ${className}`}
                 onClick={handleClick}
                 disabled={loading}
+                aria-pressed={isFollowing}
+                aria-label={isFollowing ? "Deixar de seguir" : "Seguir"}
             >
                 {loading ? '...' : isFollowing ? 'Seguindo' : 'Seguir'}
             </button>
-            {erro && <small style={{ color: '#b34a4a', display: 'block', marginTop: '0.25rem' }}>{erro}</small>}
+            {erro && <small style={{ color: 'var(--erro-texto)', display: 'block', marginTop: '0.25rem' }}>{erro}</small>}
         </>
     )
 }

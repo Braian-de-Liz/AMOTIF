@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { URL_API_TESTE } from '../utility/url_apis';
+import { useApi } from '../hooks/useApi';
 import { ProjectCard } from './project_Card';
 import type { Project } from '../types';
 
@@ -10,34 +9,10 @@ interface FavoritesListProps {
 }
 
 function FavoritesList({ userId, limit }: FavoritesListProps) {
-    const [favoritos, setFavoritos] = useState<Project[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        async function fetchFavorites() {
-            try {
-                const token = localStorage.getItem("token");
-                const response = await fetch(`${URL_API_TESTE}/projetos/favoritos`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    const favList: Project[] = data.favoritos || [];
-                    setFavoritos(limit ? favList.slice(0, limit) : favList);
-                } else {
-                    setError(data.mensagem || 'Erro ao carregar favoritos');
-                }
-            } catch (err) {
-                setError('Erro de conexão');
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        if (userId) fetchFavorites();
-    }, [userId, limit]);
+    const { data, loading, error } = useApi<{ favoritos: Project[] }>(
+        `/projetos/favoritos`,
+        { immediate: !!userId }
+    );
 
     const navigate = useNavigate();
 
@@ -46,7 +21,10 @@ function FavoritesList({ userId, limit }: FavoritesListProps) {
     };
 
     if (loading) return <div className="loading">Carregando favoritos...</div>;
-    if (error) return <div className="error">{error}</div>;
+    if (error) return <div className="error-msg">{error}</div>;
+
+    let favoritos = data?.favoritos || [];
+    if (limit) favoritos = favoritos.slice(0, limit);
 
     if (favoritos.length === 0) {
         return (

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, User, Music, Heart, Mail } from 'lucide-react';
+import { Home, User, Heart, Mail } from 'lucide-react';
 import { Notificacoes } from './pull_notifications';
 import '../styles/Navbar.css';
 
@@ -29,13 +29,6 @@ function Nav() {
                     <Link to="/usuario">
                         <User size={24} className="nav-icon" />
                         <span>Perfil</span>
-                    </Link>
-                </li>
-
-                <li className={location.pathname.startsWith('/studio') ? 'active' : ''}>
-                    <Link to={'/home'}>
-                        <Music size={24} className="nav-icon" />
-                        <span>Estúdio</span>
                     </Link>
                 </li>
 

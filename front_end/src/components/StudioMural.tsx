@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+import { useApi } from '../hooks/useApi';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { Send, MessageCircle } from 'lucide-react';
 import type { MuralPost } from '../types';
@@ -8,42 +9,22 @@ interface StudioMuralProps {
     isOwner: boolean
 }
 
-function StudioMural({ projetoId, isOwner }: StudioMuralProps) {
-    const [posts, setPosts] = useState<MuralPost[]>([]);
-    const [loading, setLoading] = useState(true);
+function StudioMural({ projetoId }: StudioMuralProps) {
+    const { data, loading, error, refetch } = useApi<{ mural: MuralPost[] }>(
+        `/mural/${projetoId}`,
+        { immediate: !!projetoId }
+    );
+
     const [newPost, setNewPost] = useState('');
     const [posting, setPosting] = useState(false);
-    const [erro, setErro] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (projetoId) fetchMural();
-    }, [projetoId]);
-
-    const fetchMural = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${URL_API_TESTE}/mural/${projetoId}`, {
-                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                setPosts(data.mural || []);
-            } else {
-                setErro(data.mensagem || "Erro ao carregar mural.");
-            }
-        } catch (err) {
-            setErro("Erro de conexão ao carregar mural.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [postError, setPostError] = useState<string | null>(null);
 
     const handlePost = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!newPost.trim()) return;
 
         setPosting(true);
+        setPostError(null);
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/projetos/${projetoId}/mural`, {
@@ -57,14 +38,13 @@ function StudioMural({ projetoId, isOwner }: StudioMuralProps) {
 
             if (response.ok) {
                 setNewPost('');
-                fetchMural();
-                setErro(null);
+                refetch();
             } else {
-                const data = await response.json();
-                setErro(data.mensagem || "Erro ao postar.");
+                const result = await response.json();
+                setPostError(result.mensagem || "Erro ao postar.");
             }
-        } catch (err) {
-            setErro("Erro de conexão ao postar.");
+        } catch {
+            setPostError("Erro de conexão ao postar.");
         } finally {
             setPosting(false);
         }
@@ -72,9 +52,11 @@ function StudioMural({ projetoId, isOwner }: StudioMuralProps) {
 
     if (loading) return <div className="loading-txt">Carregando mural...</div>;
 
+    const posts = data?.mural || [];
+
     return (
         <div className="studio-mural">
-            {erro && <div className="error-msg">{erro}</div>}
+            {(error || postError) && <div className="error-msg">{error || postError}</div>}
 
             <div className="mural-posts">
                 {posts.length === 0 ? (
@@ -94,14 +76,16 @@ function StudioMural({ projetoId, isOwner }: StudioMuralProps) {
             </div>
 
             <form onSubmit={handlePost} className="mural-form">
+                <label htmlFor="mural-input" className="sr-only">Escreva algo no mural</label>
                 <input
+                    id="mural-input"
                     type="text"
                     value={newPost}
                     onChange={(e) => setNewPost(e.target.value)}
                     placeholder="Escreva algo no mural..."
                     className="mural-input"
                 />
-                <button type="submit" className="btn-send" disabled={posting || !newPost.trim()}>
+                <button type="submit" className="btn-send" disabled={posting || !newPost.trim()} aria-label="Enviar mensagem">
                     <Send size={18} />
                 </button>
             </form>

@@ -793,3 +793,260 @@
   display: flex;
   gap: 0.5rem;
 }
+
+/* INSTRUMENT EDITOR */
+.instrument-editor {
+  margin-top: 1rem;
+}
+
+.instrument-display {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.instrument-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.instrument-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  background-color: var(--verde-pastel);
+  color: var(--verde-escuro);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--verde-claro);
+}
+
+.instrument-tag.removable {
+  padding-right: 0.4rem;
+}
+
+.instrument-tag-remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--verde-escuro);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 50%;
+  transition: all 0.2s;
+}
+
+.instrument-tag-remove:hover {
+  background-color: var(--erro-bg);
+  color: var(--erro);
+}
+
+.instrument-empty {
+  color: var(--texto-secundario);
+  font-style: italic;
+  flex: 1;
+  margin: 0;
+}
+
+.instrument-edit-btn {
+  background: transparent;
+  border: 2px solid var(--verde-medio);
+  color: var(--verde-medio);
+  padding: 0.4rem 1rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.instrument-edit-btn:hover {
+  background: var(--verde-medio);
+  color: white;
+}
+
+.instrument-edit-area {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.instrument-add-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.instrument-input {
+  flex: 1;
+  border: 2px solid var(--cinza-suave);
+  border-radius: 12px;
+  padding: 0.6rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background-color: var(--fundo);
+  color: var(--texto);
+}
+
+.instrument-input:focus {
+  outline: none;
+  border-color: var(--verde-medio);
+  background-color: var(--branco);
+}
+
+.btn-add-instrument {
+  padding: 0.6rem 1rem;
+  background-color: var(--verde-medio);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-add-instrument:hover:not(:disabled) {
+  background-color: var(--verde-musgo);
+}
+
+.btn-add-instrument:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.instrument-edit-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.instrument-count {
+  font-size: 0.8rem;
+  color: var(--texto-secundario);
+}
+
+.instrument-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* ACCOUNT SETTINGS */
+.account-settings-section {
+  background-color: var(--branco);
+  padding: 2rem;
+  border-radius: 20px;
+  box-shadow: 0 4px 12px var(--sombra);
+  margin-top: 2rem;
+}
+
+.account-settings-section h2 {
+  color: var(--verde-escuro);
+  font-size: 1.5rem;
+  margin: 0 0 1rem 0;
+}
+
+.account-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.btn-account-action {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 1.2rem;
+  border: 2px solid var(--borda);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--texto);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-account-action:hover {
+  border-color: var(--verde-medio);
+  background-color: var(--fundo);
+}
+
+.btn-danger-outline {
+  border-color: var(--erro);
+  color: var(--erro);
+}
+
+.btn-danger-outline:hover {
+  background-color: var(--erro-bg);
+  border-color: var(--erro);
+}
+
+/* DANGER MODAL */
+.danger-modal {
+  border-left: 6px solid var(--erro);
+}
+
+.danger-title {
+  color: var(--erro) !important;
+}
+
+.danger-warning {
+  color: var(--texto);
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: var(--erro-bg);
+  border-radius: 10px;
+  border: 1px solid var(--erro);
+  font-size: 0.95rem;
+}
+
+.danger-warning strong {
+  color: var(--erro);
+}
+
+.btn-danger {
+  flex: 2;
+  padding: 0.8rem 1.5rem;
+  background-color: var(--erro);
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: 600;
+  box-shadow: 0 4px 6px var(--sombra);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-danger:hover:not(:disabled) {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .instrument-add-row {
+    flex-direction: column;
+  }
+
+  .account-actions {
+    flex-direction: column;
+  }
+
+  .btn-account-action {
+    width: 100%;
+    justify-content: center;
+  }
+}

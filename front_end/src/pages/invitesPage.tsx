@@ -1,41 +1,23 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useApi } from '../hooks/useApi';
 import { URL_API_TESTE } from '../utility/url_apis';
-import { Mail, Check, X, Clock } from 'lucide-react';
+import { Mail } from 'lucide-react';
 import type { Convite } from '../types';
 import '../styles/User.css';
 
 function InvitesPage() {
     const navigate = useNavigate();
-    const [convites, setConvites] = useState<Convite[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [erro, setErro] = useState<string | null>(null);
+    const { data, loading, error, refetch } = useApi<{ convites: Convite[] }>(
+        `/convites`,
+        { immediate: true }
+    );
 
-    useEffect(() => {
-        fetchConvites();
-    }, []);
-
-    const fetchConvites = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`${URL_API_TESTE}/convites`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-
-            if (response.ok) {
-                setConvites(data.convites || []);
-            } else {
-                setErro(data.mensagem || "Erro ao carregar convites.");
-            }
-        } catch (err) {
-            setErro("Erro de conexão ao carregar convites.");
-        } finally {
-            setLoading(false);
-        }
-    };
+    const [accepting, setAccepting] = useState<string | null>(null);
+    const [rejecting, setRejecting] = useState<string | null>(null);
 
     const handleAccept = async (convite: Convite) => {
+        setAccepting(convite.id);
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/colaboration/${convite.projetoId}/accept`, {
@@ -48,18 +30,17 @@ function InvitesPage() {
             });
 
             if (response.ok) {
-                setConvites(prev => prev.filter(c => c.id !== convite.id));
-                setErro(null);
-            } else {
-                const data = await response.json();
-                setErro(data.mensagem || "Erro ao aceitar convite.");
+                refetch();
             }
-        } catch (err) {
-            setErro("Erro de conexão ao aceitar convite.");
+        } catch {
+            // silent
+        } finally {
+            setAccepting(null);
         }
     };
 
     const handleReject = async (convite: Convite) => {
+        setRejecting(convite.id);
         try {
             const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/colaboration/${convite.projetoId}/reject`, {
@@ -68,81 +49,77 @@ function InvitesPage() {
             });
 
             if (response.ok) {
-                setConvites(prev => prev.filter(c => c.id !== convite.id));
-                setErro(null);
-            } else {
-                const data = await response.json();
-                setErro(data.mensagem || "Erro ao recusar convite.");
+                refetch();
             }
-        } catch (err) {
-            setErro("Erro de conexão ao recusar convite.");
+        } catch {
+            // silent
+        } finally {
+            setRejecting(null);
         }
-    };
-
-    const isExpired = (convite: Convite) => {
-        return new Date(convite.expira_em) < new Date();
     };
 
     if (loading) return <div className="loading-txt">Carregando convites...</div>;
 
+    const convites = data?.convites || [];
+
     return (
         <div className="invites-page">
-            <header className="page-header">
-                <h1>
-                    <Mail size={28} />
-                    Meus Convites
-                </h1>
-                <p>Convites para colaborar em projetos</p>
-            </header>
+            <div className="page-header">
+                <h1><Mail size={28} /> Convites</h1>
+                <p>Convites para colaboração em projetos</p>
+            </div>
 
-            <main className="invites-content">
-                {erro && <div className="error-msg">{erro}</div>}
+            <div className="invites-content">
+                {error && <div className="error-msg">{error}</div>}
 
-                {convites.length === 0 && !erro ? (
-                    <div className="empty-state">
-                        <p>Você não tem convites pendentes no momento.</p>
+                {convites.length === 0 ? (
+                    <div className="empty-invites">
+                        <Mail size={48} />
+                        <h3>Nenhum convite pendente</h3>
+                        <p>Quando alguém te convidar para colaborar em um projeto, ele aparecerá aqui.</p>
                     </div>
                 ) : (
-                    <div className="invites-list-full">
+                    <div className="invites-list">
                         {convites.map(convite => (
                             <div key={convite.id} className="invite-card">
                                 <div className="invite-icon">
                                     <Mail size={24} />
                                 </div>
                                 <div className="invite-details">
-                                    <strong>{convite.remetenteNome || convite.email_destinatario}</strong>
-                                    <p>Convidou você para colaborar em um projeto</p>
-                                    <small>Cargo: {convite.cargo}</small>
-                                    <div className="invite-expiry">
-                                        <Clock size={14} />
-                                        <span>Expira em: {new Date(convite.expira_em).toLocaleDateString()}</span>
+                                    <h3>Convite para Collaboração</h3>
+                                    <p className="invite-project">
+                                        Projeto: <strong onClick={() => navigate(`/studio/${convite.projetoId}`)} style={{ cursor: 'pointer', color: 'var(--verde-musgo)' }}>
+                                            Ver projeto
+                                        </strong>
+                                    </p>
+                                    <p className="invite-role">Cargo: {convite.cargo}</p>
+                                    <div className="invite-meta">
+                                        <span>Enviado por: {convite.remetenteNome || 'Desconhecido'}</span>
+                                        <span>•</span>
+                                        <span>Expira: {new Date(convite.expira_em).toLocaleDateString()}</span>
                                     </div>
                                 </div>
-                                <div className="invite-card-actions">
+                                <div className="invite-actions">
                                     <button
                                         className="btn-accept"
                                         onClick={() => handleAccept(convite)}
-                                        disabled={isExpired(convite)}
-                                        title={isExpired(convite) ? 'Convite expirado' : 'Aceitar'}
+                                        disabled={accepting === convite.id || rejecting === convite.id}
                                     >
-                                        <Check size={18} />
-                                        Aceitar
+                                        {accepting === convite.id ? '...' : 'Aceitar'}
                                     </button>
                                     <button
                                         className="btn-reject"
                                         onClick={() => handleReject(convite)}
-                                        disabled={isExpired(convite)}
-                                        title={isExpired(convite) ? 'Convite expirado' : 'Recusar'}
+                                        disabled={accepting === convite.id || rejecting === convite.id}
                                     >
-                                        <X size={18} />
-                                        Recusar
+                                        {rejecting === convite.id ? '...' : 'Rejeitar'}
                                     </button>
                                 </div>
                             </div>
                         ))}
                     </div>
                 )}
-            </main>
+            </div>
         </div>
     );
 }

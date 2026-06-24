@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { URL_API_TESTE } from "../utility/url_apis";
+import { useApi } from '../hooks/useApi';
+import { Avatar } from './Avatar';
 import type { User, FollowData } from '../types';
 
 interface FollowersListProps {
@@ -7,38 +7,16 @@ interface FollowersListProps {
 }
 
 function FollowersList({ userId }: FollowersListProps) {
-    const [followers, setFollowers] = useState<FollowData[]>([]);
-    const [total, setTotal] = useState(0);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        async function fetchFollowers() {
-            try {
-                const token = localStorage.getItem("token");
-                const response = await fetch(`${URL_API_TESTE}/follows`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    setFollowers(data.follows || []);
-                    setTotal(data.total || 0);
-                } else {
-                    setError(data.mensagem || 'Erro ao carregar seguidores');
-                }
-            } catch {
-                setError('Erro de conexão');
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        if (userId) fetchFollowers();
-    }, [userId]);
+    const { data, loading, error } = useApi<{ follows: FollowData[], total: number }>(
+        `/follows`,
+        { immediate: !!userId }
+    );
 
     if (loading) return <div className="loading">Carregando seguidores...</div>;
-    if (error) return <div className="error">{error}</div>;
+    if (error) return <div className="error-msg">{error}</div>;
+
+    const followers = data?.follows || [];
+    const total = data?.total || 0;
 
     return (
         <div className="followers-section">
@@ -50,13 +28,11 @@ function FollowersList({ userId }: FollowersListProps) {
                     {followers.map((follow) => (
                         <div key={follow.followerId} className="follower-card">
                             <div className="follower-avatar">
-                                {follow.follower.avatar_url ? (
-                                    <img src={follow.follower.avatar_url} alt={follow.follower.nome_completo} />
-                                ) : (
-                                    <div className="avatar-placeholder">
-                                        {follow.follower.nome_completo.charAt(0).toUpperCase()}
-                                    </div>
-                                )}
+                                <Avatar
+                                    src={follow.follower.avatar_url}
+                                    name={follow.follower.nome_completo}
+                                    size={50}
+                                />
                             </div>
                             <div className="follower-info">
                                 <strong>{follow.follower.nome_completo}</strong>
@@ -75,34 +51,15 @@ interface UserStatsProps {
 }
 
 function UserStats({ userId }: UserStatsProps) {
-    const [stats, setStats] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        async function fetchUserStats() {
-            try {
-                const token = localStorage.getItem("token");
-                const response = await fetch(`${URL_API_TESTE}/usuario/${userId}/completo`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                const data = await response.json();
-
-                if (response.ok) {
-                    setStats(data.usuario);
-                }
-            } catch {
-                console.error("Erro ao carregar estatísticas");
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        if (userId) fetchUserStats();
-    }, [userId]);
+    const { data, loading } = useApi<{ usuario: User }>(
+        `/usuario/${userId}/completo`,
+        { immediate: !!userId }
+    );
 
     if (loading) return <div className="loading">Carregando dados...</div>;
-    if (!stats) return null;
+    if (!data?.usuario) return null;
+
+    const stats = data.usuario;
 
     return (
         <div className="user-stats">

@@ -3,8 +3,10 @@ import { useParams } from "react-router-dom";
 import { WaveformTrack } from "../components/WaveformTrack";
 import { StudioMural } from "../components/StudioMural";
 import { StudioColaboradores } from "../components/StudioColaboradores";
+import { EditProjectModal } from "../components/EditProjectModal";
+import { DeleteProjectModal } from "../components/DeleteProjectModal";
 import { URL_API_TESTE } from "../utility/url_apis";
-import { Play, Pause, Mic, Music, Users, MessageSquare } from "lucide-react";
+import { Play, Pause, Mic, Music, Users, MessageSquare, Pencil, Trash2 } from "lucide-react";
 import type { Project, Camada } from "../types";
 import type WaveSurfer from 'wavesurfer.js';
 import '../styles/Studio.css';
@@ -18,6 +20,8 @@ function Studio() {
     const [saving, setSaving] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('tracks');
     const [saveErro, setSaveErro] = useState<string | null>(null);
+    const [editModalOpen, setEditModalOpen] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
 
     const wavesurferRefs = useRef<Record<string, WaveSurfer>>({});
 
@@ -160,11 +164,33 @@ function Studio() {
 
     const isOwner = projeto.autor?.id === localStorage.getItem("usuario_id");
 
+    const handleProjectUpdated = (updated: Project) => {
+        setProjeto(prev => prev ? { ...prev, ...updated } : prev);
+    };
+
     return (
         <div className="studio-page">
             <div className="user-header">
                 <h1>Estúdio: {projeto.titulo}</h1>
                 <p>BPM: <strong>{projeto.bpm}</strong> | Gênero: {projeto.genero}</p>
+                {isOwner && (
+                    <div className="project-owner-actions">
+                        <button
+                            className="btn-edit-project"
+                            onClick={() => setEditModalOpen(true)}
+                        >
+                            <Pencil size={16} />
+                            Editar
+                        </button>
+                        <button
+                            className="btn-delete-project"
+                            onClick={() => setDeleteModalOpen(true)}
+                        >
+                            <Trash2 size={16} />
+                            Excluir
+                        </button>
+                    </div>
+                )}
                 <div className="studio-controls">
                     <button
                         className="btn-create-proj"
@@ -257,6 +283,21 @@ function Studio() {
                     <StudioColaboradores projetoId={id} isOwner={isOwner} />
                 )}
             </main>
+
+            {projeto && (
+                <EditProjectModal
+                    projeto={projeto}
+                    isOpen={editModalOpen}
+                    onClose={() => setEditModalOpen(false)}
+                    onUpdated={handleProjectUpdated}
+                />
+            )}
+
+            <DeleteProjectModal
+                projetoId={id || ''}
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+            />
         </div>
     );
 }

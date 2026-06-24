@@ -11,7 +11,6 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
     const [query, setQuery] = useState('');
     const [searchType, setSearchType] = useState('projetos');
     const [loading, setLoading] = useState(false);
-    const [hasSearched, setHasSearched] = useState(false);
     const [erro, setErro] = useState<string | null>(null);
 
     const handleSearch = async (e: React.FormEvent) => {
@@ -19,50 +18,38 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
         if (!query.trim()) return;
 
         setLoading(true);
-        setHasSearched(true);
+        setErro(null);
 
         try {
             const token = localStorage.getItem("token");
+            let url: URL;
 
             if (searchType === 'projetos') {
-                const url = new URL(`${URL_API_TESTE}/search/projects`);
+                url = new URL(`${URL_API_TESTE}/search/projects`);
                 url.searchParams.append('query', query);
-
-                const response = await fetch(url, {
-                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    onSearchResults({ type: 'projetos', data: data.resultados || [] });
-                    setErro(null);
-                } else {
-                    onSearchResults({ type: 'projetos', data: [] });
-                    setErro(data.mensagem || "Nenhum resultado encontrado.");
-                }
             } else {
-                const url = new URL(`${URL_API_TESTE}/search/user`);
-
+                url = new URL(`${URL_API_TESTE}/search/user`);
                 if (searchType === 'instrumentos') {
                     url.searchParams.append('instrumento', query);
                 } else {
                     url.searchParams.append('query', query);
                 }
-
-                const response = await fetch(url, {
-                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    onSearchResults({ type: 'usuarios', data: data.resultados || [] });
-                    setErro(null);
-                } else {
-                    onSearchResults({ type: 'usuarios', data: [] });
-                    setErro(data.mensagem || "Nenhum músico encontrado.");
-                }
             }
-        } catch (err) {
+
+            const response = await fetch(url, {
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+            });
+            const data = await response.json();
+
+            if (response.ok) {
+                const type = searchType === 'projetos' ? 'projetos' : 'usuarios';
+                onSearchResults({ type, data: data.resultados || [] });
+                setErro(null);
+            } else {
+                onSearchResults(searchType === 'projetos' ? { type: 'projetos', data: [] } : { type: 'usuarios', data: [] });
+                setErro(data.mensagem || "Nenhum resultado encontrado.");
+            }
+        } catch {
             setErro("Erro de conexão ao buscar.");
         } finally {
             setLoading(false);
@@ -71,7 +58,6 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
 
     const clearSearch = () => {
         setQuery('');
-        setHasSearched(false);
         setErro(null);
         onSearchResults(null);
     };
@@ -93,7 +79,7 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
                         className="search-input"
                     />
                     {query && (
-                        <button type="button" className="search-clear" onClick={clearSearch}>
+                        <button type="button" className="search-clear" onClick={clearSearch} aria-label="Limpar busca">
                             <X size={16} />
                         </button>
                     )}

@@ -1,49 +1,31 @@
-import { useState, useEffect } from 'react';
-import { URL_API_TESTE } from "../utility/url_apis";
+import { useState } from 'react';
+import { useApi } from '../hooks/useApi';
+import { URL_API_TESTE } from '../utility/url_apis';
 import type { User } from '../types';
 
 function BioEditor() {
     const usuarioId = localStorage.getItem("usuario_id");
     const token = localStorage.getItem("token");
 
-    const [user, setUser] = useState<User | null>(null);
+    const { data, loading } = useApi<{ usuario: User }>(
+        `/usuario/${usuarioId}/completo`,
+        { immediate: !!usuarioId && !!token }
+    );
+
     const [bio, setBio] = useState('');
-    const [originalBio, setOriginalBio] = useState<string | null>('');
+    const [originalBio, setOriginalBio] = useState<string | null>(null);
     const [editing, setEditing] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [initialized, setInitialized] = useState(false);
 
     const MAX_CHARS = 500;
 
-    useEffect(() => {
-        if (!usuarioId || !token) {
-            setError("Sessão expirada. Faça login novamente.");
-            setLoading(false);
-            return;
-        }
-        fetchUser();
-    }, []);
-
-    async function fetchUser() {
-        try {
-            const res = await fetch(`${URL_API_TESTE}/usuario/${usuarioId}/completo`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await res.json();
-            if (res.ok) {
-                const u = data.usuario;
-                setUser(u);
-                setBio(u.bio ?? '');
-                setOriginalBio(u.bio ?? '');
-            } else {
-                setError(data.mensagem || "Erro ao carregar usuário.");
-            }
-        } catch {
-            setError("Erro de conexão.");
-        } finally {
-            setLoading(false);
-        }
+    if (data?.usuario && !initialized) {
+        const u = data.usuario;
+        setBio(u.bio ?? '');
+        setOriginalBio(u.bio ?? '');
+        setInitialized(true);
     }
 
     async function handleSave() {
@@ -62,13 +44,13 @@ function BioEditor() {
                 },
                 body: JSON.stringify({ bio: payload })
             });
-            const data = await res.json();
+            const result = await res.json();
             if (res.ok) {
                 setOriginalBio(payload);
                 setBio(payload ?? '');
                 setEditing(false);
             } else {
-                setError(data.mensagem || "Erro ao salvar.");
+                setError(result.mensagem || "Erro ao salvar.");
             }
         } catch {
             setError("Erro de conexão.");
@@ -84,7 +66,7 @@ function BioEditor() {
     }
 
     if (loading) return <div className="loading">Carregando bio...</div>;
-    if (!user) return null;
+    if (!data?.usuario) return null;
 
     return (
         <div className="bio-editor">

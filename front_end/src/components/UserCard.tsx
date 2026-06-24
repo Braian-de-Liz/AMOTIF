@@ -1,4 +1,5 @@
 import { FollowButton } from './FollowButton'
+import { Avatar } from './Avatar'
 import type { User } from '../types'
 
 interface UserCardProps {
@@ -10,13 +11,11 @@ function UserCard({ user, onClick }: UserCardProps) {
     return (
         <div className="user-card" onClick={onClick}>
             <div className="user-card-avatar">
-                {user.avatar_url ? (
-                    <img src={user.avatar_url} alt={user.nome_completo} />
-                ) : (
-                    <div className="avatar-placeholder">
-                        {user.nome_completo?.charAt(0).toUpperCase() || '?'}
-                    </div>
-                )}
+                <Avatar
+                    src={user.avatar_url}
+                    name={user.nome_completo}
+                    size={50}
+                />
             </div>
 
             <div className="user-card-info">

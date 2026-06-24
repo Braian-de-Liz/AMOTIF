@@ -119,10 +119,10 @@
 .error-msg {
   text-align: center;
   padding: 1.5rem;
-  background-color: #ffe6e6;
-  color: #b34a4a;
+  background-color: var(--erro-bg);
+  color: var(--erro-texto);
   border-radius: 20px;
-  border: 1px solid #f5c2c2;
+  border: 1px solid var(--erro);
   max-width: 500px;
   margin: 2rem auto;
 }

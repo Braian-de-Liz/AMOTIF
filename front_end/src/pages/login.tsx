@@ -6,14 +6,13 @@ import { loginSchema } from '../schemas/loginSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
 
 function Login() {
-
     const navigate = useNavigate();
-    const [email, Setemail] = useState('');
-    const [senha, Setsenha] = useState('');
+    const [email, setEmail] = useState('');
+    const [senha, setSenha] = useState('');
     const [erro, setErro] = useState('');
+    const [loading, setLoading] = useState(false);
 
-
-    async function request_log(e: React.FormEvent) {
+    async function requestLog(e: React.FormEvent) {
         e.preventDefault();
         setErro('');
 
@@ -23,20 +22,21 @@ function Login() {
             return
         }
 
+        setLoading(true);
         try {
-            const dados_login = { email, senha };
+            const dadosLogin = { email, senha };
 
-            const try_login = await fetch(`${URL_API_TESTE}/usuario/login`, {
+            const tryLogin = await fetch(`${URL_API_TESTE}/usuario/login`, {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json; charset=utf-8'
                 },
-                body: JSON.stringify(dados_login)
+                body: JSON.stringify(dadosLogin)
             })
 
-            const data = await try_login.json();
+            const data = await tryLogin.json();
 
-            if (!try_login.ok) {
+            if (!tryLogin.ok) {
                 throw new Error(data.mensagem || 'Erro desconhecido');
             }
 
@@ -46,31 +46,48 @@ function Login() {
             localStorage.setItem("usuario_nome", data.usuario.nome);
 
             navigate("/home");
-        }
-        catch (erro) {
-            console.error('Erro no login:', erro);
-            setErro('Erro ao fazer login: ' + (erro instanceof Error ? erro.message : 'Erro desconhecido'));
+        } catch (err) {
+            console.error('Erro no login:', err);
+            setErro('Erro ao fazer login: ' + (err instanceof Error ? err.message : 'Erro desconhecido'));
+        } finally {
+            setLoading(false);
         }
     }
 
     return (
         <div className="login-page">
-            <form className='form_login' onSubmit={request_log}>
+            <form className='form_login' onSubmit={requestLog}>
                 <h1 className="form-title">AMOTIF</h1>
 
                 {erro && <div className="form-error" role="alert">{erro}</div>}
 
                 <div>
-                    <label>E-mail</label>
-                    <input type="email" value={email} onChange={(e) => Setemail(e.target.value)} placeholder="seu@email.com" />
+                    <label htmlFor="login-email">E-mail</label>
+                    <input
+                        id="login-email"
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="seu@email.com"
+                        autoComplete="email"
+                    />
                 </div>
 
                 <div>
-                    <label>Senha</label>
-                    <input type="password" value={senha} onChange={(e) => Setsenha(e.target.value)} placeholder="••••••••" />
+                    <label htmlFor="login-senha">Senha</label>
+                    <input
+                        id="login-senha"
+                        type="password"
+                        value={senha}
+                        onChange={(e) => setSenha(e.target.value)}
+                        placeholder="••••••••"
+                        autoComplete="current-password"
+                    />
                 </div>
 
-                <button type="submit" className='btn-submit'>Entrar</button>
+                <button type="submit" className='btn-submit' disabled={loading}>
+                    {loading ? 'Entrando...' : 'Entrar'}
+                </button>
             </form>
 
             <div className='login-footer'>
@@ -81,4 +98,4 @@ function Login() {
     )
 }
 
-export { Login };
+export default Login;

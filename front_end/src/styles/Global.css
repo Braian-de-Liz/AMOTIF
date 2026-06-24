@@ -144,6 +144,24 @@ hr {
   font-size: var(--text-sm);
 }
 
+.form-success {
+  background-color: var(--sucesso-bg);
+  color: var(--sucesso-texto);
+  border-color: var(--sucesso);
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 /* Acessibilidade: reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *,

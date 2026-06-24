@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import '../styles/Shared.css';
 import { URL_API_TESTE } from "../utility/url_apis";
 import { Heart, Music, Bookmark } from "lucide-react";
@@ -9,12 +9,12 @@ interface ProjectCardProps {
     proj: Project
 }
 
-function ProjectCard({ proj }: ProjectCardProps) {
+function ProjectCardInner({ proj }: ProjectCardProps) {
     const navigate = useNavigate();
-    const [isLiked, setIsLiked] = useState(proj.userHasLiked);
-    const [likesCount, setLikesCount] = useState(proj._count.likes);
-    const [isFavorited, setIsFavorited] = useState(proj.userHasFavorited || false);
-    const [erro, setErro] = useState<string | null>(null);
+    const [isLiked, setIsLiked] = React.useState(proj.userHasLiked);
+    const [likesCount, setLikesCount] = React.useState(proj._count.likes);
+    const [isFavorited, setIsFavorited] = React.useState(proj.userHasFavorited || false);
+    const [erro, setErro] = React.useState<string | null>(null);
 
     async function handleLike() {
         try {
@@ -33,7 +33,7 @@ function ProjectCard({ proj }: ProjectCardProps) {
                 setErro(data.mensagem || "Erro ao curtir.");
                 setTimeout(() => setErro(null), 3000);
             }
-        } catch (err) {
+        } catch {
             setErro("Erro de conexão ao curtir.");
             setTimeout(() => setErro(null), 3000);
         }
@@ -56,7 +56,7 @@ function ProjectCard({ proj }: ProjectCardProps) {
                 setErro(data.mensagem || "Erro ao favoritar.");
                 setTimeout(() => setErro(null), 3000);
             }
-        } catch (err) {
+        } catch {
             setErro("Erro de conexão ao favoritar.");
             setTimeout(() => setErro(null), 3000);
         }
@@ -76,17 +76,20 @@ function ProjectCard({ proj }: ProjectCardProps) {
                 <button
                     onClick={handleLike}
                     className={`btn-like ${isLiked ? 'active' : ''}`}
+                    aria-label={isLiked ? "Descurtir" : "Curtir"}
+                    aria-pressed={isLiked}
                 >
-                    <Heart size={18} fill={isLiked ? "red" : "none"} color={isLiked ? "red" : "currentColor"} />
+                    <Heart size={18} fill={isLiked ? "var(--erro)" : "none"} color={isLiked ? "var(--erro)" : "currentColor"} />
                     <span>{likesCount}</span>
                 </button>
 
                 <button
                     onClick={handleFavorite}
                     className={`btn-favorite ${isFavorited ? 'active' : ''}`}
-                    title={isFavorited ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                    aria-label={isFavorited ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                    aria-pressed={isFavorited}
                 >
-                    <Bookmark size={18} fill={isFavorited ? "#fbbf24" : "none"} color={isFavorited ? "#fbbf24" : "currentColor"} />
+                    <Bookmark size={18} fill={isFavorited ? "var(--aviso)" : "none"} color={isFavorited ? "var(--aviso)" : "currentColor"} />
                 </button>
 
                 <div className="stat-item">
@@ -110,5 +113,7 @@ function ProjectCard({ proj }: ProjectCardProps) {
         </article>
     );
 }
+
+const ProjectCard = React.memo(ProjectCardInner);
 
 export { ProjectCard };
