@@ -6,6 +6,7 @@ import { Avatar } from '../components/Avatar';
 import { URL_API_TESTE } from '../utility/url_apis';
 import type { User, Project } from '../types';
 import '../styles/User.css';
+import { SEOHead } from '../components/SEOHead';
 
 function UserProfile() {
     const { id } = useParams<{ id: string }>();
@@ -54,6 +55,11 @@ function UserProfile() {
 
     return (
         <div className="user-dashboard">
+            <SEOHead
+                title={user.nome_completo}
+                description={user.bio || `Perfil de ${user.nome_completo} na AMOTIF - projetos, instrumentos e colaboração musical.`}
+                url={`/usuario/${user.id}`}
+            />
             <div className="page-header">
                 <div className="profile-header">
                     <div className="profile-avatar">

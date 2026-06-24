@@ -14,6 +14,7 @@ const UserProfile = React.lazy(() => import('./pages/userProfile'));
 const Studio = React.lazy(() => import('./pages/studio').then(m => ({ default: m.Studio })));
 const InvitesPage = React.lazy(() => import('./pages/invitesPage').then(m => ({ default: m.InvitesPage })));
 const FavoritesPage = React.lazy(() => import('./pages/favoritesPage').then(m => ({ default: m.FavoritesPage })));
+const NotFound = React.lazy(() => import('./pages/notFound'));
 
 function LoadingFallback() {
     return (
@@ -50,6 +51,8 @@ function App() {
                         <Route path='/convites' element={<InvitesPage />} />
                         <Route path='/favoritos' element={<FavoritesPage />} />
                     </Route>
+
+                    <Route path='*' element={<NotFound />} />
                 </Routes>
             </React.Suspense>
         </Router>

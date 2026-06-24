@@ -6,6 +6,7 @@ import { Heart } from 'lucide-react';
 import { ProjectCard } from '../components/project_Card';
 import type { Project } from '../types';
 import '../styles/User.css';
+import { SEOHead } from '../components/SEOHead';
 
 function FavoritesPage() {
     const navigate = useNavigate();
@@ -20,6 +21,11 @@ function FavoritesPage() {
 
     return (
         <div className="favorites-page">
+            <SEOHead
+                title="Favoritos"
+                description="Acesse seus projetos musicais favoritos salvos na AMOTIF."
+                url="/favoritos"
+            />
             <div className="page-header">
                 <h1><Heart size={28} className="heart-icon" /> Favoritos</h1>
                 <p>Projetos que você salvou</p>

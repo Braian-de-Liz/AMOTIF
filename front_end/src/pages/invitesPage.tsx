@@ -5,6 +5,7 @@ import { URL_API_TESTE } from '../utility/url_apis';
 import { Mail } from 'lucide-react';
 import type { Convite } from '../types';
 import '../styles/User.css';
+import { SEOHead } from '../components/SEOHead';
 
 function InvitesPage() {
     const navigate = useNavigate();
@@ -64,6 +65,11 @@ function InvitesPage() {
 
     return (
         <div className="invites-page">
+            <SEOHead
+                title="Convites"
+                description="Gerencie seus convites para colaboração em projetos musicais na AMOTIF."
+                url="/convites"
+            />
             <div className="page-header">
                 <h1><Mail size={28} /> Convites</h1>
                 <p>Convites para colaboração em projetos</p>

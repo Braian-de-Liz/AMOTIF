@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { URL_API_TESTE } from '../utility/url_apis'
 import { loginSchema } from '../schemas/loginSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
+import { SEOHead } from '../components/SEOHead'
 
 function Login() {
     const navigate = useNavigate();
@@ -56,6 +57,11 @@ function Login() {
 
     return (
         <div className="login-page">
+            <SEOHead
+                title="Entrar"
+                description="Acesse sua conta na AMOTIF e comece a colaborar com músicos de todo o Brasil."
+                url="/"
+            />
             <form className='form_login' onSubmit={requestLog}>
                 <h1 className="form-title">AMOTIF</h1>
 

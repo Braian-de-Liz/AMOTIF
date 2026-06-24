@@ -10,6 +10,7 @@ import { Play, Pause, Mic, Music, Users, MessageSquare, Pencil, Trash2 } from "l
 import type { Project, Camada } from "../types";
 import type WaveSurfer from 'wavesurfer.js';
 import '../styles/Studio.css';
+import { SEOHead } from '../components/SEOHead';
 
 function Studio() {
     const { id } = useParams<{ id: string }>();
@@ -170,6 +171,11 @@ function Studio() {
 
     return (
         <div className="studio-page">
+            <SEOHead
+                title={`Estúdio: ${projeto.titulo}`}
+                description={`Estúdio do projeto "${projeto.titulo}" - BPM: ${projeto.bpm}, Gênero: ${projeto.genero}. Colabore em tempo real.`}
+                url={`/studio/${id}`}
+            />
             <div className="user-header">
                 <h1>Estúdio: {projeto.titulo}</h1>
                 <p>BPM: <strong>{projeto.bpm}</strong> | Gênero: {projeto.genero}</p>

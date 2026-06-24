@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+Disallow: /home
+Disallow: /usuario
+Disallow: /studio/
+Disallow: /convites
+Disallow: /favoritos
+
+Sitemap: https://amotif.onrender.com/sitemap.xml

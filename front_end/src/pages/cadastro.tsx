@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import '../styles/Cadastro.css';
 import { cadastroSchema } from '../schemas/cadastroSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
+import { SEOHead } from '../components/SEOHead'
 
 function Cadastro() {
     const navigate = useNavigate();
@@ -58,6 +59,11 @@ function Cadastro() {
 
     return (
         <div className="cadastro-page">
+            <SEOHead
+                title="Criar Conta"
+                description="Cadastre-se na AMOTIF gratuitamente e comece a criar e colabore em projetos musicais."
+                url="/cadastro"
+            />
             <form className="form_login" onSubmit={cadastrar}>
                 <h1 className="form-title">Criar Conta</h1>
 

@@ -8,6 +8,7 @@ import { ChangePassword } from '../components/ChangePassword';
 import { DeleteAccountModal } from '../components/DeleteAccountModal';
 import { Lock, Trash2 } from 'lucide-react';
 import '../styles/User.css';
+import { SEOHead } from '../components/SEOHead';
 
 function UserPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -20,6 +21,11 @@ function UserPage() {
 
     return (
         <div className="user-dashboard">
+            <SEOHead
+                title="Minha Estante Musical"
+                description="Gerencie seus projetos, configure seu perfil e acompanhe seus seguidores na AMOTIF."
+                url="/usuario"
+            />
 
             <header className="user-header">
                 <h1>Minha Estante Musical</h1>
