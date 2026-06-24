@@ -13,7 +13,9 @@
   padding: var(--space-xl) var(--space-xl) var(--space-md);
   border-radius: var(--radius-xl);
   box-shadow: var(--sombra-card);
-  border-left: 8px solid var(--verde-medio);
+  border-left: 5px solid transparent;
+  border-image: var(--gradiente-verde) 1;
+  animation: fadeInUp 0.4s ease-out;
 }
 
 .user-header h1 {
@@ -44,6 +46,7 @@
   padding: var(--space-xl);
   border-radius: var(--radius-xl);
   box-shadow: var(--sombra-card);
+  animation: fadeInUp 0.4s ease-out 0.1s both;
 }
 
 .my-projects-section h2 {
