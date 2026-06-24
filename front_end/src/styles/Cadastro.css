@@ -3,71 +3,141 @@
 
 .cadastro-page {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: calc(100vh - 80px);
+    min-height: 100vh;
     padding: 2rem 1rem;
+    padding-bottom: 5rem;
     gap: 3rem;
+    background: 
+        radial-gradient(ellipse at 80% 50%, rgba(107, 142, 77, 0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 20% 80%, rgba(143, 176, 143, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 40% 20%, rgba(212, 230, 212, 0.1) 0%, transparent 50%),
+        var(--fundo);
+    position: relative;
+    overflow: hidden;
+}
+
+.cadastro-page::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: 
+        radial-gradient(circle at 70% 70%, rgba(107, 142, 77, 0.03) 0%, transparent 40%),
+        radial-gradient(circle at 30% 30%, rgba(143, 176, 143, 0.04) 0%, transparent 40%);
+    animation: softPulse 8s ease-in-out infinite;
+    pointer-events: none;
 }
 
 .cadastro-hero {
     display: none;
 }
 
-@media (min-width: 900px) {
-  .cadastro-page {
-    padding: 3rem;
-  }
+.cadastro-form-wrapper {
+    width: 100%;
+    max-width: 480px;
+    z-index: 1;
+}
 
-  .cadastro-hero {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    max-width: 400px;
+.cadastro-footer {
     text-align: center;
-  }
+    margin-top: 1.5rem;
+    animation: fadeIn 0.5s ease-out 0.3s both;
+}
 
-  .cadastro-hero-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: var(--radius-full);
-    background: var(--gradiente-verde);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1.5rem;
-    box-shadow: 0 8px 24px rgba(107, 142, 77, 0.25);
-  }
-
-  .cadastro-hero-icon svg {
-    color: var(--branco);
-  }
-
-  .cadastro-hero h2 {
-    color: var(--verde-escuro);
-    font-size: var(--text-3xl);
-    margin-bottom: var(--space-sm);
-  }
-
-  .cadastro-hero p {
+.cadastro-footer p {
     color: var(--texto-secundario);
-    font-size: var(--text-lg);
-    line-height: 1.7;
-  }
+    margin-bottom: 0.5rem;
+    font-size: var(--text-sm);
+}
 
-  .cadastro-form-wrapper {
-    animation: fadeInUp 0.4s ease-out;
-  }
+.cadastro-footer a {
+    display: inline-block;
+    background: var(--gradiente-verde-suave);
+    color: var(--verde-escuro);
+    padding: 0.6rem 1.8rem;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    border: 1px solid var(--verde-claro);
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(107, 142, 77, 0.1);
+}
+
+.cadastro-footer a:hover {
+    background: var(--gradiente-verde);
+    color: var(--branco);
+    text-decoration: none;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(107, 142, 77, 0.25);
+}
+
+@media (min-width: 900px) {
+    .cadastro-page {
+        flex-direction: row;
+        padding: 3rem;
+        padding-bottom: 3rem;
+        gap: 4rem;
+    }
+
+    .cadastro-hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        max-width: 400px;
+        text-align: center;
+        animation: fadeInUp 0.6s ease-out;
+    }
+
+    .cadastro-hero-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+        animation: scaleIn 0.5s ease-out 0.2s both;
+        transition: transform 0.3s ease;
+    }
+
+    .cadastro-hero-icon:hover {
+        transform: scale(1.05);
+    }
+
+    .cadastro-hero-logo {
+        width: 120px;
+        height: 120px;
+        object-fit: contain;
+    }
+
+    .cadastro-hero h2 {
+        color: var(--verde-escuro);
+        font-size: var(--text-3xl);
+        margin-bottom: var(--space-sm);
+        animation: fadeInUp 0.5s ease-out 0.3s both;
+    }
+
+    .cadastro-hero p {
+        color: var(--texto-secundario);
+        font-size: var(--text-lg);
+        line-height: 1.7;
+        animation: fadeInUp 0.5s ease-out 0.4s both;
+    }
+
+    .cadastro-form-wrapper {
+        animation: fadeInUp 0.5s ease-out 0.1s both;
+    }
 }
 
 @media (max-width: 768px) {
-  .cadastro-page {
-    min-height: calc(100vh - 60px);
-    padding: 1rem;
-  }
+    .cadastro-page {
+        padding: 1.5rem 1rem;
+        padding-bottom: 5rem;
+    }
 
-  .cadastro-form-wrapper {
-    animation: fadeInUp 0.4s ease-out;
-  }
+    .cadastro-form-wrapper {
+        animation: fadeInUp 0.5s ease-out;
+    }
 }

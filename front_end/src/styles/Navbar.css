@@ -33,7 +33,7 @@ nav ul {
   align-items: center;
   gap: 0.5rem;
   font-weight: 700;
-  font-size: 1.15rem;
+  font-size: 1rem;
   color: var(--verde-musgo) !important;
   text-decoration: none !important;
   letter-spacing: -0.02em;
@@ -44,8 +44,10 @@ nav ul {
   opacity: 0.8;
 }
 
-.nav-brand svg {
-  color: var(--verde-musgo);
+.nav-brand-logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
 }
 
 nav ul li.notifications-item {

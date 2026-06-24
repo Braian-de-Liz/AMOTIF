@@ -5,7 +5,7 @@ import { URL_API_TESTE } from '../utility/url_apis'
 import { loginSchema } from '../schemas/loginSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
 import { SEOHead } from '../components/SEOHead'
-import { Music, LogIn } from 'lucide-react';
+import { LogIn } from 'lucide-react';
 
 function Login() {
     const navigate = useNavigate();
@@ -65,7 +65,7 @@ function Login() {
             />
             <div className="login-hero">
                 <div className="login-hero-icon">
-                    <Music size={36} />
+                    <img src="/assets/logo.fav.png" alt="AMOTIF" className="login-hero-logo" />
                 </div>
                 <h2>Bem-vindo de volta</h2>
                 <p>Entre na sua conta e continue criando música com colaboradores de todo o Brasil.</p>

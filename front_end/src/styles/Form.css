@@ -2,14 +2,20 @@
 /* Estilos compartilhados entre Login e Cadastro */
 
 .form_login {
-  max-width: 400px;
+  max-width: 480px;
   width: 100%;
   margin: 0 auto;
   background-color: var(--branco);
-  padding: 2.5rem 2rem;
+  padding: 3rem 2.5rem;
   border-radius: var(--radius-xl);
-  box-shadow: 0 8px 20px var(--sombra);
+  box-shadow: 0 8px 32px rgba(107, 142, 77, 0.12), 0 2px 8px rgba(0, 0, 0, 0.04);
   border: 1px solid var(--verde-pastel);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  animation: fadeInUp 0.5s ease-out;
+}
+
+.form_login:hover {
+  box-shadow: 0 12px 40px rgba(107, 142, 77, 0.18), 0 4px 12px rgba(0, 0, 0, 0.06);
 }
 
 .form_login div {
@@ -21,51 +27,79 @@
   margin-bottom: var(--space-xs);
   color: var(--verde-escuro);
   font-weight: 500;
-  font-size: var(--text-base);
+  font-size: var(--text-lg);
+  transition: color 0.2s ease;
+}
+
+.form_login div:focus-within label {
+  color: var(--verde-musgo);
 }
 
 .form_login input {
   width: 100%;
-  padding: 0.8rem 1rem;
+  padding: 1rem 1.25rem;
   border: 2px solid var(--cinza-suave);
   border-radius: var(--radius-md);
-  font-size: var(--text-base);
-  transition: border-color 0.2s ease;
+  font-size: var(--text-lg);
+  transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
   background-color: var(--fundo);
   color: var(--texto);
 }
 
 .form_login input:focus {
   outline: none;
-  border-color: var(--verde-medio);
+  border-color: var(--verde-musgo);
   background-color: var(--branco);
+  box-shadow: 0 0 0 4px rgba(107, 142, 77, 0.1);
 }
 
 .form_login input::placeholder {
   color: var(--placeholder);
+  transition: opacity 0.2s ease;
+}
+
+.form_login input:focus::placeholder {
+  opacity: 0.5;
 }
 
 .btn-submit {
   width: 100%;
-  padding: 1rem;
-  background-color: var(--verde-musgo);
+  padding: 1.15rem;
+  background: var(--gradiente-verde);
   color: white;
   border: none;
   border-radius: var(--radius-full);
-  font-size: var(--text-lg);
+  font-size: var(--text-xl);
   font-weight: 600;
   margin-top: var(--space-md);
-  box-shadow: 0 4px 12px rgba(107, 142, 77, 0.3);
+  box-shadow: 0 4px 16px rgba(107, 142, 77, 0.35);
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-submit:hover::before {
+  left: 100%;
 }
 
 .btn-submit:hover {
-  background-color: #5a7a3f;
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(107, 142, 77, 0.35);
+  box-shadow: 0 8px 24px rgba(107, 142, 77, 0.4);
 }
 
 .btn-submit:active:not(:disabled) {
-  transform: scale(0.97) translateY(0);
+  transform: scale(0.98) translateY(0);
   box-shadow: 0 2px 8px rgba(107, 142, 77, 0.25);
 }
 
@@ -74,9 +108,39 @@
   cursor: not-allowed;
 }
 
+.form-title {
+  font-size: var(--text-3xl);
+}
+
+/* Erro e sucesso com animação */
+.form-error {
+  animation: slideDown 0.3s ease-out;
+}
+
+.form-success {
+  animation: slideDown 0.3s ease-out;
+}
+
 @media (max-width: 768px) {
   .form_login {
-    margin: 0 1rem;
-    padding: 1.5rem;
+    padding: 2rem 1.5rem;
+  }
+
+  .form_login label {
+    font-size: var(--text-base);
+  }
+
+  .form_login input {
+    padding: 0.85rem 1rem;
+    font-size: var(--text-base);
+  }
+
+  .btn-submit {
+    padding: 1rem;
+    font-size: var(--text-lg);
+  }
+
+  .form-title {
+    font-size: var(--text-2xl);
   }
 }

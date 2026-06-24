@@ -451,6 +451,38 @@
   color: var(--texto);
 }
 
+.notifications-popup-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.notifications-mark-read {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  background: transparent;
+  border: 1px solid var(--verde-medio);
+  border-radius: var(--radius-pill);
+  color: var(--verde-musgo);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.notifications-mark-read:hover:not(:disabled) {
+  background: var(--verde-medio);
+  color: var(--branco);
+}
+
+.notifications-mark-read:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .notifications-popup-content {
   max-height: calc(70vh - 60px);
   overflow-y: auto;

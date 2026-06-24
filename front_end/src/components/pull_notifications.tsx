@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { URL_API_TESTE } from '../utility/url_apis';
-import { Bell } from 'lucide-react';
+import { Bell, CheckCheck } from 'lucide-react';
 import type { Notification } from '../types';
 import '../styles/Shared.css';
 
@@ -9,6 +9,7 @@ export const Notificacoes = () => {
     const [notificacoes, setNotificacoes] = useState<Notification[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const [popupStyle, setPopupStyle] = useState<React.CSSProperties>();
+    const [markingAll, setMarkingAll] = useState(false);
     const popupRef = useRef<HTMLDivElement | null>(null);
     const bellButtonRef = useRef<HTMLButtonElement | null>(null);
     const floatingButtonRef = useRef<HTMLButtonElement | null>(null);
@@ -51,6 +52,8 @@ export const Notificacoes = () => {
         return () => document.removeEventListener('keydown', handleKeyDown);
     }, [isOpen, closePopup]);
 
+    const isMobile = () => window.innerWidth <= 768;
+
     const togglePopup = useCallback(() => {
         const nextOpen = !isOpen;
         if (!nextOpen) {
@@ -59,12 +62,22 @@ export const Notificacoes = () => {
             const fabRect = floatingButtonRef.current?.getBoundingClientRect();
             const bellRect = bellButtonRef.current?.getBoundingClientRect();
             const activeRect = (fabRect && fabRect.width > 0) ? fabRect : bellRect;
+
             if (activeRect) {
-                setPopupStyle({
-                    position: 'fixed',
-                    top: `${activeRect.bottom + 4}px`,
-                    right: `${Math.max(8, window.innerWidth - activeRect.right)}px`,
-                });
+                if (isMobile()) {
+                    setPopupStyle({
+                        position: 'fixed',
+                        bottom: `${window.innerHeight - activeRect.top + 8}px`,
+                        right: `${Math.max(8, window.innerWidth - activeRect.right)}px`,
+                        top: 'auto',
+                    });
+                } else {
+                    setPopupStyle({
+                        position: 'fixed',
+                        top: `${activeRect.bottom + 4}px`,
+                        right: `${Math.max(8, window.innerWidth - activeRect.right)}px`,
+                    });
+                }
             }
         }
         setIsOpen(nextOpen);
@@ -105,6 +118,29 @@ export const Notificacoes = () => {
         const interval = setInterval(fetchNotificacoes, 180000);
         return () => clearInterval(interval);
     }, []);
+
+    const markAllAsRead = async () => {
+        const token = localStorage.getItem('token');
+        if (!token || token === "null" || markingAll) return;
+
+        setMarkingAll(true);
+        try {
+            const response = await fetch(`${URL_API_TESTE}/notifications/read-all`, {
+                method: 'PATCH',
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            if (response.ok) {
+                setNotificacoes(prev => prev.map(n => ({ ...n, lida: true })));
+            }
+        } catch (error) {
+            console.error("Erro ao marcar notificações como lidas:", error);
+        } finally {
+            setMarkingAll(false);
+        }
+    };
 
     const getIcon = (tipo: string) => {
         switch (tipo) {
@@ -163,13 +199,27 @@ export const Notificacoes = () => {
                 >
                     <div className="notifications-popup-header">
                         <h3>Notificações</h3>
-                        <button
-                            className="notifications-popup-close"
-                            onClick={closePopup}
-                            aria-label="Fechar notificações"
-                        >
-                            ×
-                        </button>
+                        <div className="notifications-popup-actions">
+                            {naoLidas > 0 && (
+                                <button
+                                    className="notifications-mark-read"
+                                    onClick={markAllAsRead}
+                                    disabled={markingAll}
+                                    aria-label="Marcar todas como lidas"
+                                    title="Marcar todas como lidas"
+                                >
+                                    <CheckCheck size={16} />
+                                    <span>Marcar como lidas</span>
+                                </button>
+                            )}
+                            <button
+                                className="notifications-popup-close"
+                                onClick={closePopup}
+                                aria-label="Fechar notificações"
+                            >
+                                ×
+                            </button>
+                        </div>
                     </div>
                     <div className="notifications-popup-content">
                         {notificacoes.length === 0 ? (

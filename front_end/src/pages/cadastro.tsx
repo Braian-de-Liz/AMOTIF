@@ -1,11 +1,11 @@
 import { URL_API_TESTE } from "../utility/url_apis";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import '../styles/Cadastro.css';
 import { cadastroSchema } from '../schemas/cadastroSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
 import { SEOHead } from '../components/SEOHead'
-import { Music, UserPlus } from 'lucide-react';
+import { UserPlus } from 'lucide-react';
 
 function Cadastro() {
     const navigate = useNavigate();
@@ -67,7 +67,7 @@ function Cadastro() {
             />
             <div className="cadastro-hero">
                 <div className="cadastro-hero-icon">
-                    <Music size={36} />
+                    <img src="/assets/logo.fav.png" alt="AMOTIF" className="cadastro-hero-logo" />
                 </div>
                 <h2>Junte-se à comunidade</h2>
                 <p>Crie sua conta gratuita e comece a colaborar em projetos musicais com artistas de todo o Brasil.</p>
@@ -131,6 +131,11 @@ function Cadastro() {
                         {loading ? 'Cadastrando...' : <><UserPlus size={18} /> Cadastrar</>}
                     </button>
                 </form>
+
+                <div className="cadastro-footer">
+                    <p>Já tem uma conta?</p>
+                    <Link to="/">Entrar</Link>
+                </div>
             </div>
         </div>
     )
