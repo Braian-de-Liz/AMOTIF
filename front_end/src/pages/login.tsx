@@ -5,6 +5,7 @@ import { URL_API_TESTE } from '../utility/url_apis'
 import { loginSchema } from '../schemas/loginSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
 import { SEOHead } from '../components/SEOHead'
+import { Music, LogIn } from 'lucide-react';
 
 function Login() {
     const navigate = useNavigate();
@@ -62,43 +63,53 @@ function Login() {
                 description="Acesse sua conta na AMOTIF e comece a colaborar com músicos de todo o Brasil."
                 url="/"
             />
-            <form className='form_login' onSubmit={requestLog}>
-                <h1 className="form-title">AMOTIF</h1>
-
-                {erro && <div className="form-error" role="alert">{erro}</div>}
-
-                <div>
-                    <label htmlFor="login-email">E-mail</label>
-                    <input
-                        id="login-email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="seu@email.com"
-                        autoComplete="email"
-                    />
+            <div className="login-hero">
+                <div className="login-hero-icon">
+                    <Music size={36} />
                 </div>
+                <h2>Bem-vindo de volta</h2>
+                <p>Entre na sua conta e continue criando música com colaboradores de todo o Brasil.</p>
+            </div>
 
-                <div>
-                    <label htmlFor="login-senha">Senha</label>
-                    <input
-                        id="login-senha"
-                        type="password"
-                        value={senha}
-                        onChange={(e) => setSenha(e.target.value)}
-                        placeholder="••••••••"
-                        autoComplete="current-password"
-                    />
+            <div className="login-form-wrapper">
+                <form className='form_login' onSubmit={requestLog}>
+                    <h1 className="form-title">Entrar</h1>
+
+                    {erro && <div className="form-error" role="alert">{erro}</div>}
+
+                    <div>
+                        <label htmlFor="login-email">E-mail</label>
+                        <input
+                            id="login-email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="seu@email.com"
+                            autoComplete="email"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="login-senha">Senha</label>
+                        <input
+                            id="login-senha"
+                            type="password"
+                            value={senha}
+                            onChange={(e) => setSenha(e.target.value)}
+                            placeholder="••••••••"
+                            autoComplete="current-password"
+                        />
+                    </div>
+
+                    <button type="submit" className='btn-submit' disabled={loading}>
+                        {loading ? 'Entrando...' : <><LogIn size={18} /> Entrar</>}
+                    </button>
+                </form>
+
+                <div className='login-footer'>
+                    <p>Não tem uma conta?</p>
+                    <Link to="/cadastro">Cadastrar-se</Link>
                 </div>
-
-                <button type="submit" className='btn-submit' disabled={loading}>
-                    {loading ? 'Entrando...' : 'Entrar'}
-                </button>
-            </form>
-
-            <div className='login-footer'>
-                <p>Não tem uma conta?</p>
-                <Link to="/cadastro">Cadastrar-se</Link>
             </div>
         </div>
     )

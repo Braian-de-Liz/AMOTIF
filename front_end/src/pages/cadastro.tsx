@@ -5,6 +5,7 @@ import '../styles/Cadastro.css';
 import { cadastroSchema } from '../schemas/cadastroSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
 import { SEOHead } from '../components/SEOHead'
+import { Music, UserPlus } from 'lucide-react';
 
 function Cadastro() {
     const navigate = useNavigate();
@@ -64,63 +65,73 @@ function Cadastro() {
                 description="Cadastre-se na AMOTIF gratuitamente e comece a criar e colabore em projetos musicais."
                 url="/cadastro"
             />
-            <form className="form_login" onSubmit={cadastrar}>
-                <h1 className="form-title">Criar Conta</h1>
-
-                {erro && <div className="form-error" role="alert">{erro}</div>}
-                {sucesso && <div className="form-error form-success" role="status">{sucesso}</div>}
-
-                <div>
-                    <label htmlFor="cad-nome">Nome Completo</label>
-                    <input
-                        id="cad-nome"
-                        type="text"
-                        value={nomeCompleto}
-                        onChange={(e) => setNomeCompleto(e.target.value)}
-                        placeholder="Seu nome completo"
-                        autoComplete="name"
-                    />
+            <div className="cadastro-hero">
+                <div className="cadastro-hero-icon">
+                    <Music size={36} />
                 </div>
+                <h2>Junte-se à comunidade</h2>
+                <p>Crie sua conta gratuita e comece a colaborar em projetos musicais com artistas de todo o Brasil.</p>
+            </div>
 
-                <div>
-                    <label htmlFor="cad-email">Email</label>
-                    <input
-                        id="cad-email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="seu@email.com"
-                        autoComplete="email"
-                    />
-                </div>
+            <div className="cadastro-form-wrapper">
+                <form className="form_login" onSubmit={cadastrar}>
+                    <h1 className="form-title">Criar Conta</h1>
 
-                <div>
-                    <label htmlFor="cad-senha">Senha</label>
-                    <input
-                        id="cad-senha"
-                        type="password"
-                        value={senha}
-                        onChange={(e) => setSenha(e.target.value)}
-                        placeholder="Mínimo 8 caracteres"
-                        autoComplete="new-password"
-                    />
-                </div>
+                    {erro && <div className="form-error" role="alert">{erro}</div>}
+                    {sucesso && <div className="form-error form-success" role="status">{sucesso}</div>}
 
-                <div>
-                    <label htmlFor="cad-cpf">CPF</label>
-                    <input
-                        id="cad-cpf"
-                        placeholder="000.000.000-00"
-                        type="text"
-                        value={cpf}
-                        onChange={(e) => setCpf(e.target.value)}
-                    />
-                </div>
+                    <div>
+                        <label htmlFor="cad-nome">Nome Completo</label>
+                        <input
+                            id="cad-nome"
+                            type="text"
+                            value={nomeCompleto}
+                            onChange={(e) => setNomeCompleto(e.target.value)}
+                            placeholder="Seu nome completo"
+                            autoComplete="name"
+                        />
+                    </div>
 
-                <button type="submit" className='btn-submit' disabled={loading}>
-                    {loading ? 'Cadastrando...' : 'Cadastrar'}
-                </button>
-            </form>
+                    <div>
+                        <label htmlFor="cad-email">Email</label>
+                        <input
+                            id="cad-email"
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="seu@email.com"
+                            autoComplete="email"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="cad-senha">Senha</label>
+                        <input
+                            id="cad-senha"
+                            type="password"
+                            value={senha}
+                            onChange={(e) => setSenha(e.target.value)}
+                            placeholder="Mínimo 8 caracteres"
+                            autoComplete="new-password"
+                        />
+                    </div>
+
+                    <div>
+                        <label htmlFor="cad-cpf">CPF</label>
+                        <input
+                            id="cad-cpf"
+                            placeholder="000.000.000-00"
+                            type="text"
+                            value={cpf}
+                            onChange={(e) => setCpf(e.target.value)}
+                        />
+                    </div>
+
+                    <button type="submit" className='btn-submit' disabled={loading}>
+                        {loading ? 'Cadastrando...' : <><UserPlus size={18} /> Cadastrar</>}
+                    </button>
+                </form>
+            </div>
         </div>
     )
 }

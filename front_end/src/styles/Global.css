@@ -14,13 +14,16 @@
   --verde-escuro: #2c3e2c;
   --verde-musgo: #6b8e4d;
   --fundo: #f4f9f4;
+  --fundo-secundario: #eaf2ea;
   --branco: #ffffff;
   --cinza-suave: #e8f0e8;
   --sombra: rgba(0, 0, 0, 0.05);
   --texto: #2c3e2c;
+  --texto-principal: #2c3e2c;
   --texto-secundario: #4a5e4a;
   --borda: #c2d6c2;
   --badge-bpm: #b8d9b8;
+  --placeholder: #a0b8a0;
 
   /* Cores semânticas */
   --erro: #dc2626;
@@ -29,12 +32,31 @@
   --sucesso: #16a34a;
   --sucesso-bg: #dcfce7;
   --sucesso-texto: #166534;
+  --sucesso-hover: #15803d;
   --aviso: #d97706;
   --aviso-bg: #fef3c7;
   --aviso-texto: #92400e;
   --info: #2563eb;
   --info-bg: #dbeafe;
   --info-texto: #1e40af;
+  --pendente-bg: #fef9c3;
+  --pendente-texto: #854d0e;
+  --cor-like: #e74c3c;
+  --cor-favorito: #fbbf24;
+
+  /* Sombras */
+  --sombra-card: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --sombra-card-hover: 0 12px 28px rgba(107, 142, 77, 0.18);
+  --sombra-popup: 0 8px 24px rgba(0, 0, 0, 0.12);
+  --sombra-modal: 0 15px 35px rgba(0, 0, 0, 0.2);
+  --sombra-fab: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --sombra-verde: rgba(107, 142, 77, 0.15);
+  --sombra-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Gradientes */
+  --gradiente-verde: linear-gradient(135deg, #6b8e4d, #8fb08f);
+  --gradiente-verde-suave: linear-gradient(135deg, #d4e6d4, #e8f0e8);
+  --gradiente-hero: linear-gradient(160deg, #6b8e4d 0%, #8fb08f 50%, #c0d9c0 100%);
 
   /* Escala de spacing */
   --space-2xs: 0.25rem;
@@ -60,11 +82,13 @@
 
   /* Escala de border-radius */
   --radius-xs: 4px;
-  --radius-sm: 8px;
+  --radius-sm: 6px;
+  --radius-base: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-xl: 20px;
   --radius-2xl: 25px;
+  --radius-pill: 30px;
   --radius-full: 9999px;
 
   /* Escala de z-index */
@@ -79,7 +103,7 @@
 }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: var(--fundo);
   color: var(--texto);
   line-height: 1.6;
@@ -184,7 +208,7 @@ hr {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(107, 142, 77, 0.3);
+  background: var(--sombra-verde);
   border-radius: var(--radius-full);
   transition: background 0.2s ease;
 }
@@ -196,5 +220,111 @@ hr {
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(107, 142, 77, 0.3) transparent;
+  scrollbar-color: var(--sombra-verde) transparent;
+}
+
+/* Focus acessível */
+:focus-visible {
+  outline: 2px solid var(--verde-medio);
+  outline-offset: 2px;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Botões disabled padronizados */
+button:disabled,
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Estado vazio padronizado */
+.empty-state {
+  text-align: center;
+  padding: var(--space-4xl) var(--space-3xl);
+  color: var(--texto-secundario);
+  background-color: var(--cinza-suave);
+  border-radius: var(--radius-xl);
+  border: 2px dashed var(--verde-claro);
+}
+
+.empty-state-icon {
+  font-size: 3rem;
+  margin-bottom: var(--space-md);
+  opacity: 0.7;
+}
+
+.empty-state h3 {
+  color: var(--verde-escuro);
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-xs);
+  font-style: normal;
+}
+
+.empty-state p {
+  font-style: italic;
+  margin-bottom: var(--space-lg);
+}
+
+/* Animações de entrada */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.4s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.25s ease-out;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out;
+}
+
+/* Botão primário com micro-interação */
+.btn-submit,
+.btn-primary {
+  transition: all 0.2s ease;
+}
+
+.btn-submit:active:not(:disabled),
+.btn-primary:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+/* Painel de seção branco com sombra */
+.section-panel {
+  background-color: var(--branco);
+  padding: var(--space-xl);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--sombra-card);
 }

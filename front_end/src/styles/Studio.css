@@ -61,10 +61,10 @@
 
 .guia-badge {
     background: var(--verde-medio);
-    color: #000;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-size: 0.75rem;
+    color: var(--verde-escuro);
+    padding: var(--space-2xs) var(--space-xs);
+    border-radius: var(--radius-xs);
+    font-size: var(--text-xs);
     font-weight: 600;
 }
 
@@ -95,7 +95,7 @@
 
 .btn-icon.active {
     background: var(--verde-medio);
-    color: #000;
+    color: var(--verde-escuro);
 }
 
 .volume-slider {
@@ -142,14 +142,14 @@
 .btn-save {
     background: var(--verde-medio);
     border: none;
-    border-radius: 6px;
+    border-radius: var(--radius-sm);
     padding: 6px 10px;
     cursor: pointer;
-    color: #000;
+    color: var(--verde-escuro);
     display: flex;
     align-items: center;
-    gap: 4px;
-    font-size: 0.8rem;
+    gap: var(--space-2xs);
+    font-size: var(--text-sm);
     font-weight: 600;
     transition: all 0.2s;
 }
@@ -178,13 +178,13 @@
 }
 
 .status-badge.approved {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--sucesso-bg);
+    color: var(--sucesso-texto);
 }
 
 .status-badge.pending {
-    background: #fef9c3;
-    color: #854d0e;
+    background: var(--pendente-bg);
+    color: var(--pendente-texto);
 }
 
 .btn-auth {
@@ -198,21 +198,21 @@
 }
 
 .btn-auth.approve {
-    background: #16a34a;
-    color: #fff;
+    background: var(--sucesso);
+    color: var(--branco);
 }
 
 .btn-auth.approve:hover {
-    background: #15803d;
+    background: var(--sucesso-hover);
 }
 
 .btn-auth.reject {
-    background: #ef4444;
-    color: #fff;
+    background: var(--erro);
+    color: var(--branco);
 }
 
 .btn-auth.reject:hover {
-    background: #dc2626;
+    background: #c81e1e;
 }
 
 .spin {
@@ -259,8 +259,8 @@ audio::-webkit-media-controls-panel {
 }
 
 .btn-stop {
-    border-color: var(--erro) !important;
-    color: var(--erro) !important;
+    border-color: var(--erro);
+    color: var(--erro);
 }
 
 .btn-gravar {
@@ -464,11 +464,11 @@ audio::-webkit-media-controls-panel {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--sombra-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
+    z-index: var(--z-popup);
 }
 
 .invite-modal {
@@ -587,16 +587,16 @@ audio::-webkit-media-controls-panel {
 }
 
 .btn-reject {
-    background: #fee2e2;
+    background: var(--erro-bg);
     border: none;
-    border-radius: 50%;
+    border-radius: var(--radius-full);
     width: 32px;
     height: 32px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    color: #dc2626;
+    color: var(--erro);
 }
 
 .colaboradores-list h4 {

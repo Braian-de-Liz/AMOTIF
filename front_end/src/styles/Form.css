@@ -42,26 +42,36 @@
 }
 
 .form_login input::placeholder {
-  color: #a0b8a0;
+  color: var(--placeholder);
 }
 
 .btn-submit {
   width: 100%;
   padding: 1rem;
-  background-color: var(--verde-medio);
+  background-color: var(--verde-musgo);
   color: white;
   border: none;
   border-radius: var(--radius-full);
   font-size: var(--text-lg);
   font-weight: 600;
   margin-top: var(--space-md);
-  box-shadow: 0 4px 6px var(--sombra);
+  box-shadow: 0 4px 12px rgba(107, 142, 77, 0.3);
 }
 
 .btn-submit:hover {
-  background-color: var(--verde-musgo);
+  background-color: #5a7a3f;
   transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(107, 142, 77, 0.2);
+  box-shadow: 0 6px 16px rgba(107, 142, 77, 0.35);
+}
+
+.btn-submit:active:not(:disabled) {
+  transform: scale(0.97) translateY(0);
+  box-shadow: 0 2px 8px rgba(107, 142, 77, 0.25);
+}
+
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 @media (max-width: 768px) {

@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Home, User, Heart, Mail } from 'lucide-react';
+import { Home, User, Heart, Mail, Music } from 'lucide-react';
 import { Notificacoes } from './pull_notifications';
 import '../styles/Navbar.css';
 
@@ -17,6 +17,12 @@ function Nav() {
     return (
         <nav className="nav-container">
             <ul>
+                <li className="nav-brand-item">
+                    <Link to="/home" className="nav-brand">
+                        <Music size={20} />
+                        <span>AMOTIF</span>
+                    </Link>
+                </li>
 
                 <li className={isActive('/home') ? 'active' : ''}>
                     <Link to="/home">

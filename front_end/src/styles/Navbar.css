@@ -1,9 +1,11 @@
 /* front_end/src/styles/Navbar.css */
 
 nav {
-  background-color: var(--branco);
+  background-color: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   padding: 1rem 2rem;
-  box-shadow: 0 2px 8px var(--sombra);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
   border-bottom: 2px solid var(--verde-claro);
   margin-bottom: 2rem;
   position: relative;
@@ -19,6 +21,31 @@ nav ul {
   max-width: 1400px;
   margin: 0 auto;
   width: 100%;
+}
+
+/* Logo AMOTIF */
+.nav-brand-item {
+  margin-right: auto;
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--verde-musgo) !important;
+  text-decoration: none !important;
+  letter-spacing: -0.02em;
+  transition: opacity 0.2s ease;
+}
+
+.nav-brand:hover {
+  opacity: 0.8;
+}
+
+.nav-brand svg {
+  color: var(--verde-musgo);
 }
 
 nav ul li.notifications-item {
@@ -43,7 +70,7 @@ nav ul li button {
   background-color: var(--verde-pastel);
   color: var(--verde-escuro);
   padding: 0.5rem 1.2rem;
-  border-radius: 30px;
+  border-radius: var(--radius-pill);
   font-weight: 600;
   border: 1px solid var(--verde-claro);
 }
@@ -61,11 +88,17 @@ nav ul li button:hover {
     left: 0;
     right: 0;
     margin-bottom: 0; 
-    z-index: 3000;
+    z-index: var(--z-toast);
     padding: 0.6rem 0.5rem;
     border-bottom: none;
     border-top: 2px solid var(--verde-claro);
     box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    backdrop-filter: none;
+  }
+
+  /* Esconder logo no mobile */
+  nav ul li.nav-brand-item {
+    display: none;
   }
 
   /* Esconder notificações no Nav mobile */
@@ -98,8 +131,8 @@ nav ul li button:hover {
   
   nav ul li button {
     padding: 0.4rem 0.8rem;
-    font-size: 0.75rem;
-    border-radius: 15px;
+    font-size: var(--text-xs);
+    border-radius: var(--radius-pill);
   }
 
   nav ul li a span {
