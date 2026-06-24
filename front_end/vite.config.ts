@@ -4,7 +4,7 @@ import sitemap from 'vite-plugin-sitemap'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: 'https://amotif.onrender.com',
+  base: '/',
   plugins: [
     react({
       babel: {
