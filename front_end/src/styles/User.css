@@ -73,6 +73,23 @@
   font-size: var(--text-base);
   border: 2px solid transparent;
   box-shadow: 0 4px 12px rgba(107, 142, 77, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-create-proj::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-create-proj:hover::before {
+  left: 100%;
 }
 
 .btn-create-proj:hover {
@@ -173,6 +190,23 @@
     font-size: var(--text-base);
     font-weight: 600;
     box-shadow: 0 4px 12px rgba(107, 142, 77, 0.3);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-modal-submit::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+.btn-modal-submit:hover::before {
+    left: 100%;
 }
 
 .btn-modal-submit:hover:not(:disabled) {
