@@ -18,6 +18,9 @@ const mockPrisma = {
   projeto: {
     findMany: async () => [],
   },
+  follows: {
+    findMany: async () => [],
+  },
 };
 
 const prismaPlugin = fp(async (fastify: FastifyInstance) => {
@@ -82,7 +85,7 @@ describe("Search Routes - GET /api/search/user", () => {
       headers: { Authorization: `Bearer ${token}` },
     });
 
-    expect(res.statusCode).toBeOneOf([200, 404]);
+    expect(res.statusCode).toBe(200);
   });
 });
 

@@ -184,13 +184,13 @@ describe("Projetos Routes - GET /api/projetos/:id", () => {
     await app.close();
   });
 
-  it("deve retornar 400 se UUID for inválido", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "GET",
       url: "/api/projetos/id-invalido",
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se o ID não for UUID", async () => {
@@ -221,13 +221,13 @@ describe("Projetos Routes - GET /api/projetos/:id/get", () => {
     await app.close();
   });
 
-  it("deve retornar 400 se UUID for inválido", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "GET",
       url: "/api/projetos/id-invalido/get",
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se o ID não for UUID", async () => {

@@ -21,7 +21,7 @@ const del_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             return reply.status(404).send({ status: 'erro', mensagem: "Usuário não encontrado" });
         }
 
-        const check_password = await Bun.password.verify(user.senha, senha);
+        const check_password = await Bun.password.verify(senha, user.senha);
 
         if (!check_password) {
             Fastify.log.error("erro au autenticar senha");

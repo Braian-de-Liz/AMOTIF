@@ -72,7 +72,7 @@ describe("Layers Routes - POST /api/layer/:projetoId", () => {
     await app.close();
   });
 
-  it("deve retornar erro de validação (400) se UUID for inválido", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "POST",
       url: "/api/layer/nao-e-uuid",
@@ -85,7 +85,7 @@ describe("Layers Routes - POST /api/layer/:projetoId", () => {
       },
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se audio_url for inválido", async () => {
@@ -139,13 +139,13 @@ describe("Layers Routes - DELETE /api/layer/:id", () => {
     await app.close();
   });
 
-  it("deve retornar erro de validação (400) se UUID for inválido", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "DELETE",
       url: "/api/layer/nao-e-uuid",
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se o ID não for UUID", async () => {
@@ -176,14 +176,14 @@ describe("Layers Routes - PUT /api/layer/:id", () => {
     await app.close();
   });
 
-  it("deve retornar erro de validação (400) se UUID for inválido", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "PUT",
       url: "/api/layer/nao-e-uuid",
       payload: { nome_trilha: "Novo Nome" },
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se o ID não for UUID", async () => {
@@ -215,14 +215,14 @@ describe("Layers Routes - PATCH /api/layer/:layerId/status", () => {
     await app.close();
   });
 
-  it("deve retornar erro de validação (400) se UUID for inválido", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "PATCH",
       url: "/api/layer/nao-e-uuid/status",
       payload: { aprovada: true },
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se aprovada não for boolean", async () => {

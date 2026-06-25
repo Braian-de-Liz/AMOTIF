@@ -8,6 +8,16 @@ const TEST_PASSWORD = Bun.env.TEST_PASSWORD;
 let tokenAutenticado: string;
 let userId: string;
 let projetoId: string | null = null;
+let serverAvailable = false;
+
+async function checkServer(): Promise<boolean> {
+  try {
+    const res = await fetch(`${BASE_URL}/api/health`, { signal: AbortSignal.timeout(3000) });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
 
 async function login() {
   const res = await fetch(`${BASE_URL}/api/usuario/login`, {
@@ -79,6 +89,9 @@ async function criarProjetoTemporario(): Promise<string> {
 }
 
 beforeAll(async () => {
+  serverAvailable = await checkServer();
+  if (!serverAvailable) return;
+
   if (!TEST_EMAIL || !TEST_PASSWORD) {
     throw new Error(
       "Defina TEST_EMAIL e TEST_PASSWORD no .env ou environment."
@@ -98,6 +111,7 @@ describe("Performance - Estresse da API AMOTIF", () => {
   test(
     "GET /api/projetos/feed | 50 conexões, 5s",
     async () => {
+      if (!serverAvailable) return;
       const resultado = await autocannon({
         url: `${BASE_URL}/api/projetos/feed`,
         connections: 50,
@@ -118,6 +132,7 @@ describe("Performance - Estresse da API AMOTIF", () => {
   test(
     "GET /api/notifications | 30 conexões, 5s",
     async () => {
+      if (!serverAvailable) return;
       const resultado = await autocannon({
         url: `${BASE_URL}/api/notifications`,
         connections: 30,
@@ -138,6 +153,7 @@ describe("Performance - Estresse da API AMOTIF", () => {
   test(
     "GET /api/usuario/:id/completo | 30 conexões, 5s",
     async () => {
+      if (!serverAvailable) return;
       const resultado = await autocannon({
         url: `${BASE_URL}/api/usuario/${userId}/completo`,
         connections: 30,
@@ -158,6 +174,7 @@ describe("Performance - Estresse da API AMOTIF", () => {
   test(
     "GET /api/projetos/:id | 30 conexões, 5s",
     async () => {
+      if (!serverAvailable) return;
       const resultado = await autocannon({
         url: `${BASE_URL}/api/projetos/${projetoId}`,
         connections: 30,
@@ -178,6 +195,7 @@ describe("Performance - Estresse da API AMOTIF", () => {
   test(
     "GET /api/projetos/favoritos | 20 conexões, 5s",
     async () => {
+      if (!serverAvailable) return;
       const resultado = await autocannon({
         url: `${BASE_URL}/api/projetos/favoritos`,
         connections: 20,

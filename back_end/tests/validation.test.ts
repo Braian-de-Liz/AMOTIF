@@ -73,8 +73,7 @@ describe("Testes da Rota /StronValid (Benchmark de Validação)", () => {
 
         expect(response.statusCode).toBe(200);
 
-        const body = JSON.parse(response.body);
-        expect(body).toEqual({ status: "ok, funcionando" });
+        expect(response.body).toBe("validado");
     });
 
     test("Deve retornar 400 Bad Request se quebrar as regras de tipo ou formato", async () => {

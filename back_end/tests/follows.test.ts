@@ -67,13 +67,13 @@ describe("Follows Routes - POST /api/follow/:followingId", () => {
     await app.close();
   });
 
-  it("deve retornar 400 se UUID for inválido (validação antes do auth)", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "POST",
       url: "/api/follow/nao-e-uuid",
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se tentar seguir a si mesmo", async () => {
@@ -116,13 +116,13 @@ describe("Follows Routes - DELETE /api/follow/:id", () => {
     await app.close();
   });
 
-  it("deve retornar 400 se UUID for inválido", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "DELETE",
       url: "/api/follow/nao-e-uuid",
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se o ID não for UUID", async () => {

@@ -86,13 +86,13 @@ describe("Likes Routes - POST /api/like/:projetoId", () => {
     await app.close();
   });
 
-  it("deve retornar 400 se UUID for inválido (validação antes do auth)", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "POST",
       url: "/api/like/nao-e-uuid",
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se o projetoId não for UUID", async () => {

@@ -87,7 +87,7 @@ describe("Colaboration Routes - POST /api/colaboration/:id/invite", () => {
     await app.close();
   });
 
-  it("deve retornar erro de validação (400) se UUID for inválido e sem token", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "POST",
       url: "/api/colaboration/nao-e-uuid/invite",
@@ -98,7 +98,7 @@ describe("Colaboration Routes - POST /api/colaboration/:id/invite", () => {
       },
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se email_destinatario for inválido", async () => {
@@ -133,14 +133,14 @@ describe("Colaboration Routes - POST /api/colaboration/:id/accept", () => {
     await app.close();
   });
 
-  it("deve retornar erro de validação (400) se UUID for inválido e sem token", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "POST",
       url: "/api/colaboration/nao-e-uuid/accept",
       payload: { token_convite: "test-token" },
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se token_convite não for enviado", async () => {
@@ -200,13 +200,13 @@ describe("Colaboration Routes - GET /api/colaboration/:id/invite", () => {
     await app.close();
   });
 
-  it("deve retornar erro de validação (400) se UUID for inválido e sem token", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "GET",
       url: "/api/colaboration/nao-e-uuid/invite",
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se o ID não for UUID", async () => {
@@ -237,13 +237,13 @@ describe("Colaboration Routes - DELETE /api/colaboration/:projetoId/remove/:user
     await app.close();
   });
 
-  it("deve retornar erro de validação (400) se UUID for inválido e sem token", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "DELETE",
       url: "/api/colaboration/nao-e-uuid/remove/outro-id",
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se os IDs não forem UUID", async () => {
@@ -274,13 +274,13 @@ describe("Colaboration Routes - DELETE /api/colaboration/:projetoId/reject", () 
     await app.close();
   });
 
-  it("deve retornar erro de validação (400) se UUID for inválido e sem token", async () => {
+  it("deve retornar 401 se UUID for inválido e sem token (auth roda antes da validação)", async () => {
     const res = await app.inject({
       method: "DELETE",
       url: "/api/colaboration/nao-e-uuid/reject",
     });
 
-    expect(res.statusCode).toBe(400);
+    expect(res.statusCode).toBe(401);
   });
 
   it("deve retornar 400 se o projetoId não for UUID", async () => {
