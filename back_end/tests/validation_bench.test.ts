@@ -6,16 +6,6 @@ const TEST_EMAIL = Bun.env.TEST_EMAIL;
 const TEST_PASSWORD = Bun.env.TEST_PASSWORD;
 
 let tokenAutenticado: string;
-let serverAvailable = false;
-
-async function checkServer(): Promise<boolean> {
-  try {
-    const res = await fetch(`${BASE_URL}/api/health`, { signal: AbortSignal.timeout(3000) });
-    return res.ok;
-  } catch {
-    return false;
-  }
-}
 
 const payloadValido = {
     projetoId: "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
@@ -74,9 +64,6 @@ async function login() {
 }
 
 beforeAll(async () => {
-    serverAvailable = await checkServer();
-    if (!serverAvailable) return;
-
     if (!TEST_EMAIL || !TEST_PASSWORD) {
         throw new Error(
             "Defina TEST_EMAIL e TEST_PASSWORD no .env ou environment."
@@ -90,7 +77,6 @@ describe("Benchmark - Validação /StronValid", () => {
     test(
         "POST /StronValid | 100 conexões, 10s",
         async () => {
-            if (!serverAvailable) return;
             const resultado = await autocannon({
                 url: `${BASE_URL}/StronValid`,
                 connections: 100,
