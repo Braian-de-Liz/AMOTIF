@@ -5,6 +5,11 @@ const BASE_URL = Bun.env.BASE_URL || "http://localhost:3333";
 const TEST_EMAIL = Bun.env.TEST_EMAIL;
 const TEST_PASSWORD = Bun.env.TEST_PASSWORD;
 
+const DURACAO = 60;
+const TIMEOUT_REQ = 30;
+const TAXA_ERRO_MAX = 1;
+const LATENCIA_P99_MAX = 5000;
+
 let tokenAutenticado: string;
 let userId: string;
 let projetoId: string | null = null;
@@ -12,7 +17,9 @@ let serverAvailable = false;
 
 async function checkServer(): Promise<boolean> {
   try {
-    const res = await fetch(`${BASE_URL}/api/health`, { signal: AbortSignal.timeout(3000) });
+    const res = await fetch(`${BASE_URL}/health`, {
+      signal: AbortSignal.timeout(3000),
+    });
     return res.ok;
   } catch {
     return false;
@@ -50,7 +57,9 @@ async function buscarProjetoId(): Promise<string | null> {
     return projetos[0].id;
   }
 
-  const resUser = await fetch(`${BASE_URL}/api/projetos/${userId}/get`, { headers });
+  const resUser = await fetch(`${BASE_URL}/api/projetos/${userId}/get`, {
+    headers,
+  });
   if (!resUser.ok) return null;
 
   const userBody = await resUser.json();
@@ -81,7 +90,9 @@ async function criarProjetoTemporario(): Promise<string> {
 
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(`Falha ao criar projeto (${res.status}): ${body.mensagem ?? res.statusText}`);
+    throw new Error(
+      `Falha ao criar projeto (${res.status}): ${body.mensagem ?? res.statusText}`
+    );
   }
 
   const data = await res.json();
@@ -90,7 +101,11 @@ async function criarProjetoTemporario(): Promise<string> {
 
 beforeAll(async () => {
   serverAvailable = await checkServer();
-  if (!serverAvailable) return;
+  if (!serverAvailable) {
+    throw new Error(
+      `Servidor indisponivel em ${BASE_URL}. Inicie o servidor antes de rodar o stress test.`
+    );
+  }
 
   if (!TEST_EMAIL || !TEST_PASSWORD) {
     throw new Error(
@@ -107,109 +122,113 @@ beforeAll(async () => {
   }
 });
 
-describe("Performance - Estresse da API AMOTIF", () => {
+function logResultado(r: autocannon.Result, nome: string, connections: number) {
+  const totalReq = r.requests.total;
+  const taxaErro = totalReq > 0 ? (r.non2xx / totalReq) * 100 : 0;
+
+  console.log(`\n  [${nome}] ${connections} conexoes | ${DURACAO}s`);
+  console.log(`  ├─ Requisicoes:   ${totalReq} total | ${r.requests.average.toFixed(2)} req/s`);
+  console.log(`  ├─ Latencia:      avg=${r.latency.average.toFixed(2)}ms | p50=${r.latency.p50.toFixed(2)}ms | p90=${r.latency.p90.toFixed(2)}ms | p99=${(r.latency.p99 || 0).toFixed(2)}ms | max=${r.latency.max.toFixed(2)}ms`);
+  console.log(`  ├─ Throughput:    ${(r.throughput.average / 1024 / 1024).toFixed(2)} MB/s`);
+  console.log(`  ├─ Status:        2xx=${r["2xx"]} | 4xx=${r["4xx"]} | 5xx=${r["5xx"]}`);
+  console.log(`  ├─ Erros:         ${r.errors} | Timeouts: ${r.timeouts}`);
+  console.log(`  └─ Taxa de erro:  ${taxaErro.toFixed(2)}%`);
+}
+
+function assertStress(r: autocannon.Result) {
+  const totalReq = r.requests.total;
+  const taxaErro = totalReq > 0 ? (r.non2xx / totalReq) * 100 : 0;
+  const p99 = r.latency.p99 || 0;
+
+  expect(r.non2xx).toBe(0);
+  expect(taxaErro).toBeLessThan(TAXA_ERRO_MAX);
+  expect(r.timeouts).toBe(0);
+  expect(p99).toBeLessThan(LATENCIA_P99_MAX);
+}
+
+describe("Stress Test - API AMOTIF", () => {
   test(
-    "GET /api/projetos/feed | 50 conexões, 5s",
+    "GET /api/projetos/feed | 150 conexoes, 60s",
     async () => {
-      if (!serverAvailable) return;
       const resultado = await autocannon({
         url: `${BASE_URL}/api/projetos/feed`,
-        connections: 50,
-        duration: 5,
+        connections: 150,
+        duration: DURACAO,
+        timeout: TIMEOUT_REQ,
         headers: { Authorization: `Bearer ${tokenAutenticado}` },
       });
 
-      expect(resultado.non2xx).toBe(0);
-
-      console.log(
-        `[Feed] Req/Sec: ${resultado.requests.average.toFixed(2)} | ` +
-        `Latência Média: ${resultado.latency.average.toFixed(2)}ms`
-      );
+      logResultado(resultado, "Feed", 150);
+      assertStress(resultado);
     },
-    10000,
+    (DURACAO + 10) * 1000,
   );
 
   test(
-    "GET /api/notifications | 30 conexões, 5s",
+    "GET /api/notifications | 100 conexoes, 60s",
     async () => {
-      if (!serverAvailable) return;
       const resultado = await autocannon({
         url: `${BASE_URL}/api/notifications`,
-        connections: 30,
-        duration: 5,
+        connections: 100,
+        duration: DURACAO,
+        timeout: TIMEOUT_REQ,
         headers: { Authorization: `Bearer ${tokenAutenticado}` },
       });
 
-      expect(resultado.non2xx).toBe(0);
-
-      console.log(
-        `[Notificações] Req/Sec: ${resultado.requests.average.toFixed(2)} | ` +
-        `Latência Média: ${resultado.latency.average.toFixed(2)}ms`
-      );
+      logResultado(resultado, "Notificacoes", 100);
+      assertStress(resultado);
     },
-    10000,
+    (DURACAO + 10) * 1000,
   );
 
   test(
-    "GET /api/usuario/:id/completo | 30 conexões, 5s",
+    "GET /api/usuario/:id/completo | 100 conexoes, 60s",
     async () => {
-      if (!serverAvailable) return;
       const resultado = await autocannon({
         url: `${BASE_URL}/api/usuario/${userId}/completo`,
-        connections: 30,
-        duration: 5,
+        connections: 100,
+        duration: DURACAO,
+        timeout: TIMEOUT_REQ,
         headers: { Authorization: `Bearer ${tokenAutenticado}` },
       });
 
-      expect(resultado.non2xx).toBe(0);
-
-      console.log(
-        `[User Perfil] Req/Sec: ${resultado.requests.average.toFixed(2)} | ` +
-        `Latência Média: ${resultado.latency.average.toFixed(2)}ms`
-      );
+      logResultado(resultado, "Perfil Completo", 100);
+      assertStress(resultado);
     },
-    10000,
+    (DURACAO + 10) * 1000,
   );
 
   test(
-    "GET /api/projetos/:id | 30 conexões, 5s",
+    "GET /api/projetos/:id | 100 conexoes, 60s",
     async () => {
-      if (!serverAvailable) return;
       const resultado = await autocannon({
         url: `${BASE_URL}/api/projetos/${projetoId}`,
-        connections: 30,
-        duration: 5,
+        connections: 100,
+        duration: DURACAO,
+        timeout: TIMEOUT_REQ,
         headers: { Authorization: `Bearer ${tokenAutenticado}` },
       });
 
-      expect(resultado.non2xx).toBe(0);
-
-      console.log(
-        `[Projeto Detalhes] Req/Sec: ${resultado.requests.average.toFixed(2)} | ` +
-        `Latência Média: ${resultado.latency.average.toFixed(2)}ms`
-      );
+      logResultado(resultado, "Detalhes Projeto", 100);
+      assertStress(resultado);
     },
-    10000,
+    (DURACAO + 10) * 1000,
   );
 
   test(
-    "GET /api/projetos/favoritos | 20 conexões, 5s",
+    "GET /api/projetos/favoritos | 80 conexoes, 60s",
     async () => {
-      if (!serverAvailable) return;
       const resultado = await autocannon({
         url: `${BASE_URL}/api/projetos/favoritos`,
-        connections: 20,
-        duration: 5,
+        connections: 80,
+        duration: DURACAO,
+        timeout: TIMEOUT_REQ,
         headers: { Authorization: `Bearer ${tokenAutenticado}` },
       });
 
-      expect(resultado.non2xx).toBe(0);
-
-      console.log(
-        `[Favoritos] Req/Sec: ${resultado.requests.average.toFixed(2)} | ` +
-        `Latência Média: ${resultado.latency.average.toFixed(2)}ms`
-      );
+      logResultado(resultado, "Favoritos", 80);
+      assertStress(resultado);
     },
-    10000,
+    (DURACAO + 10) * 1000,
   );
 });
