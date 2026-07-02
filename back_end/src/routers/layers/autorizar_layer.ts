@@ -12,7 +12,11 @@ const patch_layer_status: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         const camada = await Fastify.prisma.camada.findUnique({
             where: { id: layerId },
-            include: { projeto: true }
+            select: {
+                projeto: {
+                    select: { userId: true }
+                }
+            }
         });
 
         if (!camada) return reply.status(404).send({

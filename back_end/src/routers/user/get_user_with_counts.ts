@@ -25,6 +25,10 @@ const Get_user_with_counts: FastifyPluginAsyncTypebox = async (Fastify) => {
                         seguidores: true,
                         seguindo: true
                     }
+                },
+                seguindo: {
+                    where: { followerId: usuarioLogadoId },
+                    select: { followingId: true }
                 }
             }
         });
@@ -38,30 +42,17 @@ const Get_user_with_counts: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
-        let isFollowing = false;
-        if (usuarioLogadoId !== id) {
-            const follow = await Fastify.prisma.follows.findUnique({
-                where: {
-                    followerId_followingId: {
-                        followerId: usuarioLogadoId,
-                        followingId: id
-                    }
-                }
-            });
-            isFollowing = !!follow;
-        }
+        const isFollowing = usuarioLogadoId !== id
+            ? (check_user.seguindo?.length ?? 0) > 0
+            : false;
+
+        const { seguindo: _, ...userData } = check_user;
 
         return reply.status(200).send({
             status: 'sucesso',
             usuario: {
-                id: check_user.id,
-                nome_completo: check_user.nome_completo,
-                email: check_user.email,
-                bio: check_user.bio,
-                instrumentos: check_user.instrumentos,
-                avatar_url: check_user.avatar_url,
+                ...userData,
                 createdAt: check_user.createdAt.toISOString(),
-                _count: check_user._count,
                 isFollowing
             } as any
         });

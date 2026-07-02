@@ -10,7 +10,13 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
         const { projetoId } = request.params;
         const { nome_trilha, audio_url, instrumento_tag, delay_offset, volume_padrao } = request.body;
 
-        const check_project = await Fastify.prisma.projeto.findUnique({ where: { id: projetoId } });
+        const check_project = await Fastify.prisma.projeto.findUnique({
+            where: { id: projetoId },
+            select: {
+                userId: true,
+                titulo: true
+            }
+        });
 
         if (!check_project) {
             Fastify.log.error("projeto não existente");
