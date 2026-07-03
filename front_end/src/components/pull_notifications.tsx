@@ -130,7 +130,7 @@ export const Notificacoes = () => {
             });
 
             if (response.ok) {
-                setNotificacoes(prev => prev.map(n => ({ ...n, lida: true })));
+                setNotificacoes([]);
             }
         } catch (error) {
             console.error("Erro ao marcar notificações como lidas:", error);
