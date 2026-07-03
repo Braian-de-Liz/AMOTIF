@@ -11,7 +11,14 @@ declare module '@fastify/jwt' {
 }
 
 async function autenticarJWT(request: FastifyRequest, reply: FastifyReply) {
-    const token = request.cookies?.token;
+    let token = request.cookies?.token;
+
+    if (!token) {
+        const authHeader = request.headers.authorization;
+        if (authHeader?.startsWith('Bearer ')) {
+            token = authHeader.slice(7);
+        }
+    }
 
     if (!token) {
         return reply.status(401).send({

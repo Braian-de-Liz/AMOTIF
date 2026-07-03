@@ -21,7 +21,6 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
         setErro(null);
 
         try {
-            const token = localStorage.getItem("token");
             let url: URL;
 
             if (searchType === 'projetos') {
@@ -37,7 +36,7 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
             }
 
             const response = await fetch(url, {
-                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                credentials: 'include'
             });
             const data = await response.json();
 

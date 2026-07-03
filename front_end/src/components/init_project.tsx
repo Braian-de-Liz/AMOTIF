@@ -108,6 +108,7 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
             const uploadResponse = await fetch(`${UPLOAD_URL}/upload`, {
                 method: 'POST',
                 headers: { 'Authorization': `Bearer ${token}` },
+                credentials: 'include',
                 body: uploadData,
             });
 
@@ -122,9 +123,9 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
             const response = await fetch(`${URL_API_TESTE}/projetos`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     titulo: formData.titulo,
                     genero: formData.genero,

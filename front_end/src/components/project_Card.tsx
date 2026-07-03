@@ -18,10 +18,9 @@ function ProjectCardInner({ proj }: ProjectCardProps) {
 
     async function handleLike() {
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/like/${proj.id}`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }
+                credentials: 'include'
             });
 
             const data = await response.json();
@@ -42,10 +41,9 @@ function ProjectCardInner({ proj }: ProjectCardProps) {
     async function handleFavorite(e: React.MouseEvent) {
         e.stopPropagation();
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/projetos/favoritos/${proj.id}`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }
+                credentials: 'include'
             });
 
             const data = await response.json();

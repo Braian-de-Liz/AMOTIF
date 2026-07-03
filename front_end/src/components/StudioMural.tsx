@@ -26,13 +26,12 @@ function StudioMural({ projetoId }: StudioMuralProps) {
         setPosting(true);
         setPostError(null);
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/projetos/${projetoId}/mural`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({ conteudo: newPost })
             });
 

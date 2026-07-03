@@ -24,14 +24,12 @@ function UserProfile() {
 
     const fetchUserData = async () => {
         try {
-            const token = localStorage.getItem("token");
-
             const [userRes, projectsRes] = await Promise.all([
                 fetch(`${URL_API_TESTE}/usuario/${id}/completo`, {
-                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                    credentials: 'include'
                 }),
                 fetch(`${URL_API_TESTE}/projetos/${id}/get`, {
-                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                    credentials: 'include'
                 })
             ]);
 

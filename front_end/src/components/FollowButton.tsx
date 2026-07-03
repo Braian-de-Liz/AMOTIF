@@ -19,10 +19,9 @@ function FollowButton({ targetUserId, initialFollowing = false, onToggle, classN
 
         setLoading(true)
         try {
-            const token = localStorage.getItem("token")
             const response = await fetch(`${URL_API_TESTE}/follow/${targetUserId}`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` }
+                credentials: 'include'
             })
 
             if (response.ok) {

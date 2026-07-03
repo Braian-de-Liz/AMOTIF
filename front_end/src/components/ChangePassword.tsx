@@ -11,8 +11,6 @@ interface ChangePasswordProps {
 }
 
 function ChangePassword({ isOpen, onClose }: ChangePasswordProps) {
-    const token = localStorage.getItem("token");
-
     const [senha, setSenha] = useState('');
     const [novaSenha, setNovaSenha] = useState('');
     const [confirmarSenha, setConfirmarSenha] = useState('');
@@ -40,19 +38,14 @@ function ChangePassword({ isOpen, onClose }: ChangePasswordProps) {
             return;
         }
 
-        if (!token) {
-            setError("Sessão expirada.");
-            return;
-        }
-
         setSaving(true);
         try {
             const res = await fetch(`${URL_API_TESTE}/forgot/password`, {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({ senha, nova_senha: novaSenha })
             });
             const data = await res.json();

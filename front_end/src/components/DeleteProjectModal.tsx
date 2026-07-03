@@ -11,7 +11,6 @@ interface DeleteProjectModalProps {
 
 function DeleteProjectModal({ projetoId, isOpen, onClose }: DeleteProjectModalProps) {
     const navigate = useNavigate();
-    const token = localStorage.getItem("token");
 
     const [senha, setSenha] = useState('');
     const [saving, setSaving] = useState(false);
@@ -27,16 +26,14 @@ function DeleteProjectModal({ projetoId, isOpen, onClose }: DeleteProjectModalPr
         e.preventDefault();
         setError(null);
 
-        if (!token) return;
-
         setSaving(true);
         try {
             const res = await fetch(`${URL_API_TESTE}/projetos/${projetoId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({ senha })
             });
             const data = await res.json();

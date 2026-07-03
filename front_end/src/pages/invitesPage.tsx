@@ -20,13 +20,12 @@ function InvitesPage() {
     const handleAccept = async (convite: Convite) => {
         setAccepting(convite.id);
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/colaboration/${convite.projetoId}/accept`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({ token_convite: convite.token_convite })
             });
 
@@ -43,10 +42,9 @@ function InvitesPage() {
     const handleReject = async (convite: Convite) => {
         setRejecting(convite.id);
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/colaboration/${convite.projetoId}/reject`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                credentials: 'include'
             });
 
             if (response.ok) {

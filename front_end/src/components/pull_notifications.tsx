@@ -85,17 +85,17 @@ export const Notificacoes = () => {
 
     useEffect(() => {
         const fetchNotificacoes = async () => {
-            const token = localStorage.getItem('token');
+            const usuarioId = localStorage.getItem('usuario_id');
 
-            if (!token || token === "null") return;
+            if (!usuarioId) return;
 
             try {
                 const response = await fetch(`${URL_API_TESTE}/notifications`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
-                    }
+                    },
+                    credentials: 'include'
                 });
 
                 if (response.status === 401) {
@@ -120,16 +120,13 @@ export const Notificacoes = () => {
     }, []);
 
     const markAllAsRead = async () => {
-        const token = localStorage.getItem('token');
-        if (!token || token === "null" || markingAll) return;
+        if (markingAll) return;
 
         setMarkingAll(true);
         try {
             const response = await fetch(`${URL_API_TESTE}/notifications/read-all`, {
                 method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
+                credentials: 'include'
             });
 
             if (response.ok) {

@@ -38,6 +38,7 @@ function Cadastro() {
                 headers: {
                     'Content-Type': 'application/json; charset=utf-8'
                 },
+                credentials: 'include',
                 body: JSON.stringify(usuario)
             });
 

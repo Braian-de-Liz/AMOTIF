@@ -1,10 +1,12 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Home, User, Heart, Mail } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Home, User, Heart, Mail, LogOut } from 'lucide-react';
 import { Notificacoes } from './pull_notifications';
+import { URL_API_TESTE } from '../utility/url_apis';
 import '../styles/Navbar.css';
 
 function Nav() {
     const location = useLocation();
+    const navigate = useNavigate();
 
     const isActive = (path: string) => {
         if (path === '/home') return location.pathname === '/home';
@@ -13,6 +15,20 @@ function Nav() {
         if (path === '/favoritos') return location.pathname === '/favoritos';
         return false;
     };
+
+    async function handleLogout() {
+        try {
+            await fetch(`${URL_API_TESTE}/usuario/logout`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+        } catch {
+        }
+        finally {
+            localStorage.clear();
+            navigate('/');
+        }
+    }
 
     return (
         <nav className="nav-container">
@@ -54,6 +70,13 @@ function Nav() {
 
                 <li className="notifications-item">
                     <Notificacoes />
+                </li>
+
+                <li className="nav-logout-item">
+                    <button onClick={handleLogout} className="nav-logout-btn" aria-label="Sair">
+                        <LogOut size={24} className="nav-icon" />
+                        <span>Sair</span>
+                    </button>
                 </li>
 
             </ul>

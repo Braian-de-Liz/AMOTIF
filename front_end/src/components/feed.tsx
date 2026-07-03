@@ -31,7 +31,6 @@ function Feed() {
 
         setLoading(true);
         try {
-            const token = localStorage.getItem("token");
             const url = new URL(`${URL_API_TESTE}/projetos/feed`);
 
             if (filtroInstrumento) {
@@ -40,7 +39,7 @@ function Feed() {
 
             const response = await fetch(url, {
                 signal,
-                headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                credentials: 'include'
             });
 
             const data = await response.json();

@@ -33,6 +33,7 @@ function Login() {
                 headers: {
                     'Content-Type': 'application/json; charset=utf-8'
                 },
+                credentials: 'include',
                 body: JSON.stringify(dadosLogin)
             })
 
@@ -42,7 +43,6 @@ function Login() {
                 throw new Error(data.mensagem || 'Erro desconhecido');
             }
 
-            localStorage.setItem("token", data.token);
             localStorage.setItem("usuario_email", data.usuario.email);
             localStorage.setItem("usuario_id", data.usuario.id);
             localStorage.setItem("usuario_nome", data.usuario.nome);

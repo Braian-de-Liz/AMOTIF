@@ -40,14 +40,12 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
 
     const fetchData = async () => {
         try {
-            const token = localStorage.getItem("token");
-
             const [colabRes, invitesRes] = await Promise.all([
                 fetch(`${URL_API_TESTE}/colaboration/${projetoId}`, {
-                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                    credentials: 'include'
                 }),
                 fetch(`${URL_API_TESTE}/convites`, {
-                    headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                    credentials: 'include'
                 })
             ]);
 
@@ -80,13 +78,12 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
 
         setInviting(true);
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/colaboration/${projetoId}/invite`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({ email_destinatario: inviteEmail })
             });
 
@@ -111,13 +108,12 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
 
     const handleAcceptInvite = async (convite: Convite) => {
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/colaboration/${convite.projetoId}/accept`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({ token_convite: convite.token_convite })
             });
 
@@ -132,10 +128,9 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
 
     const handleRejectInvite = async (convite: Convite) => {
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/colaboration/${convite.projetoId}/reject`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                credentials: 'include'
             });
 
             if (response.ok) {

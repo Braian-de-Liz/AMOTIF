@@ -8,11 +8,10 @@ import type { User } from '../types';
 
 function InstrumentEditor() {
     const usuarioId = localStorage.getItem("usuario_id");
-    const token = localStorage.getItem("token");
 
     const { data, loading } = useApi<{ usuario: User }>(
         `/usuario/${usuarioId}/completo`,
-        { immediate: !!usuarioId && !!token }
+        { immediate: !!usuarioId }
     );
 
     const [instrumentos, setInstrumentos] = useState<string[]>([]);
@@ -60,7 +59,7 @@ function InstrumentEditor() {
     }
 
     async function handleSave() {
-        if (!usuarioId || !token) return;
+        if (!usuarioId) return;
 
         const validate = instrumentSchema.safeParse({ instrumentos });
         if (!validate.success) {
@@ -75,9 +74,9 @@ function InstrumentEditor() {
             const res = await fetch(`${URL_API_TESTE}/usuario/${usuarioId}/instrumentos`, {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({ instrumentos })
             });
             const result = await res.json();

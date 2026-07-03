@@ -53,6 +53,11 @@ nav ul {
 
 nav ul li.notifications-item {
   position: absolute;
+  right: 6rem;
+}
+
+nav ul li.nav-logout-item {
+  position: absolute;
   right: 2rem;
 }
 
@@ -106,6 +111,11 @@ nav ul li button:hover {
 
   /* Esconder notificações no Nav mobile */
   nav ul li.notifications-item {
+    display: none;
+  }
+
+  /* Esconder logout no Nav mobile (usar menu do perfil) */
+  nav ul li.nav-logout-item {
     display: none;
   }
 
@@ -179,5 +189,24 @@ nav ul li button:hover {
   
   .nav-icon {
     display: block;
+  }
+
+  .nav-logout-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: none !important;
+    border: none !important;
+    color: var(--verde-escuro) !important;
+    padding: 0.5rem 0 !important;
+    border-bottom: 2px solid transparent !important;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: inherit;
+  }
+
+  .nav-logout-btn:hover {
+    color: var(--erro) !important;
+    border-bottom-color: var(--erro) !important;
   }
 }

@@ -33,19 +33,22 @@ function useApi<T>(urlPath: string, options: UseApiOptions = {}): UseApiResult<T
         setError(null);
 
         try {
-            const token = localStorage.getItem("token");
             const headers: Record<string, string> = {
                 ...(fetchOptions.headers as Record<string, string> || {}),
             };
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
 
             const response = await fetch(`${URL_API_TESTE}${urlPath}`, {
                 ...fetchOptions,
                 headers,
+                credentials: 'include',
                 signal: controller.signal,
             });
+
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = '/';
+                return;
+            }
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
@@ -104,11 +107,7 @@ function useApiMutation<TBody = unknown, TResponse = unknown>() {
         setError(null);
 
         try {
-            const token = localStorage.getItem("token");
             const headers: Record<string, string> = {};
-            if (token) {
-                headers['Authorization'] = `Bearer ${token}`;
-            }
             if (body) {
                 headers['Content-Type'] = 'application/json';
             }
@@ -116,9 +115,16 @@ function useApiMutation<TBody = unknown, TResponse = unknown>() {
             const response = await fetch(`${URL_API_TESTE}${urlPath}`, {
                 method,
                 headers,
+                credentials: 'include',
                 body: body ? JSON.stringify(body) : undefined,
                 signal: controller.signal,
             });
+
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = '/';
+                return null;
+            }
 
             const data = await response.json();
 

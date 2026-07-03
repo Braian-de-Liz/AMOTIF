@@ -5,11 +5,10 @@ import type { User } from '../types';
 
 function BioEditor() {
     const usuarioId = localStorage.getItem("usuario_id");
-    const token = localStorage.getItem("token");
 
     const { data, loading } = useApi<{ usuario: User }>(
         `/usuario/${usuarioId}/completo`,
-        { immediate: !!usuarioId && !!token }
+        { immediate: !!usuarioId }
     );
 
     const [bio, setBio] = useState('');
@@ -29,7 +28,7 @@ function BioEditor() {
     }
 
     async function handleSave() {
-        if (!usuarioId || !token) return;
+        if (!usuarioId) return;
         setSaving(true);
         setError(null);
 
@@ -39,9 +38,9 @@ function BioEditor() {
             const res = await fetch(`${URL_API_TESTE}/usuario_bio/${usuarioId}`, {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({ bio: payload })
             });
             const result = await res.json();

@@ -29,9 +29,8 @@ function Studio() {
     useEffect(() => {
         async function carregarProjeto() {
             try {
-                const token = localStorage.getItem("token");
                 const response = await fetch(`${URL_API_TESTE}/projetos/${id}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
+                    credentials: 'include'
                 });
 
                 const data = await response.json();
@@ -99,13 +98,12 @@ function Studio() {
     const handleSaveLayer = async (layerId: string, changes: { volume_padrao: number; delay_offset: number }) => {
         setSaving(layerId);
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/layer/${layerId}`, {
                 method: 'PUT',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify(changes)
             });
 
@@ -134,13 +132,12 @@ function Studio() {
 
     const handleAuthorizeLayer = async (layerId: string, aprovada: boolean) => {
         try {
-            const token = localStorage.getItem("token");
             const response = await fetch(`${URL_API_TESTE}/layer/${layerId}/status`, {
                 method: 'PATCH',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
+                    'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({ aprovada })
             });
 

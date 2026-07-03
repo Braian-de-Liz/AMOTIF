@@ -11,7 +11,6 @@ interface DeleteAccountModalProps {
 
 function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps) {
     const navigate = useNavigate();
-    const token = localStorage.getItem("token");
     const usuarioId = localStorage.getItem("usuario_id");
 
     const [senha, setSenha] = useState('');
@@ -28,7 +27,7 @@ function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps) {
         e.preventDefault();
         setError(null);
 
-        if (!token || !usuarioId) {
+        if (!usuarioId) {
             setError("Sessão expirada.");
             return;
         }
@@ -38,9 +37,9 @@ function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps) {
             const res = await fetch(`${URL_API_TESTE}/usuario/${usuarioId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({ senha })
             });
             const data = await res.json();

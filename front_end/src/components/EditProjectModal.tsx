@@ -14,7 +14,7 @@ interface EditProjectModalProps {
 }
 
 function EditProjectModal({ projeto, isOpen, onClose, onUpdated }: EditProjectModalProps) {
-    const token = localStorage.getItem("token");
+    const usuarioId = localStorage.getItem("usuario_id");
 
     const [titulo, setTitulo] = useState(projeto.titulo);
     const [genero, setGenero] = useState(projeto.genero);
@@ -45,16 +45,16 @@ function EditProjectModal({ projeto, isOpen, onClose, onUpdated }: EditProjectMo
             return;
         }
 
-        if (!token) return;
+        if (!usuarioId) return;
 
         setSaving(true);
         try {
             const res = await fetch(`${URL_API_TESTE}/projetos/${projeto.id}`, {
                 method: 'PATCH',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 },
+                credentials: 'include',
                 body: JSON.stringify({
                     titulo,
                     genero,
