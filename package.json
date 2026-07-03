@@ -1,0 +1,7 @@
+{
+    "scripts": {
+        "clean_m": "rm -rf back_end/node_modules && rm -rf front_end/node_modules",
+        "clean": "rm -rf back_end/dist && rm -rf front_end/dist",
+        "itl": "bun install --cwd back_end && bun install --cwd front_end"
+    }
+}

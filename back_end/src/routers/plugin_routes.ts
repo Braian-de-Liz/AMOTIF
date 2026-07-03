@@ -2,6 +2,7 @@
 import { FastifyPluginAsync } from "fastify";
 
 import { User_register } from "./user/cadastro.js";
+import { logout_user } from "./user/logout.js";
 import { login_user } from "./user/login.js";
 import { Deletar_user } from "./user/delete_user.js";
 import { Get_user } from "./user/get_user.js";
@@ -56,6 +57,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(Patch_bio);
     Fastify.register(Patch_Instrumentos);
     Fastify.register(Recuperar_senha);
+    Fastify.register(logout_user);
 
     Fastify.register(post_project);
     Fastify.register(del_project);

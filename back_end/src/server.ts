@@ -1,6 +1,7 @@
 import fastify from 'fastify';
 import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import cors from "@fastify/cors";
+import cookie from '@fastify/cookie';
 import fastifyJwt from "@fastify/jwt";
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
@@ -47,9 +48,14 @@ await Fastify.register(prisma_plugin);
 
 Fastify.setErrorHandler(globalErrorHandler);
 
-await Fastify.register(fastifyJwt, { secret: JWT_PASSOWORD, sign: { expiresIn: '2d' } });
-await Fastify.register(cors, { origin: true, methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"] });
-// await Fastify.register(compress, { global: true });
+await Fastify.register(cookie);
+
+await Fastify.register(fastifyJwt, {
+    secret: JWT_PASSOWORD,
+    sign: { expiresIn: '2d', iss: 'amotif-api', aud: 'amotif-client' }
+});
+
+await Fastify.register(cors, { origin: true, methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], credentials: true });
 
 Fastify.register(Plugin_Routes, { prefix: "/api" });
 

@@ -12,7 +12,6 @@ const schema_login = {
         response: {
             200: Type.Object({
                 status: Type.String(),
-                token: Type.String(),
                 usuario: Type.Object({
                     id: Type.String({ format: 'uuid' }),
                     nome: Type.String(),

@@ -34,9 +34,16 @@ const login_user: FastifyPluginAsyncTypebox = async (Fastify) => {
             email: check_user.email
         });
 
+        reply.setCookie('token', token, {
+            secure: true,
+            httpOnly:true,
+            sameSite: 'strict',
+            path: '/',
+            maxAge: 2 * 24 * 60 * 60
+        })
+
         return reply.status(200).send({
             status: "sucesso",
-            token,
             usuario: {
                 id: check_user.id,
                 nome: check_user.nome_completo,
