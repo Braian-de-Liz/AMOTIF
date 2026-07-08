@@ -41,7 +41,13 @@ async function login() {
   }
 
   const data = await res.json();
-  tokenAutenticado = data.token;
+  const setCookie = res.headers.get('set-cookie');
+  const match = setCookie?.match(/token=([^;]+)/);
+  if (match) {
+    tokenAutenticado = match[1];
+  } else {
+    throw new Error("Não foi possível extrair o token do cookie");
+  }
   userId = data.usuario.id;
 }
 

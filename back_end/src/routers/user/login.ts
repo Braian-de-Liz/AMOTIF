@@ -40,7 +40,7 @@ const login_user: FastifyPluginAsyncTypebox = async (Fastify) => {
             sameSite: 'strict',
             path: '/',
             maxAge: 2 * 24 * 60 * 60
-        })
+        });
 
         return reply.status(200).send({
             status: "sucesso",
