@@ -19,7 +19,7 @@ const schema_colaboretors = {
                         joinedAt: Type.String({ format: "date-time" }),
                         usuario: Type.Object({
                             id: Type.String({ format: 'uuid' }),
-                            nome_completo: Type.String(),
+                            nome_completo: Type.String({ minLength: 3 }),
                             email: Type.String({ format: 'email' }),
                             avatar_url: Type.Optional(Type.Union([Type.String(), Type.Null()])),
                             instrumentos: Type.Array(Type.String())

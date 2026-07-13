@@ -7,7 +7,7 @@ const mural_schema = {
         description: 'Cria uma mensagem no mural do projeto',
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-            projeto_id: Type.String({ format: 'uuid' })
+            id: Type.String({ format: 'uuid' })
         }),
         body: Type.Object({
             conteudo: Type.String({ minLength: 1 })

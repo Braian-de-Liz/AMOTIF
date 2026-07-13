@@ -1,11 +1,11 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
-import { verificar_permissao } from "../../hooks/verificar_permissao.js";
+import { verificar_colaborador } from "../../hooks/verificar_colaborador.js";
 import { get_mural_schema } from "../../schemas/projetos/get_mural.schema.js";
 
 const get_mural: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
-    Fastify.addHook("preHandler", verificar_permissao);
+    Fastify.addHook("preHandler", verificar_colaborador);
 
     Fastify.get('/mural/:projeto_id', get_mural_schema, async (request, reply) => {
 

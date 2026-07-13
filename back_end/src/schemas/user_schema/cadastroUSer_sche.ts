@@ -10,7 +10,7 @@ const schema_register = {
             email: Type.String({ format: 'email', minLength: 8 }),
             senha: Type.String({ minLength: 8, maxLength: 87 }),
             cpf: Type.String({ 
-                pattern: "^(?:\\d{11}|\\d{3}\\.\\d{3}.\\d{3}-\\d{2})$",
+                pattern: "^(?:\\d{11}|\\d{3}\\.\\d{3}\\.\\d{3}-\\d{2})$",
                 description: "CPF aceito apenas em formato estrito: 11 dígitos puros ou com a máscara (000.000.000-00)."
             })
         }),

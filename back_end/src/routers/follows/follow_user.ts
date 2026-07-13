@@ -71,8 +71,12 @@ const follow_user: FastifyPluginAsyncTypebox = async (Fastify) => {
                 seguindo: true
             });
 
-        } catch (notifError) {
-            Fastify.log.error("Erro ao criar notificação de follow:" + notifError);
+        } catch (followError) {
+            Fastify.log.error("Erro ao processar follow:" + followError);
+            return reply.status(500).send({
+                status: "erro",
+                mensagem: "Erro interno ao processar follow"
+            });
         }
 
     });

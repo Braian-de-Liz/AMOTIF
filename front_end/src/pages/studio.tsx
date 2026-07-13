@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { WaveformTrack } from "../components/WaveformTrack";
 import { StudioMural } from "../components/StudioMural";
@@ -50,13 +50,13 @@ function Studio() {
         if (id) carregarProjeto();
     }, [id]);
 
-    const registerWavesurfer = (layerId: string, ws: WaveSurfer | null) => {
+    const registerWavesurfer = useCallback((layerId: string, ws: WaveSurfer | null) => {
         if (ws) {
             wavesurferRefs.current[layerId] = ws;
         } else {
             delete wavesurferRefs.current[layerId];
         }
-    };
+    }, []);
 
     const playAll = async () => {
         if (!projeto) return;

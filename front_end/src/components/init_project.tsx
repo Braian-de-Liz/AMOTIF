@@ -93,7 +93,6 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
         }
 
         setLoading(true);
-        const token = localStorage.getItem("token");
 
         try {
             const sanitizedFileName = file.name
@@ -107,7 +106,6 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
 
             const uploadResponse = await fetch(`${UPLOAD_URL}/upload`, {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
                 credentials: 'include',
                 body: uploadData,
             });
