@@ -53,7 +53,13 @@ await Fastify.register(prisma_plugin);
 
 Fastify.setErrorHandler(globalErrorHandler);
 
-await Fastify.register(cookie);
+await Fastify.register(cookie, {
+    secret: JWT_PASSOWORD,
+    parseOptions: {
+      sameSite: "none",
+      secure: true
+    }
+  });
 
 await Fastify.register(fastifyJwt, {
     secret: JWT_PASSOWORD,
