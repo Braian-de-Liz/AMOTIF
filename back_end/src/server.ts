@@ -26,10 +26,6 @@ Fastify.get('/', async () => {
     return { status: "online", app: "AMOTIF API", docs: "/docs" };
 });
 
-Fastify.head('/', async (request, reply) => {
-    return reply.status(200).send();
-});
-
 
 await Fastify.register(swagger, {
     openapi: {
