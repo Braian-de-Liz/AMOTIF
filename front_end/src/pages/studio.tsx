@@ -5,6 +5,8 @@ import { StudioMural } from "../components/StudioMural";
 import { StudioColaboradores } from "../components/StudioColaboradores";
 import { EditProjectModal } from "../components/EditProjectModal";
 import { DeleteProjectModal } from "../components/DeleteProjectModal";
+import { CreateLayerModal } from "../components/CreateLayerModal";
+import { DeleteLayerModal } from "../components/DeleteLayerModal";
 import { URL_API_TESTE } from "../utility/url_apis";
 import { Play, Pause, Mic, Music, Users, MessageSquare, Pencil, Trash2 } from "lucide-react";
 import type { Project, Camada } from "../types";
@@ -23,6 +25,8 @@ function Studio() {
     const [saveErro, setSaveErro] = useState<string | null>(null);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [createLayerModalOpen, setCreateLayerModalOpen] = useState(false);
+    const [deleteLayerTarget, setDeleteLayerTarget] = useState<{ id: string; nome: string } | null>(null);
 
     const wavesurferRefs = useRef<Record<string, WaveSurfer>>({});
 
@@ -49,6 +53,17 @@ function Studio() {
         }
         if (id) carregarProjeto();
     }, [id]);
+
+    const refetchProjeto = async () => {
+        if (!id) return;
+        try {
+            const response = await fetch(`${URL_API_TESTE}/projetos/${id}`, { credentials: 'include' });
+            const data = await response.json();
+            if (response.ok) setProjeto(data.projeto || data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
 
     const registerWavesurfer = useCallback((layerId: string, ws: WaveSurfer | null) => {
         if (ws) {
@@ -162,6 +177,15 @@ function Studio() {
 
     const isOwner = projeto.autor?.id === localStorage.getItem("usuario_id");
 
+    const handleDeleteLayer = (layerId: string, layerName: string) => {
+        setDeleteLayerTarget({ id: layerId, nome: layerName });
+    };
+
+    const handleLayerDeleted = () => {
+        setDeleteLayerTarget(null);
+        refetchProjeto();
+    };
+
     const handleProjectUpdated = (updated: Project) => {
         setProjeto(prev => prev ? { ...prev, ...updated } : prev);
     };
@@ -210,7 +234,7 @@ function Studio() {
                             Stop
                         </button>
                     )}
-                    <button className="btn-small btn-gravar">
+                    <button className="btn-small btn-gravar" onClick={() => setCreateLayerModalOpen(true)}>
                         <Mic size={18} /> Gravar
                     </button>
                 </div>
@@ -273,6 +297,7 @@ function Studio() {
                                 onSave={handleSaveLayer}
                                 onRegister={registerWavesurfer}
                                 onAuthorize={handleAuthorizeLayer}
+                                onDelete={handleDeleteLayer}
                             />
                         ))}
                     </div>
@@ -301,6 +326,23 @@ function Studio() {
                 isOpen={deleteModalOpen}
                 onClose={() => setDeleteModalOpen(false)}
             />
+
+            <CreateLayerModal
+                projetoId={id || ''}
+                isOpen={createLayerModalOpen}
+                onClose={() => setCreateLayerModalOpen(false)}
+                onLayerCreated={refetchProjeto}
+            />
+
+            {deleteLayerTarget && (
+                <DeleteLayerModal
+                    layerId={deleteLayerTarget.id}
+                    layerName={deleteLayerTarget.nome}
+                    isOpen={!!deleteLayerTarget}
+                    onClose={() => setDeleteLayerTarget(null)}
+                    onDeleted={handleLayerDeleted}
+                />
+            )}
         </div>
     );
 }

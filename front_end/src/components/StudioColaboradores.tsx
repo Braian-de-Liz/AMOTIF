@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
 import { URL_API_TESTE } from '../utility/url_apis';
-import { UserPlus, X, Check } from 'lucide-react';
+import { UserPlus, X, Check, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { inviteSchema } from '../schemas/colaborationSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
+import { DeleteColabModal } from './DeleteColabModal';
 import type { Convite, Colaborador } from '../types';
 
 interface StudioColaboradoresProps {
@@ -20,6 +21,7 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
     const [inviting, setInviting] = useState(false);
     const [inviteErro, setInviteErro] = useState<string | null>(null);
     const [inviteSucesso, setInviteSucesso] = useState<string | null>(null);
+    const [deleteColabTarget, setDeleteColabTarget] = useState<{ userId: string; nome: string } | null>(null);
     const navigate = useNavigate();
     const inviteModalRef = useRef<HTMLDivElement | null>(null);
 
@@ -231,9 +233,8 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
                             <div
                                 key={colab.id}
                                 className="colab-card"
-                                onClick={() => navigate(`/usuario/${colab.userId}`)}
                             >
-                                <div className="colab-avatar">
+                                <div className="colab-avatar" onClick={() => navigate(`/usuario/${colab.userId}`)}>
                                     {colab.usuario.avatar_url ? (
                                         <img src={colab.usuario.avatar_url} alt={colab.usuario.nome_completo} />
                                     ) : (
@@ -242,10 +243,22 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
                                         </div>
                                     )}
                                 </div>
-                                <div className="colab-info">
+                                <div className="colab-info" onClick={() => navigate(`/usuario/${colab.userId}`)}>
                                     <strong>{colab.usuario.nome_completo}</strong>
                                     <span className="colab-role">{colab.cargo}</span>
                                 </div>
+                                {isOwner && (
+                                    <button
+                                        className="btn-auth reject"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setDeleteColabTarget({ userId: colab.userId, nome: colab.usuario.nome_completo });
+                                        }}
+                                        title="Remover colaborador"
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -255,6 +268,16 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
                     </div>
                 )}
             </div>
+            {deleteColabTarget && (
+                <DeleteColabModal
+                    projetoId={projetoId || ''}
+                    userId={deleteColabTarget.userId}
+                    userName={deleteColabTarget.nome}
+                    isOpen={!!deleteColabTarget}
+                    onClose={() => setDeleteColabTarget(null)}
+                    onRemoved={fetchData}
+                />
+            )}
         </div>
     );
 }

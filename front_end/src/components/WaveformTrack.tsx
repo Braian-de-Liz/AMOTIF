@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
-import { Play, Pause, Volume2, VolumeX, Save, Loader2 } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Save, Loader2, Trash2 } from 'lucide-react';
 
 const COLORS = [
     '#22c55e',
@@ -29,9 +29,11 @@ interface WaveformTrackProps {
     isGuia?: boolean
     estaAprovada?: boolean
     isOwner?: boolean
+    isLayerAuthor?: boolean
     onSave?: (layerId: string, changes: LayerChanges) => void
     onRegister?: (layerId: string, ws: WaveSurfer | null) => void
     onAuthorize?: (layerId: string, aprovada: boolean) => void
+    onDelete?: (layerId: string, layerName: string) => void
     saving?: boolean
 }
 
@@ -49,6 +51,7 @@ function WaveformTrack({
     onSave,
     onRegister,
     onAuthorize,
+    onDelete,
     saving = false
 }: WaveformTrackProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -229,6 +232,13 @@ function WaveformTrack({
                                     title={estaAprovada ? 'Rejeitar camada' : 'Rejeitar camada'}
                                 >
                                     Rejeitar
+                                </button>
+                                <button
+                                    className="btn-auth reject"
+                                    onClick={() => onDelete?.(layerId, nome || 'Track')}
+                                    title="Excluir camada"
+                                >
+                                    <Trash2 size={14} />
                                 </button>
                             </>
                         )}
