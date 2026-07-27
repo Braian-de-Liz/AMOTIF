@@ -37,7 +37,7 @@ const login_user: FastifyPluginAsyncTypebox = async (Fastify) => {
         reply.setCookie('token', token, {
             secure: true,
             httpOnly:true,
-            sameSite: 'strict',
+            sameSite: 'none',
             path: '/',
             maxAge: 2 * 24 * 60 * 60
         });
