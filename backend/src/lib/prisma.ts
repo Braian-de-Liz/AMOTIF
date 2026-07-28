@@ -2,7 +2,7 @@ import fp from "fastify-plugin"
 import { FastifyPluginAsync } from "fastify"
 import { PrismaClient, NotificationType } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
-import pg from 'pg'
+import pg from '../../node_modules/@types/pg/index.js'
 
 declare module 'fastify' {
     interface FastifyInstance {
