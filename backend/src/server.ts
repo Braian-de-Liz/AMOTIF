@@ -94,6 +94,7 @@ const start = async () => {
             AMOTIF Back-end Online!
             -----------------------------------------
             URL: http://${host}:${port}
+            port: http://localhost:${port}
             Runtime: ${process.versions.bun ? 'Bun ' + process.versions.bun : 'Node ' + process.version}
             Boot Time: ${bootTime}s
             -----------------------------------------
