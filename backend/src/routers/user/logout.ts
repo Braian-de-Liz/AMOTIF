@@ -1,8 +1,15 @@
-import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
+import { FastifyPluginAsyncTypebox, Type } from '@fastify/type-provider-typebox';
 
 const logout_user: FastifyPluginAsyncTypebox = async (Fastify) => {
 
-    Fastify.post("/usuario/logout", async (request, reply) => {
+    const security_schema = {
+        schema: {
+            tags: ['Testes'],
+            security: [{ bearerAuth: [] }]
+        }
+    }
+
+    Fastify.post("/usuario/logout", security_schema, async (request, reply) => {
 
         reply.clearCookie('token', {
             path: '/',
@@ -15,7 +22,7 @@ const logout_user: FastifyPluginAsyncTypebox = async (Fastify) => {
             status: "sucesso",
             mensagem: "Logout realizado com sucesso"
         });
-        
+
     });
 }
 
