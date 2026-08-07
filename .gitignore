@@ -1,0 +1,59 @@
+# Dependencies
+node_modules/
+
+# WebView2 runtime DLL (auto-downloaded by @webview/webview)
+WebView2Loader.dll
+
+# Build output
+dist/
+dist-ssr/
+
+# Desktop compiled output
+desktop/
+
+# Installer output
+installer/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+ehthumbs.db
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+*~
+
+# Deno
+.deno/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+
+# Upload service
+
+upload_service/.env

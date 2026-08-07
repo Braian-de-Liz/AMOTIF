@@ -1,0 +1,48 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@std/internal@^1.0.14": "1.0.14",
+    "jsr:@std/path@*": "1.1.6"
+  },
+  "jsr": {
+    "@std/internal@1.0.14": {
+      "integrity": "291516b3d4c35024d6ffbc0a9df5bf4c64116e05b50012cf846710152d2ffdf7"
+    },
+    "@std/path@1.1.6": {
+      "integrity": "c68485c2a4dfbb5ae3cc74fae4e8c4e5d874cf8a8ed12927917235c758b46cbe",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    }
+  },
+  "workspace": {
+    "packageJson": {
+      "dependencies": [
+        "npm:@eslint/js@^9.39.1",
+        "npm:@types/deno@^2.7.0",
+        "npm:@types/react-dom@^19.2.3",
+        "npm:@types/react@^19.2.7",
+        "npm:@typescript-eslint/eslint-plugin@^8.60.0",
+        "npm:@typescript-eslint/parser@^8.60.0",
+        "npm:@vitejs/plugin-react@^5.1.1",
+        "npm:babel-plugin-react-compiler@1",
+        "npm:br_standards_with_zod@^1.1.2",
+        "npm:eslint-plugin-react-hooks@^7.0.1",
+        "npm:eslint-plugin-react-refresh@~0.4.24",
+        "npm:eslint@^9.39.1",
+        "npm:globals@^16.5.0",
+        "npm:lucide-react@^1.7.0",
+        "npm:music-metadata@^11.12.3",
+        "npm:react-dom@^19.2.0",
+        "npm:react-helmet-async@3",
+        "npm:react-router-dom@^7.13.0",
+        "npm:react@^19.2.0",
+        "npm:typescript@^6.0.3",
+        "npm:vite-plugin-sitemap@~0.8.2",
+        "npm:vite@^7.3.1",
+        "npm:wavesurfer.js@^7.12.7",
+        "npm:zod@^4.4.3"
+      ]
+    }
+  }
+}

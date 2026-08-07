@@ -7,6 +7,7 @@ import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 
 import { prisma_plugin } from './lib/prisma.js';
+import { Upload_Service } from './lib/upload.js';
 import { globalErrorHandler } from './lib/global_Error.js';
 import { Plugin_Routes } from './routers/plugin_routes.js';
 import { health_route } from './routers/health/health.js';
@@ -52,24 +53,25 @@ Fastify.register(health_route);
 await Fastify.register(prisma_plugin);
 
 Fastify.setErrorHandler(globalErrorHandler);
+Fastify.register(Upload_Service);
 
 await Fastify.register(cookie, {
     secret: JWT_PASSOWORD,
     parseOptions: {
-      sameSite: "none",
-      secure: true
+        sameSite: "none",
+        secure: true
     }
-  });
+});
 
 await Fastify.register(fastifyJwt, {
     secret: JWT_PASSOWORD,
     sign: { expiresIn: '2d', iss: 'amotif-api', aud: 'amotif-client' }
 });
 
-await Fastify.register(cors, { 
-    origin: true, 
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"], 
-    credentials: true 
+await Fastify.register(cors, {
+    origin: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true
 });
 
 Fastify.register(Plugin_Routes, { prefix: "/api" });
