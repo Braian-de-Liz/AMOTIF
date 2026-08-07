@@ -7,7 +7,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
-    "build:desktop": "bun run build && deno desktop desktop.ts -o ../desktop/AMOTIF.exe && bun -e \"import fs from 'node:fs'; fs.cpSync('dist', '../desktop/dist', { recursive: true });\"",
+    "build:desktop": "powershell -ExecutionPolicy Bypass -File build-desktop.ps1",
     "preview": "vite preview"
   },
   "dependencies": {

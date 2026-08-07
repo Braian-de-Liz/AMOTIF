@@ -1,0 +1,5 @@
+dist
+.downloaded
+.deno-desktop-app
+desktop.dll
+desktop.exe
