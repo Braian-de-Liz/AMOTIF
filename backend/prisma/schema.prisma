@@ -32,6 +32,7 @@ model User {
   notifications_sent Notification[] @relation("NotificationActor")
   likes_dados        Like[]         @relation("UserLikes")
   favorites          Favorite[]     @relation("UserFavorites")
+  authoredVersions   LayerVersion[] @relation("AuthoredVersions")
 }
 
 model Follows {
@@ -160,12 +161,39 @@ model Camada {
   autor           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   deletedAt       DateTime?
 
+  currentVersionId String?        @unique @db.Uuid
+  currentVersion   LayerVersion?  @relation("CurrentVersion", fields: [currentVersionId], references: [id])
+  versions         LayerVersion[]
+
   createdAt DateTime @default(now())
 
   @@index([projetoId, instrumento_tag, esta_aprovada])
   @@index([projetoId, esta_aprovada])
   @@index([userId])
   @@index([createdAt])
+}
+
+model LayerVersion {
+  id              String   @id @default(uuid()) @db.Uuid
+  camadaId        String   @db.Uuid
+  camada          Camada  @relation(fields: [camadaId], references: [id], onDelete: Cascade)
+  audio_url       String
+  nome_trilha     String
+  instrumento_tag String
+  delay_offset    Int      @default(0)
+  volume_padrao   Float    @default(1.0)
+  versionNumber   Int
+  mensagem        String?
+  createdAt       DateTime @default(now())
+
+  autorId String @db.Uuid
+  autor   User   @relation("AuthoredVersions", fields: [autorId], references: [id], onDelete: Cascade)
+
+  currentVersionOf Camada? @relation("CurrentVersion")
+
+  @@index([camadaId, versionNumber])
+  @@index([camadaId, createdAt])
+  @@index([autorId])
 }
 
 model Like {

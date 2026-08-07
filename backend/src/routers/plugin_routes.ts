@@ -47,6 +47,9 @@ import { read_all_notifications } from "./notification/read_all.js";
 import { Toggle_favorite } from "./projetos/togle_favorites.js";
 import { Favorites_plugin } from "./projetos/list_favorites.js";
 
+import { get_versions } from "./versions/get_versions.js";
+import { rollback_route } from "./versions/manage_branches.js";
+
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(User_register);
@@ -93,6 +96,9 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(read_all_notifications);
     Fastify.register(Toggle_favorite);
     Fastify.register(Favorites_plugin);
+
+    Fastify.register(get_versions);
+    Fastify.register(rollback_route);
 }
 
 

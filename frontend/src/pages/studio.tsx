@@ -293,11 +293,14 @@ function Studio() {
                                 isGuia={false}
                                 estaAprovada={camada.esta_aprovada}
                                 isOwner={isOwner}
+                                totalVersoes={camada.totalVersoes || 0}
+                                versaoAtual={camada.versaoAtual || null}
                                 saving={saving === camada.id}
                                 onSave={handleSaveLayer}
                                 onRegister={registerWavesurfer}
                                 onAuthorize={handleAuthorizeLayer}
                                 onDelete={handleDeleteLayer}
+                                onVersionChange={refetchProjeto}
                             />
                         ))}
                     </div>

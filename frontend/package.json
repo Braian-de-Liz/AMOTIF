@@ -7,6 +7,7 @@
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
+    "build:desktop": "bun run build && deno desktop desktop.ts -o ../desktop/AMOTIF.exe && bun -e \"import fs from 'node:fs'; fs.cpSync('dist', '../desktop/dist', { recursive: true });\"",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@types/deno": "^2.7.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@typescript-eslint/eslint-plugin": "^8.60.0",

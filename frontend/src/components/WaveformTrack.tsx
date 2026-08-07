@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
-import { Play, Pause, Volume2, VolumeX, Save, Loader2, Trash2 } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Save, Loader2, Trash2, History } from 'lucide-react';
+import { LayerVersionPanel } from './LayerVersionPanel';
 
 const COLORS = [
     '#22c55e',
@@ -30,10 +31,13 @@ interface WaveformTrackProps {
     estaAprovada?: boolean
     isOwner?: boolean
     isLayerAuthor?: boolean
+    totalVersoes?: number
+    versaoAtual?: { numero: number } | null
     onSave?: (layerId: string, changes: LayerChanges) => void
     onRegister?: (layerId: string, ws: WaveSurfer | null) => void
     onAuthorize?: (layerId: string, aprovada: boolean) => void
     onDelete?: (layerId: string, layerName: string) => void
+    onVersionChange?: () => void
     saving?: boolean
 }
 
@@ -48,10 +52,13 @@ function WaveformTrack({
     isGuia = false,
     estaAprovada = false,
     isOwner = false,
+    totalVersoes = 0,
+    versaoAtual = null,
     onSave,
     onRegister,
     onAuthorize,
     onDelete,
+    onVersionChange,
     saving = false
 }: WaveformTrackProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
@@ -63,6 +70,7 @@ function WaveformTrack({
     const [isMuted, setIsMuted] = useState(false);
     const [localDelay, setLocalDelay] = useState(delayOffset);
     const [hasChanges, setHasChanges] = useState(false);
+    const [versionPanelOpen, setVersionPanelOpen] = useState(false);
 
     const color = COLORS[colorIndex % COLORS.length];
 
@@ -215,6 +223,16 @@ function WaveformTrack({
                         <span className={`status-badge ${estaAprovada ? 'approved' : 'pending'}`}>
                             {estaAprovada ? 'Aprovada' : 'Pendente'}
                         </span>
+                        {!isGuia && totalVersoes > 0 && (
+                            <button
+                                className="btn-version-history"
+                                onClick={() => setVersionPanelOpen(true)}
+                                title={`Histórico de versões (${totalVersoes})`}
+                            >
+                                <History size={14} />
+                                v{versaoAtual?.numero || 1}
+                            </button>
+                        )}
                         {isOwner && (
                             <>
                                 {!estaAprovada && (
@@ -250,6 +268,15 @@ function WaveformTrack({
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(duration)}</span>
             </div>
+
+            {!isGuia && (
+                <LayerVersionPanel
+                    layerId={layerId}
+                    isOpen={versionPanelOpen}
+                    onClose={() => setVersionPanelOpen(false)}
+                    onRollback={onVersionChange}
+                />
+            )}
         </div>
     );
 }

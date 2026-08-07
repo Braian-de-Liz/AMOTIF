@@ -7,9 +7,9 @@ const get_mural: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
     Fastify.addHook("preHandler", verificar_colaborador);
 
-    Fastify.get('/mural/:projeto_id', get_mural_schema, async (request, reply) => {
+    Fastify.get('/mural/:id', get_mural_schema, async (request, reply) => {
 
-        const { projeto_id } = request.params;
+        const { id: projeto_id } = request.params;
 
         const mural = await Fastify.prisma.muralPost.findMany({
             where: {

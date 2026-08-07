@@ -18,6 +18,14 @@ export interface Camada {
   volume_padrao: number
   esta_aprovada: boolean
   autor?: { nome_completo: string }
+  versaoAtual?: {
+    id: string
+    numero: number
+    mensagem?: string | null
+    criadaEm: string
+  } | null
+  totalVersoes?: number
+  totalBranches?: number
 }
 
 export interface Project {

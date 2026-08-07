@@ -1,29 +1,29 @@
 import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
-const get_mural_schema = {
+const rollback_schema = {
     schema: {
-        tags: ['projeto'],
-        description: 'Busca as mensagens do mural do projeto',
+        tags: ['versionamento'],
+        description: 'Faz rollback da camada para uma versão anterior',
         security: [{ bearerAuth: [] }],
         params: Type.Object({
-            id: Type.String({ format: 'uuid' })
+            id: Type.String({ format: 'uuid' }),
+            versionId: Type.String({ format: 'uuid' })
         }),
         response: {
             200: Type.Object({
                 status: Type.String(),
                 mensagem: Type.String(),
-                mural: Type.Array(Type.Object({
+                versao: Type.Object({
                     id: Type.String({ format: 'uuid' }),
-                    conteudo: Type.String(),
-                    projetoId: Type.String({ format: 'uuid' }),
-                    autorId: Type.String({ format: 'uuid' }),
+                    versionNumber: Type.Number(),
+                    mensagem: Type.Union([Type.String(), Type.Null()]),
                     createdAt: Type.String({ format: 'date-time' })
-                }))
+                })
             }),
             ...Error_schema
         }
     }
-}
+};
 
-export { get_mural_schema };
+export { rollback_schema };

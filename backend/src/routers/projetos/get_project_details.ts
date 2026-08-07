@@ -24,6 +24,19 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                             select: {
                                 nome_completo: true
                             }
+                        },
+                        currentVersion: {
+                            select: {
+                                id: true,
+                                versionNumber: true,
+                                mensagem: true,
+                                createdAt: true
+                            }
+                        },
+                        _count: {
+                            select: {
+                                versions: true
+                            }
                         }
                     },
                     orderBy: {
@@ -53,7 +66,7 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                 escala: projeto.escala,
                 createdAt: projeto.createdAt.toISOString(),
                 autor: projeto.autor,
-                camadas: projeto.camadas.map(({ id, nome_trilha, audio_url, instrumento_tag, volume_padrao, delay_offset, esta_aprovada, createdAt, autor }) => ({
+                camadas: projeto.camadas.map(({ id, nome_trilha, audio_url, instrumento_tag, volume_padrao, delay_offset, esta_aprovada, createdAt, autor, currentVersion, _count }) => ({
                     id,
                     nome_trilha,
                     audio_url,
@@ -62,7 +75,14 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                     delay_offset,
                     esta_aprovada,
                     createdAt: createdAt.toISOString(),
-                    autor
+                    autor,
+                    versaoAtual: currentVersion ? {
+                        id: currentVersion.id,
+                        numero: currentVersion.versionNumber,
+                        mensagem: currentVersion.mensagem,
+                        criadaEm: currentVersion.createdAt.toISOString()
+                    } : null,
+                    totalVersoes: _count.versions
                 }))
             }
         })
