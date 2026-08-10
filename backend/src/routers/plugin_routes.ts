@@ -19,6 +19,7 @@ import { Update_project } from "./projetos/update_project.js";
 import { searth_feed } from "./projetos/get_feed.js";
 import { mural_project } from "./projetos/mural_project.js";
 import { get_mural } from "./projetos/get_mural.js";
+import { Deletar_Comentario } from "./projetos/mural_delete.js";
 
 import { convite_project } from "./colaboration/convite_project.js";
 import { colaborators } from "./colaboration/colaboretors.js";
@@ -50,6 +51,8 @@ import { Favorites_plugin } from "./projetos/list_favorites.js";
 import { get_versions } from "./versions/get_versions.js";
 import { rollback_route } from "./versions/manage_branches.js";
 
+import { upload_audio } from "./upload/upload.js";
+
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(User_register);
@@ -70,6 +73,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(Update_project);
     Fastify.register(mural_project);
     Fastify.register(get_mural);
+    Fastify.register(Deletar_Comentario);
 
     Fastify.register(convite_project);
     Fastify.register(Accept_invite);
@@ -99,6 +103,8 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(get_versions);
     Fastify.register(rollback_route);
+
+    Fastify.register(upload_audio);
 }
 
 

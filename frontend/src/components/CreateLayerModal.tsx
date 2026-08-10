@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { parseBlob } from 'music-metadata';
-import { URL_API_TESTE, UPLOAD_URL } from '../utility/url_apis';
+import { URL_API_TESTE } from '../utility/url_apis';
 import { createLayerSchema } from '../schemas/createLayerSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
 import { Modal } from './Modal';
@@ -88,19 +88,18 @@ function CreateLayerModal({ projetoId, isOpen, onClose, onLayerCreated }: Create
             const uploadData = new FormData();
             uploadData.append('audio', sanitizedFile);
 
-            const uploadResponse = await fetch(`${UPLOAD_URL}/upload`, {
+            const uploadRes = await fetch(`${URL_API_TESTE}/upload`, {
                 method: 'POST',
                 credentials: 'include',
                 body: uploadData,
             });
 
-            if (!uploadResponse.ok) {
-                const errBody = await uploadResponse.json().catch(() => ({}));
-                throw new Error(errBody.error || "Falha ao enviar áudio.");
+            if (!uploadRes.ok) {
+                const errBody = await uploadRes.json().catch(() => ({}));
+                throw new Error(errBody.mensagem || "Falha ao enviar áudio.");
             }
 
-            const uploadResult = await uploadResponse.json();
-            const urlFinalAudio: string = uploadResult.path;
+            const { fileUrl } = await uploadRes.json();
 
             const response = await fetch(`${URL_API_TESTE}/layer/${projetoId}`, {
                 method: 'POST',
@@ -110,7 +109,7 @@ function CreateLayerModal({ projetoId, isOpen, onClose, onLayerCreated }: Create
                 credentials: 'include',
                 body: JSON.stringify({
                     nome_trilha: nomeTrilha,
-                    audio_url: urlFinalAudio,
+                    audio_url: fileUrl,
                     instrumento_tag: instrumentoTag,
                 })
             });

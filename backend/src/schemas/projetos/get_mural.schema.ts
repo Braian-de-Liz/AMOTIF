@@ -17,8 +17,12 @@ const get_mural_schema = {
                     id: Type.String({ format: 'uuid' }),
                     conteudo: Type.String(),
                     projetoId: Type.String({ format: 'uuid' }),
-                    autorId: Type.String({ format: 'uuid' }),
-                    createdAt: Type.String({ format: 'date-time' })
+                    autor: Type.Object({
+                        id: Type.String({ format: 'uuid' }),
+                        nome_completo: Type.String(),
+                        avatar_url: Type.Union([Type.String(), Type.Null()])
+                    }),
+                    criado_em: Type.String({ format: 'date-time' })
                 }))
             }),
             ...Error_schema

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { parseBlob } from 'music-metadata';
-import { URL_API_TESTE, UPLOAD_URL } from '../utility/url_apis';
+import { URL_API_TESTE } from '../utility/url_apis';
 import { projectSchema, generos } from '../schemas/projectSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
 import { Modal } from './Modal';
@@ -104,19 +104,18 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
             const uploadData = new FormData();
             uploadData.append('audio', sanitizedFile);
 
-            const uploadResponse = await fetch(`${UPLOAD_URL}/upload`, {
+            const uploadRes = await fetch(`${URL_API_TESTE}/upload`, {
                 method: 'POST',
                 credentials: 'include',
                 body: uploadData,
             });
 
-            if (!uploadResponse.ok) {
-                const errBody = await uploadResponse.json().catch(() => ({}));
-                throw new Error(errBody.error || "Falha ao enviar áudio.");
+            if (!uploadRes.ok) {
+                const errBody = await uploadRes.json().catch(() => ({}));
+                throw new Error(errBody.mensagem || "Falha ao enviar áudio.");
             }
 
-            const uploadResult = await uploadResponse.json();
-            const urlFinalAudio: string = uploadResult.path;
+            const { fileUrl } = await uploadRes.json();
 
             const response = await fetch(`${URL_API_TESTE}/projetos`, {
                 method: 'POST',
@@ -130,7 +129,7 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
                     bpm: Number(formData.bpm),
                     escala: formData.escala || undefined,
                     descricao: formData.descricao || undefined,
-                    audio_guia: urlFinalAudio,
+                    audio_guia: fileUrl,
                     audio_metadata: audioMeta
                 })
             });

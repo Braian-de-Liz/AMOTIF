@@ -14,6 +14,15 @@ const get_mural: FastifyPluginAsyncTypebox = async (Fastify) => {
         const mural = await Fastify.prisma.muralPost.findMany({
             where: {
                 projetoId: projeto_id
+            },
+            include: {
+                autor: {
+                    select: {
+                        id: true,
+                        nome_completo: true,
+                        avatar_url: true
+                    }
+                }
             }
         });
 
@@ -27,12 +36,12 @@ const get_mural: FastifyPluginAsyncTypebox = async (Fastify) => {
         return reply.status(200).send({
             status: "success",
             mensagem: "Mural encontrado",
-            mural: mural.map(({ id, conteudo, projetoId, autorId, createdAt }) => ({
+            mural: mural.map(({ id, conteudo, projetoId, autor, createdAt }) => ({
                 id,
                 conteudo,
                 projetoId,
-                autorId,
-                createdAt: createdAt.toISOString()
+                autor,
+                criado_em: createdAt.toISOString()
             }))
         });
 

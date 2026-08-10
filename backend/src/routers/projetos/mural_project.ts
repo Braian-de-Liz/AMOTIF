@@ -10,7 +10,7 @@ const mural_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.post("/projetos/:id/mural", mural_schema, async (request, reply) => {
 
         const autorId = request.user.id;
-        const { id: projeto_id } = request.params;
+        const { id: projeto_id } = request.params;  
         const { conteudo } = request.body;
 
             const mural = await Fastify.prisma.muralPost.create({

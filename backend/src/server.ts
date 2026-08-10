@@ -5,6 +5,7 @@ import cookie from '@fastify/cookie';
 import fastifyJwt from "@fastify/jwt";
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
+import multipart from '@fastify/multipart';
 
 import { prisma_plugin } from './lib/prisma.js';
 import { Upload_Service } from './lib/upload.js';
@@ -48,6 +49,12 @@ await Fastify.register(swagger, {
 });
 
 await Fastify.register(swaggerUi, { routePrefix: '/docs' });
+
+await Fastify.register(multipart, {
+    limits: {
+        fileSize: 40 * 1024 * 1024
+    }
+});
 
 Fastify.register(health_route);
 await Fastify.register(prisma_plugin);

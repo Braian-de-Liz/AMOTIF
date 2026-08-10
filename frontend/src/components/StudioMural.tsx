@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useApi } from '../hooks/useApi';
 import { URL_API_TESTE } from '../utility/url_apis';
-import { Send, MessageCircle } from 'lucide-react';
+import { Send, MessageCircle, Trash2 } from 'lucide-react';
 import type { MuralPost } from '../types';
 
 interface StudioMuralProps {
@@ -18,6 +18,9 @@ function StudioMural({ projetoId }: StudioMuralProps) {
     const [newPost, setNewPost] = useState('');
     const [posting, setPosting] = useState(false);
     const [postError, setPostError] = useState<string | null>(null);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
+
+    const currentUserId = localStorage.getItem('usuario_id');
 
     const handlePost = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -49,6 +52,27 @@ function StudioMural({ projetoId }: StudioMuralProps) {
         }
     };
 
+    const handleDelete = async (comentarioId: string) => {
+        setDeletingId(comentarioId);
+        try {
+            const response = await fetch(`${URL_API_TESTE}/projetos/${projetoId}/mural/${comentarioId}`, {
+                method: 'DELETE',
+                credentials: 'include',
+            });
+
+            if (response.ok) {
+                refetch();
+            } else {
+                const result = await response.json();
+                setPostError(result.mensagem || "Erro ao excluir comentário.");
+            }
+        } catch {
+            setPostError("Erro de conexão ao excluir.");
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
     if (loading) return <div className="loading-txt">Carregando mural...</div>;
 
     const posts = data?.mural || [];
@@ -67,6 +91,16 @@ function StudioMural({ projetoId }: StudioMuralProps) {
                                 <MessageCircle size={16} />
                                 <strong>{post.autor?.nome_completo || 'Anônimo'}</strong>
                                 <small>{new Date(post.criado_em).toLocaleDateString()}</small>
+                                {post.autor?.id === currentUserId && (
+                                    <button
+                                        className="btn-delete-mural"
+                                        onClick={() => handleDelete(post.id)}
+                                        disabled={deletingId === post.id}
+                                        title="Excluir comentário"
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                )}
                             </div>
                             <p>{post.conteudo}</p>
                         </div>
