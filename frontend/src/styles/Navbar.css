@@ -1,12 +1,12 @@
 /* front_end/src/styles/Navbar.css */
 
 nav {
-  background-color: rgba(255, 255, 255, 0.92);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-  border-bottom: 2px solid var(--verde-claro);
+  background: var(--glass-bg-solid);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  padding: 0.85rem 2rem;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid var(--borda);
   margin-bottom: 2rem;
   position: relative;
   width: 100%;
@@ -37,8 +37,8 @@ nav ul {
   font-size: 1rem;
   color: var(--verde-musgo) !important;
   text-decoration: none !important;
-  letter-spacing: -0.02em;
-  transition: opacity 0.2s ease;
+  letter-spacing: -0.03em;
+  transition: opacity 0.15s ease;
 }
 
 .nav-brand:hover {
@@ -46,8 +46,8 @@ nav ul {
 }
 
 .nav-brand-logo {
-  width: 48px;
-  height: 48px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
 }
 
@@ -62,30 +62,32 @@ nav ul li.nav-logout-item {
 }
 
 nav ul li a {
-  color: var(--verde-escuro);
+  color: var(--texto-secundario);
   font-weight: 500;
   padding: 0.5rem 0;
   border-bottom: 2px solid transparent;
+  font-size: var(--text-sm);
 }
 
 nav ul li a:hover {
-  color: var(--verde-musgo);
-  border-bottom-color: var(--verde-musgo);
+  color: var(--texto);
+  border-bottom-color: var(--verde-medio);
   text-decoration: none;
 }
 
 nav ul li button {
-  background-color: var(--verde-pastel);
-  color: var(--verde-escuro);
-  padding: 0.5rem 1.2rem;
-  border-radius: var(--radius-pill);
-  font-weight: 600;
-  border: 1px solid var(--verde-claro);
+  background: transparent;
+  color: var(--texto-secundario);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-base);
+  font-weight: 500;
+  border: 1px solid var(--borda);
 }
 
 nav ul li button:hover {
-  background-color: var(--verde-claro);
-  transform: scale(0.98);
+  color: var(--texto);
+  background: var(--fundo-secundario);
+  transform: none;
 }
 
 /* RESPONSIVIDADE */
@@ -95,77 +97,76 @@ nav ul li button:hover {
     bottom: 0;
     left: 0;
     right: 0;
-    margin-bottom: 0; 
+    margin-bottom: 0;
     z-index: var(--z-toast);
-    padding: 0.6rem 0.5rem;
+    padding: 0.5rem 0.5rem;
     border-bottom: none;
-    border-top: 2px solid var(--verde-claro);
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-    backdrop-filter: none;
+    border-top: 1px solid var(--borda);
+    box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.05);
+    background: var(--glass-bg-solid);
+    backdrop-filter: var(--glass-blur);
+    -webkit-backdrop-filter: var(--glass-blur);
   }
 
-  /* Esconder logo no mobile */
   nav ul li.nav-brand-item {
     display: none;
   }
 
-  /* Esconder notificações no Nav mobile */
   nav ul li.notifications-item {
     display: none;
   }
 
-  /* Esconder logout no Nav mobile (usar menu do perfil) */
   nav ul li.nav-logout-item {
     display: none;
   }
 
   nav ul {
-    justify-content: space-around; 
+    justify-content: space-around;
     gap: 0;
     padding: 0;
   }
-  
+
   nav ul li {
     flex: 1;
     display: flex;
     justify-content: center;
   }
-  
+
   nav ul li a {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 4px;
+    gap: 3px;
     padding: 0.4rem;
     border-bottom: none;
+    color: var(--texto-secundario);
   }
-  
+
   nav ul li button {
     padding: 0.4rem 0.8rem;
     font-size: var(--text-xs);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-base);
   }
 
   nav ul li a span {
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+    font-weight: 500;
   }
 
   .nav-icon {
-    color: var(--verde-escuro);
-    transition: transform 0.2s;
+    color: var(--texto-secundario);
+    transition: color 0.15s;
   }
 
-  /* Efeito de item ativo */
   li.active .nav-icon {
     color: var(--verde-musgo);
-    transform: translateY(-2px);
   }
 
   li.active span {
     color: var(--verde-musgo);
-    font-weight: bold;
+    font-weight: 600;
   }
 
   .btn-logout-mobile {
@@ -174,35 +175,40 @@ nav ul li button:hover {
     align-items: center;
     background: none !important;
     border: none !important;
-    color: var(--verde-escuro) !important;
+    color: var(--texto-secundario) !important;
     padding: 0 !important;
   }
 }
 
-/* Desktop: ícones sempre visíveis ao lado do texto */
+/* Desktop */
 @media (min-width: 769px) {
   nav ul li a {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
   }
-  
+
   .nav-icon {
     display: block;
+    opacity: 0.7;
+  }
+
+  li.active .nav-icon {
+    opacity: 1;
   }
 
   .nav-logout-btn {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.4rem;
     background: none !important;
     border: none !important;
-    color: var(--verde-escuro) !important;
+    color: var(--texto-secundario) !important;
     padding: 0.5rem 0 !important;
     border-bottom: 2px solid transparent !important;
     cursor: pointer;
     font-weight: 500;
-    font-size: inherit;
+    font-size: var(--text-sm);
   }
 
   .nav-logout-btn:hover {

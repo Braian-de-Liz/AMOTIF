@@ -3,6 +3,28 @@ import { Search, X } from 'lucide-react';
 import { URL_API_TESTE } from '../utility/url_apis';
 import type { SearchResults } from '../types';
 
+const GENEROS = [
+    { value: '', label: 'Todos os gêneros' },
+    { value: 'ROCK', label: 'Rock' },
+    { value: 'POP', label: 'Pop' },
+    { value: 'JAZZ', label: 'Jazz' },
+    { value: 'BLUES', label: 'Blues' },
+    { value: 'FORRO', label: 'Forró' },
+    { value: 'METAL', label: 'Metal' },
+    { value: 'HIP_HOP', label: 'Hip Hop' },
+    { value: 'ELECTRONIC', label: 'Eletrônica' },
+    { value: 'CLASSICAL', label: 'Clássica' },
+    { value: 'LO_FI', label: 'Lo-Fi' },
+    { value: 'INDIE', label: 'Indie' },
+    { value: 'SERTANEJO', label: 'Sertanejo' },
+    { value: 'SAMBA', label: 'Samba' },
+    { value: 'MPB', label: 'MPB' },
+    { value: 'COUNTRY', label: 'Country' },
+    { value: 'FUNK', label: 'Funk' },
+    { value: 'SOUNDTRACK', label: 'Trilha Sonora' },
+    { value: 'REGGAE', label: 'Reggae' },
+];
+
 interface SearchBarProps {
     onSearchResults: (results: SearchResults | null) => void
 }
@@ -10,6 +32,7 @@ interface SearchBarProps {
 function SearchBar({ onSearchResults }: SearchBarProps) {
     const [query, setQuery] = useState('');
     const [searchType, setSearchType] = useState('projetos');
+    const [genero, setGenero] = useState('');
     const [loading, setLoading] = useState(false);
     const [erro, setErro] = useState<string | null>(null);
 
@@ -26,6 +49,9 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
             if (searchType === 'projetos') {
                 url = new URL(`${URL_API_TESTE}/search/projects`);
                 url.searchParams.append('query', query);
+                if (genero) {
+                    url.searchParams.append('genero', genero);
+                }
             } else {
                 url = new URL(`${URL_API_TESTE}/search/user`);
                 if (searchType === 'instrumentos') {
@@ -57,6 +83,7 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
 
     const clearSearch = () => {
         setQuery('');
+        setGenero('');
         setErro(null);
         onSearchResults(null);
     };
@@ -92,6 +119,17 @@ function SearchBar({ onSearchResults }: SearchBarProps) {
                     <option value="instrumentos">Músicos por instrumento</option>
                     <option value="nome">Músicos por nome</option>
                 </select>
+                {searchType === 'projetos' && (
+                    <select
+                        value={genero}
+                        onChange={(e) => setGenero(e.target.value)}
+                        className="search-type-select"
+                    >
+                        {GENEROS.map(g => (
+                            <option key={g.value} value={g.value}>{g.label}</option>
+                        ))}
+                    </select>
+                )}
                 <button type="submit" className="search-btn" disabled={loading}>
                     {loading ? '...' : 'Buscar'}
                 </button>

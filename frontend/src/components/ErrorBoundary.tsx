@@ -45,7 +45,7 @@ class ErrorBoundary extends Component<Props, State> {
                     padding: '2rem',
                     textAlign: 'center',
                 }}>
-                    <h2 style={{ color: 'var(--verde-escuro)', marginBottom: '1rem' }}>
+                    <h2 style={{ color: 'var(--verde-tinta)', marginBottom: '1rem' }}>
                         Algo deu errado
                     </h2>
                     <p style={{ color: 'var(--texto-secundario)', marginBottom: '1.5rem' }}>
@@ -55,10 +55,10 @@ class ErrorBoundary extends Component<Props, State> {
                         onClick={this.handleReset}
                         style={{
                             padding: '0.7rem 1.5rem',
-                            backgroundColor: 'var(--verde-medio)',
+                            backgroundColor: 'var(--verde-musgo)',
                             color: 'white',
                             border: 'none',
-                            borderRadius: '30px',
+                            borderRadius: '8px',
                             fontWeight: 600,
                             cursor: 'pointer',
                         }}

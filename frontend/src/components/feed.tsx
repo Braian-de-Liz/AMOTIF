@@ -11,11 +11,34 @@ interface UserWithFollowing extends User {
     isFollowing?: boolean
 }
 
+const GENEROS_FEED = [
+    { value: '', label: 'Todos os gêneros' },
+    { value: 'ROCK', label: 'Rock' },
+    { value: 'POP', label: 'Pop' },
+    { value: 'JAZZ', label: 'Jazz' },
+    { value: 'BLUES', label: 'Blues' },
+    { value: 'FORRO', label: 'Forró' },
+    { value: 'METAL', label: 'Metal' },
+    { value: 'HIP_HOP', label: 'Hip Hop' },
+    { value: 'ELECTRONIC', label: 'Eletrônica' },
+    { value: 'CLASSICAL', label: 'Clássica' },
+    { value: 'LO_FI', label: 'Lo-Fi' },
+    { value: 'INDIE', label: 'Indie' },
+    { value: 'SERTANEJO', label: 'Sertanejo' },
+    { value: 'SAMBA', label: 'Samba' },
+    { value: 'MPB', label: 'MPB' },
+    { value: 'COUNTRY', label: 'Country' },
+    { value: 'FUNK', label: 'Funk' },
+    { value: 'SOUNDTRACK', label: 'Trilha Sonora' },
+    { value: 'REGGAE', label: 'Reggae' },
+];
+
 function Feed() {
     const [projetos, setProjetos] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [erro, setErro] = useState<string | null>(null);
     const [filtroInstrumento, setFiltroInstrumento] = useState("");
+    const [filtroGenero, setFiltroGenero] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResults | null>(null);
 
     const abortControllerRef = useRef<AbortController | null>(null);
@@ -35,6 +58,9 @@ function Feed() {
 
             if (filtroInstrumento) {
                 url.searchParams.append("instrumentoFaltante", filtroInstrumento);
+            }
+            if (filtroGenero) {
+                url.searchParams.append("genero", filtroGenero);
             }
 
             const response = await fetch(url, {
@@ -57,7 +83,7 @@ function Feed() {
                 setLoading(false);
             }
         }
-    }, [filtroInstrumento]);
+    }, [filtroInstrumento, filtroGenero]);
 
     useEffect(() => {
         carregarFeed();
@@ -116,7 +142,7 @@ function Feed() {
                                 ))}
                             </div>
                         ) : (
-                            <p className="empty-state">Nenhum musician encontrado.</p>
+                            <p className="empty-state">Nenhum músico encontrado.</p>
                         )
                     )}
                 </div>
@@ -125,15 +151,26 @@ function Feed() {
                     <header className="feed-header">
                         <h2 className="feed-title">Explorar Projetos</h2>
 
-                        <select
-                            className="filter-select"
-                            onChange={(e) => setFiltroInstrumento(e.target.value)}
-                        >
-                            <option value="">Todos os instrumentos</option>
-                            <option value="Baixo">Precisando de Baixo</option>
-                            <option value="Guitarra">Precisando de Guitarra</option>
-                            <option value="Vocal">Precisando de Vocal</option>
-                        </select>
+                        <div className="feed-filters">
+                            <select
+                                className="filter-select"
+                                onChange={(e) => setFiltroInstrumento(e.target.value)}
+                            >
+                                <option value="">Todos os instrumentos</option>
+                                <option value="Baixo">Precisando de Baixo</option>
+                                <option value="Guitarra">Precisando de Guitarra</option>
+                                <option value="Vocal">Precisando de Vocal</option>
+                            </select>
+
+                            <select
+                                className="filter-select"
+                                onChange={(e) => setFiltroGenero(e.target.value)}
+                            >
+                                {GENEROS_FEED.map(g => (
+                                    <option key={g.value} value={g.value}>{g.label}</option>
+                                ))}
+                            </select>
+                        </div>
                     </header>
 
                     {erro && <div className="error-msg">{erro}</div>}
@@ -145,7 +182,7 @@ function Feed() {
                             ))}
                         </div>
                     ) : (
-                        <p className="empty-state">Nenhum projeto precisando de {filtroInstrumento || 'músicos'} no momento.</p>
+                        <p className="empty-state">Nenhum projeto encontrado{filtroGenero ? ` no gênero selecionado` : ''}{filtroInstrumento ? ` precisando de ${filtroInstrumento}` : ''}.</p>
                     )}
                 </>
             )}

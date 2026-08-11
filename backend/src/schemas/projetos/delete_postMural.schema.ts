@@ -3,7 +3,7 @@ import { Error_schema } from "../error/erro_schema.js";
 
 const schema_deleteMural = {
     schema: {
-        tags: ['projeto', 'mural'],
+        tags: ['projeto'],
         description: 'Exclui um comentário do mural do projeto',
         security: [{ bearerAuth: [] }],
         params: Type.Object({

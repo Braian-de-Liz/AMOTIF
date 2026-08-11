@@ -12,7 +12,7 @@ function NotFound() {
                 url="/404"
             />
             <h1 style={{ fontSize: '6rem', color: 'var(--verde-medio)', margin: 0 }}>404</h1>
-            <h2 style={{ color: 'var(--verde-escuro)', marginBottom: '1rem' }}>Página não encontrada</h2>
+            <h2 style={{ color: 'var(--verde-tinta)', marginBottom: '1rem' }}>Página não encontrada</h2>
             <p style={{ color: 'var(--texto-secundario)', marginBottom: '2rem', maxWidth: '400px' }}>
                 O endereço que você procura não existe ou foi movido para outro local.
             </p>
@@ -23,12 +23,12 @@ function NotFound() {
                     alignItems: 'center',
                     gap: '0.5rem',
                     padding: '0.8rem 1.8rem',
-                    backgroundColor: 'var(--verde-medio)',
+                    backgroundColor: 'var(--verde-musgo)',
                     color: 'white',
-                    borderRadius: '40px',
+                    borderRadius: '8px',
                     fontWeight: 600,
                     textDecoration: 'none',
-                    transition: 'all 0.2s',
+                    transition: 'all 0.15s',
                 }}
             >
                 <Home size={18} />

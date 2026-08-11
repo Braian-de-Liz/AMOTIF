@@ -10,27 +10,9 @@
     padding: 2rem 1rem;
     padding-bottom: 5rem;
     gap: 3rem;
-    background: 
-        radial-gradient(ellipse at 20% 50%, rgba(107, 142, 77, 0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 80% 20%, rgba(143, 176, 143, 0.06) 0%, transparent 50%),
-        radial-gradient(ellipse at 60% 80%, rgba(212, 230, 212, 0.1) 0%, transparent 50%),
-        var(--fundo);
+    background: var(--fundo);
     position: relative;
     overflow: hidden;
-}
-
-.login-page::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: 
-        radial-gradient(circle at 30% 70%, rgba(107, 142, 77, 0.03) 0%, transparent 40%),
-        radial-gradient(circle at 70% 30%, rgba(143, 176, 143, 0.04) 0%, transparent 40%);
-    animation: softPulse 8s ease-in-out infinite;
-    pointer-events: none;
 }
 
 .login-hero {
@@ -40,7 +22,7 @@
 .login-footer {
     text-align: center;
     margin-top: 1.5rem;
-    animation: fadeIn 0.5s ease-out 0.3s both;
+    animation: fadeIn 0.3s ease-out 0.2s both;
 }
 
 .login-footer p {
@@ -51,22 +33,23 @@
 
 .login-footer a {
     display: inline-block;
-    background: var(--gradiente-verde-suave);
-    color: var(--verde-escuro);
-    padding: 0.6rem 1.8rem;
-    border-radius: var(--radius-full);
+    background: var(--fundo-secundario);
+    color: var(--verde-tinta);
+    padding: 0.5rem 1.5rem;
+    border-radius: var(--radius-base);
     font-weight: 600;
-    border: 1px solid var(--verde-claro);
-    transition: all 0.3s ease;
-    box-shadow: 0 2px 8px rgba(107, 142, 77, 0.1);
+    border: 1px solid var(--borda);
+    transition: all 0.15s ease;
+    font-size: var(--text-sm);
 }
 
 .login-footer a:hover {
-    background: var(--gradiente-verde);
-    color: var(--branco);
+    background: var(--verde-musgo);
+    color: white;
+    border-color: transparent;
     text-decoration: none;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(107, 142, 77, 0.25);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(92, 122, 68, 0.3);
 }
 
 .login-form-wrapper {
@@ -90,7 +73,7 @@
         justify-content: center;
         max-width: 400px;
         text-align: center;
-        animation: fadeInUp 0.6s ease-out;
+        animation: fadeIn 0.3s ease-out;
     }
 
     .login-hero-icon {
@@ -98,36 +81,33 @@
         align-items: center;
         justify-content: center;
         margin-bottom: 1.5rem;
-        animation: scaleIn 0.5s ease-out 0.2s both;
-        transition: transform 0.3s ease;
+        transition: transform 0.2s ease;
     }
 
     .login-hero-icon:hover {
-        transform: scale(1.05);
+        transform: scale(1.03);
     }
 
     .login-hero-logo {
-        width: 120px;
-        height: 120px;
+        width: 100px;
+        height: 100px;
         object-fit: contain;
     }
 
     .login-hero h2 {
-        color: var(--verde-escuro);
+        color: var(--verde-tinta);
         font-size: var(--text-3xl);
         margin-bottom: var(--space-sm);
-        animation: fadeInUp 0.5s ease-out 0.3s both;
     }
 
     .login-hero p {
         color: var(--texto-secundario);
-        font-size: var(--text-lg);
+        font-size: var(--text-base);
         line-height: 1.7;
-        animation: fadeInUp 0.5s ease-out 0.4s both;
     }
 
     .login-form-wrapper {
-        animation: fadeInUp 0.5s ease-out 0.1s both;
+        animation: fadeIn 0.3s ease-out 0.1s both;
     }
 }
 
@@ -138,6 +118,6 @@
     }
 
     .login-form-wrapper {
-        animation: fadeInUp 0.5s ease-out;
+        animation: fadeIn 0.3s ease-out;
     }
 }
