@@ -14,6 +14,7 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             include: {
                 autor: {
                     select: {
+                        id: true,
                         nome_completo: true,
                         avatar_url: true
                     }

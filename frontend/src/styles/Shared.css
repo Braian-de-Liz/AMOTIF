@@ -95,6 +95,12 @@
   color: white;
 }
 
+.btn-studio {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
 /* Estados vazio / loading / erro */
 .empty-state {
   grid-column: 1 / -1;

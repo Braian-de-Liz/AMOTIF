@@ -25,6 +25,7 @@ function LoadingFallback() {
             minHeight: '50vh',
             color: 'var(--verde-musgo)',
             fontSize: '1.2rem',
+            textAlign: 'center'
         }}>
             Carregando...
         </div>

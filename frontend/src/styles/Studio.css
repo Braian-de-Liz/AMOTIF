@@ -8,6 +8,22 @@
     animation: fadeIn 0.2s ease-out;
 }
 
+/* Header do Studio — layout flex */
+.studio-page .user-header {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.studio-page .user-header h1 {
+    font-size: var(--text-2xl);
+    margin-bottom: 0.25rem;
+}
+
+.studio-page .user-header p {
+    font-size: var(--text-sm);
+}
+
 .studio-track-list {
     margin-top: 2rem;
     display: flex;
@@ -308,6 +324,51 @@ audio {
 
 audio::-webkit-media-controls-panel {
   background-color: var(--fundo-secundario);
+}
+
+/* STUDIO CONTROLS — barra de playback */
+.studio-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.85rem;
+}
+
+.btn-stop {
+    background: transparent;
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    color: var(--erro);
+    padding: 0.45rem 1rem;
+    border-radius: var(--radius-base);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-stop:hover {
+    background: rgba(220, 38, 38, 0.08);
+    border-color: var(--erro);
+}
+
+.btn-gravar {
+    background: transparent;
+    border: 1px solid rgba(92, 122, 68, 0.2);
+    color: var(--verde-musgo);
+    padding: 0.45rem 1rem;
+    border-radius: var(--radius-base);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    transition: all 0.15s ease;
+}
+
+.btn-gravar:hover {
+    background: var(--verde-pastel);
+    border-color: var(--verde-medio);
 }
 
 @media (max-width: 768px) {
@@ -907,6 +968,17 @@ audio::-webkit-media-controls-panel {
     display: flex;
     gap: 0.6rem;
     margin-top: 0.65rem;
+}
+
+.studio-page .user-header {
+    position: relative;
+}
+
+.studio-page .project-owner-actions {
+    position: absolute;
+    top: var(--space-xl);
+    right: var(--space-xl);
+    margin-top: 0;
 }
 
 .btn-edit-project {

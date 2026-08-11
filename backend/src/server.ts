@@ -56,11 +56,12 @@ await Fastify.register(multipart, {
     }
 });
 
+
 Fastify.register(health_route);
 await Fastify.register(prisma_plugin);
 
 Fastify.setErrorHandler(globalErrorHandler);
-Fastify.register(Upload_Service);
+await Fastify.register(Upload_Service);
 
 await Fastify.register(cookie, {
     secret: JWT_PASSOWORD,

@@ -22,6 +22,12 @@ interface UploadResult {
 
 interface SupabaseStorage {
     uploadAudio: (userId: string, file: MultipartFile) => Promise<UploadResult>;
+    deleteAudio: (path: string) => Promise<void>;
+}
+
+function extractPathFromUrl(url: string): string | null {
+    const match = url.match(/\/storage\/v1\/object\/public\/[^/]+\/(.+)/);
+    return match ? match[1] : null;
 }
 
 declare module "fastify" {
@@ -55,21 +61,16 @@ const Upload_Service: FastifyPluginAsync = fp(async (Fastify) => {
                 throw new UploadError(415, "Tipo de arquivo não permitido. Use: MP3, WAV, OGG, FLAC, AAC");
             }
 
-            const buffer = await file.toBuffer();
-
-            if (buffer.length === 0) {
-                throw new UploadError(413, "Arquivo vazio");
-            }
-
-            if (buffer.length > MAX_FILE_SIZE) {
+            if (file.file.truncated) {
                 throw new UploadError(413, "Arquivo muito grande. Máximo 40MB");
             }
 
             const ext = file.filename.includes(".")
                 ? "." + file.filename.split(".").pop()
                 : ".mp3";
-            const timestamp = Date.now();
-            const path = `${userId}/${timestamp}${ext}`;
+
+            const fileId = crypto.randomUUID();
+            const path = `${userId}/${fileId}${ext}`;
 
             const uploadResponse = await fetch(`${supabaseUrl}/storage/v1/object/${bucket}/${path}`, {
                 method: "POST",
@@ -77,8 +78,10 @@ const Upload_Service: FastifyPluginAsync = fp(async (Fastify) => {
                     "Authorization": `Bearer ${supabaseKey}`,
                     "apikey": supabaseKey,
                     "Content-Type": contentType,
+                    "duplex": "half",
+                    "x-upsert": "true",
                 },
-                body: new Uint8Array(buffer),
+                body: file.file as unknown as ReadableStream,
             });
 
             if (!uploadResponse.ok) {
@@ -90,10 +93,26 @@ const Upload_Service: FastifyPluginAsync = fp(async (Fastify) => {
             const fileUrl = `${supabaseUrl}/storage/v1/object/public/${bucket}/${path}`;
 
             return { fileUrl, path };
+        },
+
+        async deleteAudio(path: string): Promise<void> {
+            const deleteResponse = await fetch(`${supabaseUrl}/storage/v1/object/${bucket}/${path}`, {
+                method: "DELETE",
+                headers: {
+                    "Authorization": `Bearer ${supabaseKey}`,
+                    "apikey": supabaseKey,
+                },
+            });
+
+            if (!deleteResponse.ok) {
+                const errBody = await deleteResponse.text();
+                Fastify.log.error(`Supabase delete error (${deleteResponse.status}): ${errBody}`);
+                throw new UploadError(500, "Erro ao deletar arquivo do Supabase");
+            }
         }
     };
 
     Fastify.decorate("storage", storage);
 });
 
-export { Upload_Service, UploadError, ALLOWED_CONTENT_TYPES, MAX_FILE_SIZE };
+export { Upload_Service, UploadError, ALLOWED_CONTENT_TYPES, MAX_FILE_SIZE, extractPathFromUrl };

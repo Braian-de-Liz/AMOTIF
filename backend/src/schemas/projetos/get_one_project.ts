@@ -22,6 +22,7 @@ const schema_details_project = {
                     escala: Type.Union([Type.String(), Type.Null()]),
                     createdAt: Type.String({ format: 'date-time' }),
                     autor: Type.Object({
+                        id: Type.String(),
                         nome_completo: Type.String(),
                         avatar_url: Type.Union([Type.String(), Type.Null()])
                     }),

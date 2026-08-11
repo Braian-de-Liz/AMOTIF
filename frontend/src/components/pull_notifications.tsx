@@ -139,6 +139,18 @@ export const Notificacoes = () => {
         }
     };
 
+    const markAsRead = async (id: string) => {
+        try {
+            await fetch(`${URL_API_TESTE}/notifications/${id}/read`, {
+                method: 'PATCH',
+                credentials: 'include'
+            });
+            setNotificacoes(prev => prev.filter(n => n.id !== id));
+        } catch (error) {
+            console.error("Erro ao marcar notificação:", error);
+        }
+    };
+
     const getIcon = (tipo: string) => {
         switch (tipo) {
             case 'INVITE_RECEIVED': return '📩';
@@ -197,7 +209,7 @@ export const Notificacoes = () => {
                     <div className="notifications-popup-header">
                         <h3>Notificações</h3>
                         <div className="notifications-popup-actions">
-                            {naoLidas > 0 && (
+                            {notificacoes.length > 0 && (
                                 <button
                                     className="notifications-mark-read"
                                     onClick={markAllAsRead}
@@ -226,6 +238,8 @@ export const Notificacoes = () => {
                                 <div
                                     key={n.id}
                                     className={`notification-item ${!n.lida ? 'unread' : ''}`}
+                                    onClick={() => !n.lida && markAsRead(n.id)}
+                                    style={{ cursor: n.lida ? 'default' : 'pointer' }}
                                 >
                                     <div>
                                         <p><strong>{n.mensagem}</strong></p>

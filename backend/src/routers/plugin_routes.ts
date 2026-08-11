@@ -44,6 +44,7 @@ import { search_project } from "./search/search_project.js";
 
 import { get_notifications } from "./notification/get_notifications.js";
 import { read_all_notifications } from "./notification/read_all.js";
+import { read_notification } from "./notification/read_notification.js";
 
 import { Toggle_favorite } from "./projetos/togle_favorites.js";
 import { Favorites_plugin } from "./projetos/list_favorites.js";
@@ -51,7 +52,7 @@ import { Favorites_plugin } from "./projetos/list_favorites.js";
 import { get_versions } from "./versions/get_versions.js";
 import { rollback_route } from "./versions/manage_branches.js";
 
-import { upload_audio } from "./upload/upload.js";
+import { upload_audio } from "./upload/upload_point.js";
 
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
@@ -98,13 +99,14 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(get_notifications);
     Fastify.register(read_all_notifications);
+    Fastify.register(read_notification);
     Fastify.register(Toggle_favorite);
     Fastify.register(Favorites_plugin);
 
     Fastify.register(get_versions);
     Fastify.register(rollback_route);
 
-    Fastify.register(upload_audio);
+    await Fastify.register(upload_audio);
 }
 
 

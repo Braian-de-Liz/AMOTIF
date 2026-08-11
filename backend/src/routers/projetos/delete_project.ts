@@ -2,6 +2,7 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 import { Schema_del_project } from "../../schemas/projetos/del_project.schema.js";
+import { extractPathFromUrl } from "../../lib/upload.js";
 
 const del_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -32,6 +33,17 @@ const del_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
+        const projeto = await Fastify.prisma.projeto.findUnique({
+            where: { id },
+            select: { audio_guia: true }
+        });
+
+        if (projeto?.audio_guia) {
+            const path = extractPathFromUrl(projeto.audio_guia);
+            if (path) {
+                await Fastify.storage.deleteAudio(path);
+            }
+        }
 
         await Fastify.prisma.projeto.delete({
             where: { id }

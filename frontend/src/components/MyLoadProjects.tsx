@@ -1,8 +1,11 @@
+import { useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
+import { Headphones } from 'lucide-react';
 import type { Project } from '../types';
 import '../styles/Shared.css';
 
 function MyProjectsList() {
+    const navigate = useNavigate();
     const usuarioId = localStorage.getItem("usuario_id");
     const { data, loading, error } = useApi<{ projetos: Project[] }>(
         `/projetos/${usuarioId}/get`,
@@ -26,6 +29,13 @@ function MyProjectsList() {
                         <p className="card-desc">{proj.descricao || "Sem descrição disponível."}</p>
                         <div className="card-footer">
                             <small>Escala: {proj.escala || 'N/A'}</small>
+                            <button
+                                className="btn-small btn-studio"
+                                onClick={() => navigate(`/studio/${proj.id}`)}
+                            >
+                                <Headphones size={14} />
+                                Entrar
+                            </button>
                         </div>
                     </article>
                 ))

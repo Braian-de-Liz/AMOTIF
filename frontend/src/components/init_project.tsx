@@ -202,7 +202,7 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
                         {audioError && <span className="error-badge">{audioError}</span>}
                         {audioMeta && (
                             <span className="meta-badge">
-                                {audioMeta.nome} — {audioMeta.duracaoSegundos}s · {audioMeta.codec} · {audioMeta.sampleRate}Hz
+                                {audioMeta.nome} — {audioMeta.duracaoSegundos}s · {audioMeta.codec} · {audioMeta.sampleRate}Hz · {formData.bpm} BPM
                             </span>
                         )}
                         <input
