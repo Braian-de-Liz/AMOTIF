@@ -2,13 +2,14 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { WaveformTrack } from "../components/WaveformTrack";
 import { StudioMural } from "../components/StudioMural";
+import { StudioSugestoes } from "../components/StudioSugestoes";
 import { StudioColaboradores } from "../components/StudioColaboradores";
 import { EditProjectModal } from "../components/EditProjectModal";
 import { DeleteProjectModal } from "../components/DeleteProjectModal";
 import { CreateLayerModal } from "../components/CreateLayerModal";
 import { DeleteLayerModal } from "../components/DeleteLayerModal";
 import { URL_API_TESTE } from "../utility/url_apis";
-import { Play, Pause, Mic, Music, Users, MessageSquare, Pencil, Trash2 } from "lucide-react";
+import { Play, Pause, Mic, Music, Users, MessageSquare, Lightbulb, Pencil, Trash2 } from "lucide-react";
 import type { Project, Camada } from "../types";
 import type WaveSurfer from 'wavesurfer.js';
 import '../styles/Studio.css';
@@ -256,6 +257,13 @@ function Studio() {
                     Mural
                 </button>
                 <button
+                    className={`tab-btn ${activeTab === 'sugestoes' ? 'active' : ''}`}
+                    onClick={() => setActiveTab('sugestoes')}
+                >
+                    <Lightbulb size={18} />
+                    Sugestões
+                </button>
+                <button
                     className={`tab-btn ${activeTab === 'colaboradores' ? 'active' : ''}`}
                     onClick={() => setActiveTab('colaboradores')}
                 >
@@ -308,6 +316,10 @@ function Studio() {
 
                 {activeTab === 'mural' && (
                     <StudioMural projetoId={id} isOwner={isOwner} />
+                )}
+
+                {activeTab === 'sugestoes' && (
+                    <StudioSugestoes projetoId={id} isOwner={isOwner} />
                 )}
 
                 {activeTab === 'colaboradores' && (

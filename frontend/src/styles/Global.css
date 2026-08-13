@@ -1,5 +1,5 @@
 /* front_end/src/styles/Global.css */
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bitter:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 * {
   margin: 0;
@@ -147,7 +147,7 @@ button {
 }
 
 h1, h2, h3 {
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Bitter', Georgia, serif;
   color: var(--verde-tinta);
   letter-spacing: -0.01em;
 }
@@ -164,7 +164,7 @@ hr {
   text-align: center;
   margin-bottom: var(--space-lg);
   font-size: var(--text-3xl);
-  font-family: 'Fraunces', Georgia, serif;
+  font-family: 'Bitter', Georgia, serif;
   font-weight: 600;
   color: var(--verde-tinta);
 }

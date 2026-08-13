@@ -27,6 +27,7 @@ model User {
   seguidores         Follows[]      @relation("UserBeingFollowed")
   seguindo           Follows[]      @relation("UserFollowing")
   mural_posts        MuralPost[]    @relation("AutorDoPost")
+  sugestoes_criadas  Sugestao[]     @relation("AutorDaSugestao")
   convites_enviados  Convite[]      @relation("ConviteRemetente")
   notifications      Notification[] @relation("UserNotifications")
   notifications_sent Notification[] @relation("NotificationActor")
@@ -50,30 +51,56 @@ model Follows {
 }
 
 model Projeto {
-  id            String        @id @default(uuid()) @db.Uuid
-  titulo        String
-  genero        MusicGenre
-  bpm           Int           @default(120)
-  escala        String?
-  descricao     String?
-  audio_guia    String
+  id             String        @id @default(uuid()) @db.Uuid
+  titulo         String
+  genero         MusicGenre
+  bpm            Int           @default(120)
+  escala         String?
+  descricao      String?
+  audio_guia     String
   audio_metadata Json?
-  userId        String        @db.Uuid
-  autor         User          @relation("DonoDoProjeto", fields: [userId], references: [id], onDelete: Cascade)
-  favoritos     Favorite[]    @relation("ProjectFavorites")
-  camadas       Camada[]
-  colaboradores Colaborador[]
-  convites      Convite[]
-  mural         MuralPost[]
-  createdAt     DateTime      @default(now())
-  updatedAt     DateTime      @updatedAt
-  deletedAt     DateTime?
-  likes         Like[]        @relation("ProjectLikes")
+  userId         String        @db.Uuid
+  autor          User          @relation("DonoDoProjeto", fields: [userId], references: [id], onDelete: Cascade)
+  favoritos      Favorite[]    @relation("ProjectFavorites")
+  camadas        Camada[]
+  colaboradores  Colaborador[]
+  convites       Convite[]
+  mural          MuralPost[]
+  sugestoes      Sugestao[]
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  deletedAt      DateTime?
+  likes          Like[]        @relation("ProjectLikes")
 
   @@index([userId, createdAt(sort: Desc)])
   @@index([createdAt, genero])
   @@index([genero])
   @@index([userId, deletedAt])
+}
+
+model Sugestao {
+  id          String         @id @default(uuid()) @db.Uuid
+  titulo      String
+  descricao   String         @db.Text
+  status      SugestaoStatus @default(ABERTA)
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  projetoId String  @db.Uuid
+  projeto   Projeto @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+
+  autorId String @db.Uuid
+  autor   User   @relation("AutorDaSugestao", fields: [autorId], references: [id], onDelete: Cascade)
+
+  @@index([projetoId])
+  @@index([autorId])
+  @@index([status])
+}
+
+enum SugestaoStatus {
+  ABERTA
+  EM_ANDAMENTO
+  RESOLVIDA
 }
 
 enum MusicGenre {
@@ -176,7 +203,7 @@ model Camada {
 model LayerVersion {
   id              String   @id @default(uuid()) @db.Uuid
   camadaId        String   @db.Uuid
-  camada          Camada  @relation(fields: [camadaId], references: [id], onDelete: Cascade)
+  camada          Camada   @relation(fields: [camadaId], references: [id], onDelete: Cascade)
   audio_url       String
   nome_trilha     String
   instrumento_tag String

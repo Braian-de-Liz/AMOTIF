@@ -14,7 +14,7 @@ export default defineConfig({
     sitemap({
       hostname: 'https://amotif.onrender.com',
       outDir: 'dist',
-      routes: ['/', '/cadastro'],
+      dynamicRoutes: ['/', '/cadastro'],
       exclude: ['/home', '/usuario', '/studio/*', '/convites', '/favoritos'],
     }),
   ],

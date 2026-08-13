@@ -64,3 +64,17 @@ export interface MuralPost {
     avatar_url?: string | null
   }
 }
+
+export interface Sugestao {
+  id: string
+  titulo: string
+  descricao: string
+  status: 'ABERTA' | 'EM_ANDAMENTO' | 'RESOLVIDA'
+  criado_em: string
+  atualizado_em: string
+  autor: {
+    id: string
+    nome_completo: string
+    avatar_url?: string | null
+  }
+}

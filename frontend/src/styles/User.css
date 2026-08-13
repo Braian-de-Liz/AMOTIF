@@ -270,14 +270,24 @@
   border-radius: var(--radius-base);
   padding: 0.75rem;
   background-color: var(--fundo);
+  color: var(--texto);
   font-family: inherit;
-  resize: none;
   font-size: var(--text-sm);
+  resize: vertical;
+  min-height: 80px;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background-color 0.2s;
 }
 
 .modal-textarea:focus {
   outline: none;
   border-color: var(--verde-medio);
+  background-color: var(--branco);
+}
+
+.modal-textarea::placeholder {
+  color: var(--texto-secundario);
+  opacity: 0.7;
 }
 
 /* RESPONSIVIDADE */

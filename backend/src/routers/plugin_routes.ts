@@ -52,6 +52,11 @@ import { Favorites_plugin } from "./projetos/list_favorites.js";
 import { get_versions } from "./versions/get_versions.js";
 import { rollback_route } from "./versions/manage_branches.js";
 
+import { criar_sugestao } from "./sugestoes/criar_sugestao.js";
+import { listar_sugestoes } from "./sugestoes/listar_sugestoes.js";
+import { atualizar_sugestao } from "./sugestoes/atualizar_sugestao.js";
+import { deletar_sugestao } from "./sugestoes/deletar_sugestao.js";
+
 import { upload_audio } from "./upload/upload_point.js";
 
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
@@ -105,6 +110,11 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(get_versions);
     Fastify.register(rollback_route);
+
+    Fastify.register(criar_sugestao);
+    Fastify.register(listar_sugestoes);
+    Fastify.register(atualizar_sugestao);
+    Fastify.register(deletar_sugestao);
 
     await Fastify.register(upload_audio);
 }

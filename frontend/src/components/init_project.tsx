@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { parseBlob } from 'music-metadata';
+import { analyze } from 'web-audio-beat-detector';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { projectSchema, generos } from '../schemas/projectSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
@@ -55,11 +56,6 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
                 return;
             }
 
-            const bpmExtraido = metadata.common.bpm;
-            if (bpmExtraido && bpmExtraido > 0) {
-                setFormData(prev => ({ ...prev, bpm: Math.round(bpmExtraido) }));
-            }
-
             const meta: AudioMeta = {
                 nome: arquivo.name,
                 tamanhoMB: +(arquivo.size / 1024 / 1024).toFixed(2),
@@ -69,6 +65,14 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
             };
 
             setAudioMeta(meta);
+
+            const audioContext = new AudioContext();
+            const arrayBuffer = await arquivo.arrayBuffer();
+            const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+            const bpmDetectado = await analyze(audioBuffer, { minTempo: 40, maxTempo: 300 });
+            if (bpmDetectado && bpmDetectado >= 40 && bpmDetectado <= 300) {
+                setFormData(prev => ({ ...prev, bpm: Math.round(bpmDetectado) }));
+            }
         } catch {
             setAudioError("Não foi possível ler os metadados do arquivo.");
             setFile(null);
@@ -175,6 +179,18 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
                     >
                         {generos.map(g => <option key={g} value={g}>{g}</option>)}
                     </select>
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="proj-bpm">BPM</label>
+                    <input
+                        id="proj-bpm"
+                        type="number"
+                        min={40}
+                        max={300}
+                        value={formData.bpm}
+                        onChange={e => setFormData({ ...formData, bpm: Number(e.target.value) })}
+                    />
                 </div>
 
                 <div className="form-group">
