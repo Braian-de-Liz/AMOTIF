@@ -272,7 +272,7 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
     if (hasRecording && recordedBlobUrl) {
         return (
             <div className="recorded-preview">
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-sm)' }}>
+                <div className="recorded-preview-header">
                     <h3>
                         <Mic size={16} />
                         Gravação Concluída

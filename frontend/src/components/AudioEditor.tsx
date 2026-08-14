@@ -6,6 +6,7 @@ interface AudioEditorProps {
     audioBlob: Blob
     audioDuration: number
     onEdited: (blob: Blob) => void
+    onBack?: () => void
 }
 
 function encodeWav(audioBuffer: AudioBuffer): Blob {
@@ -63,7 +64,7 @@ function encodeWav(audioBuffer: AudioBuffer): Blob {
     return new Blob([buffer], { type: 'audio/wav' });
 }
 
-function AudioEditor({ audioBlob, audioDuration, onEdited }: AudioEditorProps) {
+function AudioEditor({ audioBlob, audioDuration, onEdited, onBack }: AudioEditorProps) {
     const [trimStart, setTrimStart] = useState(0);
     const [trimEnd, setTrimEnd] = useState(100);
     const [volumeGain, setVolumeGain] = useState(100);
@@ -326,7 +327,7 @@ function AudioEditor({ audioBlob, audioDuration, onEdited }: AudioEditorProps) {
                     />
                 </div>
 
-                <div style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
+                <div className="editor-actions-mobile" style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
                     <button className="editor-preview-btn" onClick={togglePlayback}>
                         {isPlaying ? <Pause size={16} /> : <Play size={16} />}
                         {isPlaying ? 'Pausar' : 'Reproduzir'}
@@ -339,6 +340,11 @@ function AudioEditor({ audioBlob, audioDuration, onEdited }: AudioEditorProps) {
             </div>
 
             <div className="step-actions">
+                {onBack && (
+                    <button className="btn-cancel" onClick={onBack}>
+                        Voltar
+                    </button>
+                )}
                 <button
                     className="btn-confirm"
                     onClick={handleExport}

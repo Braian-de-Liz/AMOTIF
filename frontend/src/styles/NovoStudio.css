@@ -236,7 +236,7 @@
 
 .recording-status {
     text-align: center;
-    margin-top: var(--space-md);
+    padding-top: var(--space-md);
     font-size: var(--text-sm);
     color: var(--texto-secundario);
     font-weight: 500;
@@ -254,9 +254,16 @@
     border-top: 1px solid var(--borda);
 }
 
+.recorded-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-sm);
+}
+
 .recorded-preview h3 {
     font-size: var(--text-base);
-    margin-bottom: var(--space-sm);
+    margin: 0;
     color: var(--texto);
     display: flex;
     align-items: center;
@@ -453,6 +460,36 @@
     box-shadow: var(--sombra-card);
 }
 
+.publish-area label {
+    display: block;
+    margin-bottom: var(--space-xs);
+    color: var(--texto);
+    font-weight: 500;
+    font-size: var(--text-sm);
+}
+
+.publish-area input,
+.publish-area select,
+.publish-area textarea {
+    width: 100%;
+    padding: 0.75rem 0.85rem;
+    border: 1px solid var(--borda);
+    border-radius: var(--radius-base);
+    font-size: var(--text-sm);
+    background-color: var(--fundo);
+    color: var(--texto);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.publish-area input:focus,
+.publish-area select:focus,
+.publish-area textarea:focus {
+    outline: none;
+    border-color: var(--verde-medio);
+    box-shadow: 0 0 0 3px rgba(92, 122, 68, 0.1);
+    background-color: var(--branco);
+}
+
 .publish-audio-summary {
     display: flex;
     align-items: center;
@@ -570,19 +607,34 @@
         padding-bottom: 100px;
     }
 
+    /* Stepper vertical no mobile */
     .studio-stepper {
-        flex-wrap: wrap;
-        gap: 0.5rem;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        margin: 1.5rem 0;
+        padding: 0;
+    }
+
+    .studio-stepper > div {
+        width: 100%;
+        display: flex;
+        align-items: center;
     }
 
     .step {
         padding: 0.5rem 0.85rem;
         font-size: var(--text-xs);
+        width: 100%;
+        justify-content: flex-start;
+        border-radius: var(--radius-lg);
     }
 
     .step-connector {
-        width: 20px;
-        margin: 0 0.15rem;
+        width: 2px;
+        height: 16px;
+        margin: 0.25rem 0 0.25rem 11px;
+        border-radius: 1px;
     }
 
     .recording-visualizer {
@@ -603,6 +655,33 @@
         height: 38px;
     }
 
+    .recording-status {
+        padding-top: var(--space-sm);
+        font-size: var(--text-xs);
+    }
+
+    /* Recorded preview header empilhado */
+    .recorded-preview-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.6rem;
+    }
+
+    .btn-rerecord {
+        width: 100%;
+        justify-content: center;
+    }
+
+    /* Editor buttons full-width */
+    .editor-actions-mobile {
+        flex-direction: column;
+    }
+
+    .editor-actions-mobile .editor-preview-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
     .trim-inputs {
         flex-direction: column;
     }
@@ -619,5 +698,15 @@
     .step-actions button {
         width: 100%;
         justify-content: center;
+    }
+
+    /* Publish area mobile */
+    .publish-audio-summary {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .publish-area {
+        padding: var(--space-lg);
     }
 }

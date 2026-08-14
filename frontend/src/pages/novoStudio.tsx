@@ -160,7 +160,7 @@ function NovoStudio() {
                 <>
                     <AudioRecorder onRecordingComplete={handleRecordingComplete} />
                     {recordedBlob && (
-                        <div className="step-actions" style={{ marginTop: 'var(--space-lg)' }}>
+                        <div className="step-actions">
                             <button
                                 className="btn-confirm"
                                 onClick={() => setCurrentStep('edit')}
@@ -174,21 +174,12 @@ function NovoStudio() {
             )}
 
             {currentStep === 'edit' && recordedBlob && (
-                <>
-                    <AudioEditor
-                        audioBlob={recordedBlob}
-                        audioDuration={recordedDuration}
-                        onEdited={handleEditComplete}
-                    />
-                    <div className="step-actions" style={{ marginTop: 'var(--space-lg)' }}>
-                        <button
-                            className="btn-cancel"
-                            onClick={() => setCurrentStep('record')}
-                        >
-                            Voltar
-                        </button>
-                    </div>
-                </>
+                <AudioEditor
+                    audioBlob={recordedBlob}
+                    audioDuration={recordedDuration}
+                    onEdited={handleEditComplete}
+                    onBack={() => setCurrentStep('record')}
+                />
             )}
 
             {currentStep === 'publish' && (
