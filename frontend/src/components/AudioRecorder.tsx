@@ -25,6 +25,7 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const startTimeRef = useRef<number>(0);
     const pausedTimeRef = useRef<number>(0);
+    const elapsedMsRef = useRef<number>(0);
     const wavesurferRef = useRef<WaveSurfer | null>(null);
     const previewContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -75,7 +76,9 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
     const startTimer = useCallback(() => {
         startTimeRef.current = Date.now() - pausedTimeRef.current;
         timerRef.current = setInterval(() => {
-            setElapsedTime(Date.now() - startTimeRef.current);
+            const now = Date.now() - startTimeRef.current;
+            elapsedMsRef.current = now;
+            setElapsedTime(now);
         }, 100);
     }, []);
 
@@ -121,6 +124,7 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
 
         chunksRef.current = [];
         pausedTimeRef.current = 0;
+        elapsedMsRef.current = 0;
         setElapsedTime(0);
 
         const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
@@ -139,7 +143,7 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
         recorder.onstop = () => {
             const blob = new Blob(chunksRef.current, { type: mimeType });
             const url = URL.createObjectURL(blob);
-            const durationSec = elapsedTime / 1000;
+            const durationSec = elapsedMsRef.current / 1000;
 
             setRecordedBlobUrl(url);
             setRecordedDuration(durationSec);
@@ -156,7 +160,7 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
         setIsPaused(false);
         startTimer();
         drawVisualizer();
-    }, [requestMicPermission, elapsedTime, stopVisualizer, startTimer, drawVisualizer, onRecordingComplete]);
+    }, [requestMicPermission, stopVisualizer, startTimer, drawVisualizer, onRecordingComplete]);
 
     const pauseRecording = useCallback(() => {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {

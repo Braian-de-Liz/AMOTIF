@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mic, Scissors, Send, Check, Music } from 'lucide-react';
+import { Mic, Scissors, Send, Check, Music, Loader2 } from 'lucide-react';
+import { analyze } from 'web-audio-beat-detector';
 import { AudioRecorder } from '../components/AudioRecorder';
 import { AudioEditor } from '../components/AudioEditor';
 import { URL_API_TESTE } from '../utility/url_apis';
@@ -21,6 +22,7 @@ function NovoStudio() {
     const [titulo, setTitulo] = useState('');
     const [genero, setGenero] = useState('LO_FI');
     const [bpm, setBpm] = useState(120);
+    const [detectandoBpm, setDetectandoBpm] = useState(false);
     const [escala, setEscala] = useState('');
     const [descricao, setDescricao] = useState('');
     const [loading, setLoading] = useState(false);
@@ -35,6 +37,34 @@ function NovoStudio() {
         setEditedBlob(blob);
         setCurrentStep('publish');
     }, []);
+
+    useEffect(() => {
+        if (currentStep !== 'publish' || !editedBlob) return;
+
+        let cancelled = false;
+
+        async function detectarBpm() {
+            const blob = editedBlob;
+            if (!blob) return;
+            setDetectandoBpm(true);
+            try {
+                const audioContext = new AudioContext();
+                const arrayBuffer = await blob.arrayBuffer();
+                const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+                const bpmDetectado = await analyze(audioBuffer, { minTempo: 40, maxTempo: 300 });
+                if (!cancelled && bpmDetectado && bpmDetectado >= 40 && bpmDetectado <= 300) {
+                    setBpm(Math.round(bpmDetectado));
+                }
+            } catch {
+                // mantém o valor padrão (120) se a detecção falhar
+            } finally {
+                if (!cancelled) setDetectandoBpm(false);
+            }
+        }
+
+        detectarBpm();
+        return () => { cancelled = true; };
+    }, [currentStep, editedBlob]);
 
     const handlePublish = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -222,7 +252,20 @@ function NovoStudio() {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="ns-bpm">BPM</label>
+                            <label htmlFor="ns-bpm">
+                                BPM
+                                {detectandoBpm && (
+                                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginLeft: 8, fontSize: 'var(--text-xs)', color: 'var(--texto-secundario)', fontWeight: 400 }}>
+                                        <Loader2 size={12} className="spin" />
+                                        Detectando...
+                                    </span>
+                                )}
+                                {!detectandoBpm && bpm !== 120 && (
+                                    <span style={{ fontSize: 'var(--text-xs)', color: 'var(--sucesso-texto)', fontWeight: 400, marginLeft: 8 }}>
+                                        Auto-detectado
+                                    </span>
+                                )}
+                            </label>
                             <input
                                 id="ns-bpm"
                                 type="number"
