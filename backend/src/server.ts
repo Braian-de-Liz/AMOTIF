@@ -77,7 +77,7 @@ await Fastify.register(cookie, {
 
 await Fastify.register(fastifyJwt, {
     secret: JWT_SECRET,
-    sign: { expiresIn: '20s', iss: 'amotif-api', aud: 'amotif-client' }
+    sign: { expiresIn: '4h', iss: 'amotif-api', aud: 'amotif-client' }
 });
 
 await Fastify.register(cors, {

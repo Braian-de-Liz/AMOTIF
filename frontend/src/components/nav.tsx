@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, User, Heart, Mail, LogOut } from 'lucide-react';
+import { Home, User, Heart, Mail, LogOut, Mic } from 'lucide-react';
 import { Notificacoes } from './pull_notifications';
 import { URL_API_TESTE } from '../utility/url_apis';
 import '../styles/Navbar.css';
@@ -11,6 +11,7 @@ function Nav() {
     const isActive = (path: string) => {
         if (path === '/home') return location.pathname === '/home';
         if (path === '/usuario') return location.pathname === '/usuario' || location.pathname.startsWith('/usuario/');
+        if (path === '/novo-studio') return location.pathname === '/novo-studio';
         if (path === '/convites') return location.pathname === '/convites';
         if (path === '/favoritos') return location.pathname === '/favoritos';
         return false;
@@ -44,6 +45,13 @@ function Nav() {
                     <Link to="/home">
                         <Home size={24} className="nav-icon" />
                         <span>Home</span>
+                    </Link>
+                </li>
+
+                <li className={isActive('/novo-studio') ? 'active' : ''}>
+                    <Link to="/novo-studio">
+                        <Mic size={24} className="nav-icon" />
+                        <span>Novo Studio</span>
                     </Link>
                 </li>
 

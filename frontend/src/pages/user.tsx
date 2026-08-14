@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MyProjectsList } from '../components/MyLoadProjects';
 import { CreateProjectModal } from '../components/init_project';
 import { FollowersList, UserStats } from '../components/FollowersComponents';
@@ -6,11 +7,12 @@ import { BioEditor } from '../components/BioEditor';
 import { InstrumentEditor } from '../components/InstrumentEditor';
 import { ChangePassword } from '../components/ChangePassword';
 import { DeleteAccountModal } from '../components/DeleteAccountModal';
-import { Lock, Trash2 } from 'lucide-react';
+import { Lock, Trash2, Mic } from 'lucide-react';
 import '../styles/User.css';
 import { SEOHead } from '../components/SEOHead';
 
 function UserPage() {
+    const navigate = useNavigate();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -43,12 +45,22 @@ function UserPage() {
             <section className="my-projects-section">
                 <div className="section-header">
                     <h2>Meus Projetos</h2>
-                    <button
-                        className="btn-create-proj"
-                        onClick={() => setIsModalOpen(true)}
-                    >
-                        + Novo Projeto
-                    </button>
+                    <div style={{ display: 'flex', gap: '0.6rem' }}>
+                        <button
+                            className="btn-create-proj"
+                            onClick={() => navigate('/novo-studio')}
+                            style={{ background: 'transparent', color: 'var(--verde-musgo)', border: '1px solid rgba(92, 122, 68, 0.2)' }}
+                        >
+                            <Mic size={16} style={{ verticalAlign: 'middle', marginRight: 4 }} />
+                            Novo Studio
+                        </button>
+                        <button
+                            className="btn-create-proj"
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            + Novo Projeto
+                        </button>
+                    </div>
                 </div>
 
                 <MyProjectsList key={refreshKey} />
