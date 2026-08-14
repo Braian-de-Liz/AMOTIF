@@ -9,7 +9,14 @@ const Update_project: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.patch("/projetos/:id", update_project_schema, async (request, reply) => {
         const { id } = request.params;
-        const dadosAtualizados = request.body;
+        const { titulo, descricao, genero, bpm, escala } = request.body;
+
+        const dadosAtualizados: Record<string, unknown> = {};
+        if (titulo !== undefined) dadosAtualizados.titulo = titulo;
+        if (descricao !== undefined) dadosAtualizados.descricao = descricao;
+        if (genero !== undefined) dadosAtualizados.genero = genero;
+        if (bpm !== undefined) dadosAtualizados.bpm = bpm;
+        if (escala !== undefined) dadosAtualizados.escala = escala;
 
         const projeto = await Fastify.prisma.projeto.update({
             where: { id },

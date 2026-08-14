@@ -12,16 +12,20 @@ import { Upload_Service } from './lib/upload.js';
 import { globalErrorHandler } from './lib/global_Error.js';
 import { Plugin_Routes } from './routers/plugin_routes.js';
 import { health_route } from './routers/health/health.js';
-import { Validacao_pesada } from './routers/health/validation.js';
 
-if (!Bun.env.JWT_PASSOWORD) {
-    console.error("ERRO FATAL: A variável de ambiente JWT_PASSOWORD não foi definida.");
+if (!Bun.env.JWT_PASSWORD) {
+    console.error("ERRO FATAL: A variável de ambiente JWT_PASSWORD não foi definida.");
     process.exit(1);
 }
 
-const JWT_PASSOWORD: string = Bun.env.JWT_PASSOWORD;
+const JWT_SECRET: string = Bun.env.JWT_PASSWORD;
+const COOKIE_SECRET: string = Bun.env.COOKIE_SECRET || JWT_SECRET;
 
-const Fastify = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
+if (COOKIE_SECRET === JWT_SECRET && !Bun.env.COOKIE_SECRET) {
+    console.warn("AVISO: COOKIE_SECRET não definido. Usando JWT_PASSWORD como fallback. Defina COOKIE_SECRET em produção.");
+}
+
+const Fastify = fastify(/* { logger: true } */).withTypeProvider<TypeBoxTypeProvider>();
 
 
 Fastify.get('/', async () => {
@@ -64,7 +68,7 @@ Fastify.setErrorHandler(globalErrorHandler);
 await Fastify.register(Upload_Service);
 
 await Fastify.register(cookie, {
-    secret: JWT_PASSOWORD,
+    secret: COOKIE_SECRET,
     parseOptions: {
         sameSite: "none",
         secure: true
@@ -72,8 +76,8 @@ await Fastify.register(cookie, {
 });
 
 await Fastify.register(fastifyJwt, {
-    secret: JWT_PASSOWORD,
-    sign: { expiresIn: '2d', iss: 'amotif-api', aud: 'amotif-client' }
+    secret: JWT_SECRET,
+    sign: { expiresIn: '20s', iss: 'amotif-api', aud: 'amotif-client' }
 });
 
 await Fastify.register(cors, {
@@ -83,7 +87,6 @@ await Fastify.register(cors, {
 });
 
 Fastify.register(Plugin_Routes, { prefix: "/api" });
-Fastify.register(Validacao_pesada); // Teste de desempenho
 
 
 const start = async () => {

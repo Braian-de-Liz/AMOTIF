@@ -17,6 +17,18 @@ const follow_user: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
+        const targetUser = await Fastify.prisma.user.findUnique({
+            where: { id: followingId },
+            select: { id: true }
+        });
+
+        if (!targetUser) {
+            return reply.status(404).send({
+                status: "erro",
+                mensagem: "Usuário não encontrado."
+            });
+        }
+
         try {
             const existingFollow = await Fastify.prisma.follows.findUnique({
                 where: {

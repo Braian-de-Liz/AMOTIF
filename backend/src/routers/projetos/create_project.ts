@@ -22,7 +22,7 @@ const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         });
 
-        queueMicrotask(async () => {
+        void (async () => {
             try {
                 const seguidores = await Fastify.prisma.follows.findMany({
                     where: { followingId: userId },
@@ -45,7 +45,7 @@ const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             } catch (notifErr) {
                 Fastify.log.error("Falha ao notificar seguidores: " + notifErr);
             }
-        });
+        })();
 
         return reply.status(201).send({
             status: "sucesso",

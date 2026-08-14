@@ -9,10 +9,15 @@ const get_mural_schema = {
         params: Type.Object({
             id: Type.String({ format: 'uuid' })
         }),
+        querystring: Type.Optional(Type.Object({
+            limite: Type.Optional(Type.Integer({ minimum: 1, maximum: 100, default: 50 })),
+            cursor: Type.Optional(Type.String({ format: 'uuid' })),
+        })),
         response: {
             200: Type.Object({
                 status: Type.String(),
                 mensagem: Type.String(),
+                nextCursor: Type.Union([Type.String(), Type.Null()]),
                 mural: Type.Array(Type.Object({
                     id: Type.String({ format: 'uuid' }),
                     conteudo: Type.String(),

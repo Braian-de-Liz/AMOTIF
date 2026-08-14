@@ -50,24 +50,32 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
                         camadas: true,
                         colaboradores: true
                     }
-                },
-                likes: {
-                    where: { userId },
-                    select: { id: true }
-                },
-                favoritos: {
-                    where: { userId },
-                    select: { id: true }
                 }
             }
         });
 
-        const projetos = projetosRaw.map(({ id, titulo, genero, bpm, escala, descricao, audio_guia, createdAt, autor, _count, likes, favoritos }) => ({
+        const projetoIds = projetosRaw.map(p => p.id);
+
+        const [userLikes, userFavorites] = await Promise.all([
+            Fastify.prisma.like.findMany({
+                where: { userId, projetoId: { in: projetoIds } },
+                select: { projetoId: true }
+            }),
+            Fastify.prisma.favorite.findMany({
+                where: { userId, projetoId: { in: projetoIds } },
+                select: { projetoId: true }
+            })
+        ]);
+
+        const likedSet = new Set(userLikes.map(l => l.projetoId));
+        const favoritedSet = new Set(userFavorites.map(f => f.projetoId));
+
+        const projetos = projetosRaw.map(({ id, titulo, genero, bpm, escala, descricao, audio_guia, createdAt, autor, _count }) => ({
             id, titulo, genero, bpm, escala, descricao, audio_guia,
             createdAt: createdAt.toISOString(),
             autor, _count,
-            userHasLiked: likes.length > 0,
-            userHasFavorited: favoritos.length > 0,
+            userHasLiked: likedSet.has(id),
+            userHasFavorited: favoritedSet.has(id),
         }));
 
         const nextCursor = projetos.length > 50 ? projetos[49].id : null;

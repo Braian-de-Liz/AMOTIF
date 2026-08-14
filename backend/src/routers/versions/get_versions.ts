@@ -23,6 +23,7 @@ const get_versions: FastifyPluginAsyncTypebox = async (Fastify) => {
         const versoes = await Fastify.prisma.layerVersion.findMany({
             where: { camadaId: id },
             orderBy: { versionNumber: 'desc' },
+            take: 100,
             include: {
                 autor: {
                     select: { id: true, nome_completo: true, avatar_url: true }

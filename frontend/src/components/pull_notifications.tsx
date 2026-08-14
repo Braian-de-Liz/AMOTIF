@@ -99,7 +99,8 @@ export const Notificacoes = () => {
                 });
 
                 if (response.status === 401) {
-                    console.warn("Sessão expirada ou token inválido.");
+                    localStorage.clear();
+                    window.location.href = '/';
                     return;
                 }
 
@@ -129,6 +130,12 @@ export const Notificacoes = () => {
                 credentials: 'include'
             });
 
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = '/';
+                return;
+            }
+
             if (response.ok) {
                 setNotificacoes([]);
             }
@@ -141,10 +148,17 @@ export const Notificacoes = () => {
 
     const markAsRead = async (id: string) => {
         try {
-            await fetch(`${URL_API_TESTE}/notifications/${id}/read`, {
+            const response = await fetch(`${URL_API_TESTE}/notifications/${id}/read`, {
                 method: 'PATCH',
                 credentials: 'include'
             });
+
+            if (response.status === 401) {
+                localStorage.clear();
+                window.location.href = '/';
+                return;
+            }
+
             setNotificacoes(prev => prev.filter(n => n.id !== id));
         } catch (error) {
             console.error("Erro ao marcar notificação:", error);

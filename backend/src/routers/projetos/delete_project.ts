@@ -45,8 +45,9 @@ const del_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         }
 
-        await Fastify.prisma.projeto.delete({
-            where: { id }
+        await Fastify.prisma.projeto.update({
+            where: { id },
+            data: { deletedAt: new Date() }
         });
 
         return reply.status(202).send({

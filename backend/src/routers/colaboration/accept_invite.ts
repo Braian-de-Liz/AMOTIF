@@ -1,11 +1,9 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
-import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { aceitar_convite_schema } from "../../schemas/colaboration/accept_invite.schema.js";
 
 const Accept_invite: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
-    Fastify.addHook("preHandler", verificar_permissao);
 
     Fastify.post("/colaboration/:id/accept", aceitar_convite_schema, async (request, reply) => {
         const { id: projetoId } = request.params;
@@ -26,10 +24,30 @@ const Accept_invite: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
+        if (conviteExistente.email_destinatario !== request.user.email) {
+            return reply.status(403).send({
+                status: 'erro',
+                mensagem: 'Este convite não é destinado a você.'
+            });
+        }
+
         if (new Date() > conviteExistente.expira_em) {
             return reply.status(410).send({
                 status: 'erro',
                 mensagem: 'Este convite já expirou'
+            });
+        }
+
+        const jaColaborador = await Fastify.prisma.colaborador.findUnique({
+            where: {
+                userId_projetoId: { userId, projetoId }
+            }
+        });
+
+        if (jaColaborador) {
+            return reply.status(409).send({
+                status: 'erro',
+                mensagem: 'Você já é colaborador deste projeto.'
             });
         }
 
