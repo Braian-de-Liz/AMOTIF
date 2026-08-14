@@ -933,3 +933,47 @@
   background: var(--fundo-secundario);
   border-color: var(--verde-medio);
 }
+
+/* BUTTONS — compartilhados em todo o app */
+.btn-cancel {
+    padding: 0.55rem 1rem;
+    background: transparent;
+    border: 1px solid var(--borda);
+    border-radius: var(--radius-base);
+    cursor: pointer;
+    color: var(--texto-secundario);
+    font-weight: 500;
+    font-size: var(--text-sm);
+    transition: all 0.15s ease;
+}
+
+.btn-cancel:hover {
+    border-color: var(--borda);
+    background: var(--fundo-secundario);
+    color: var(--texto);
+}
+
+.btn-confirm {
+    padding: 0.55rem 1rem;
+    background: var(--verde-musgo);
+    border: none;
+    border-radius: var(--radius-base);
+    color: var(--branco);
+    font-weight: 600;
+    font-size: var(--text-sm);
+    cursor: pointer;
+    transition: all 0.15s ease;
+    box-shadow: 0 2px 8px rgba(92, 122, 68, 0.25);
+}
+
+.btn-confirm:hover {
+    background: #506b3a;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(92, 122, 68, 0.3);
+}
+
+.btn-confirm:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
