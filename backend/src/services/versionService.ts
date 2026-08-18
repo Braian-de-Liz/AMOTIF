@@ -83,12 +83,8 @@ async function createNewVersion(
     return version;
 }
 
-async function rollbackToVersion(
-    prisma: PrismaClient,
-    camadaId: string,
-    versionId: string,
-    userId: string
-) {
+async function rollbackToVersion(prisma: PrismaClient, camadaId: string, versionId: string, userId: string) {
+    
     const targetVersion = await prisma.layerVersion.findUnique({
         where: { id: versionId }
     });

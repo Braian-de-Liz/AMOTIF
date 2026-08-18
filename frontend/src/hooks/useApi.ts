@@ -12,6 +12,48 @@ interface UseApiResult<T> {
     refetch: () => Promise<void>
 }
 
+let isRefreshing = false;
+let refreshPromise: Promise<boolean> | null = null;
+
+async function tryRefreshToken(): Promise<boolean> {
+    try {
+        const res = await fetch(`${URL_API_TESTE}/usuario/refresh`, {
+            method: 'POST',
+            credentials: 'include',
+        });
+        return res.ok;
+    } catch {
+        return false;
+    }
+}
+
+async function fetchWithRefresh(urlPath: string, fetchOptions: RequestInit): Promise<Response> {
+    let response = await fetch(`${URL_API_TESTE}${urlPath}`, {
+        ...fetchOptions,
+        credentials: 'include',
+    });
+
+    if (response.status === 401) {
+        if (!isRefreshing) {
+            isRefreshing = true;
+            refreshPromise = tryRefreshToken();
+        }
+
+        const refreshed = await refreshPromise;
+        isRefreshing = false;
+        refreshPromise = null;
+
+        if (refreshed) {
+            response = await fetch(`${URL_API_TESTE}${urlPath}`, {
+                ...fetchOptions,
+                credentials: 'include',
+            });
+        }
+    }
+
+    return response;
+}
+
 function useApi<T>(urlPath: string, options: UseApiOptions = {}): UseApiResult<T> {
     const { immediate = true, ...fetchOptions } = options;
 
@@ -37,10 +79,9 @@ function useApi<T>(urlPath: string, options: UseApiOptions = {}): UseApiResult<T
                 ...(fetchOptions.headers as Record<string, string> || {}),
             };
 
-            const response = await fetch(`${URL_API_TESTE}${urlPath}`, {
+            const response = await fetchWithRefresh(urlPath, {
                 ...fetchOptions,
                 headers,
-                credentials: 'include',
                 signal: controller.signal,
             });
 
@@ -112,10 +153,9 @@ function useApiMutation<TBody = unknown, TResponse = unknown>() {
                 headers['Content-Type'] = 'application/json';
             }
 
-            const response = await fetch(`${URL_API_TESTE}${urlPath}`, {
+            const response = await fetchWithRefresh(urlPath, {
                 method,
                 headers,
-                credentials: 'include',
                 body: body ? JSON.stringify(body) : undefined,
                 signal: controller.signal,
             });

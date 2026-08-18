@@ -4,6 +4,7 @@ import { FastifyPluginAsync } from "fastify";
 import { User_register } from "./user/cadastro.js";
 import { logout_user } from "./user/logout.js";
 import { login_user } from "./user/login.js";
+import { refresh_token } from "./user/refresh.js";
 import { Deletar_user } from "./user/delete_user.js";
 import { Get_user } from "./user/get_user.js";
 import { Get_user_with_counts } from "./user/get_user_with_counts.js";
@@ -63,6 +64,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(User_register);
     Fastify.register(login_user);
+    Fastify.register(refresh_token);
     Fastify.register(Deletar_user);
     Fastify.register(Get_user);
     Fastify.register(Get_user_with_counts);

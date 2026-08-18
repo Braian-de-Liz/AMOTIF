@@ -34,6 +34,20 @@ model User {
   likes_dados        Like[]         @relation("UserLikes")
   favorites          Favorite[]     @relation("UserFavorites")
   authoredVersions   LayerVersion[] @relation("AuthoredVersions")
+  refreshTokens      RefreshToken[]
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
 }
 
 model Follows {

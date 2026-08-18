@@ -10,7 +10,7 @@ const get_notifications: FastifyPluginAsyncTypebox = async (Fastify) => {
         const userId = request.user.id;
 
         const notificacoes = await Fastify.prisma.notification.findMany({
-            where: { userId },
+            where: { userId, lida: false },
             orderBy: { createdAt: 'desc' },
             take: 50,
             include: {
