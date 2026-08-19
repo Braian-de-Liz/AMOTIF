@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import '../styles/Login.css';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { URL_API_TESTE } from '../utility/url_apis'
 import { loginSchema } from '../schemas/loginSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
@@ -9,6 +9,10 @@ import { LogIn } from 'lucide-react';
 
 function Login() {
     const navigate = useNavigate();
+
+    if (localStorage.getItem("usuario_id")) {
+        return <Navigate to="/home" replace />;
+    }
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [erro, setErro] = useState('');

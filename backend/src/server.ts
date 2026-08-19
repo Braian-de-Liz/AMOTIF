@@ -81,7 +81,7 @@ await Fastify.register(fastifyJwt, {
 });
 
 await Fastify.register(cors, {
-    origin: true,
+    origin: ["http://localhost:3333", "https://amotif-music.onrender.com/"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true
 });

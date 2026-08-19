@@ -8,6 +8,7 @@ import { EditProjectModal } from "../components/EditProjectModal";
 import { DeleteProjectModal } from "../components/DeleteProjectModal";
 import { CreateLayerModal } from "../components/CreateLayerModal";
 import { DeleteLayerModal } from "../components/DeleteLayerModal";
+import { LayerEditorModal } from "../components/LayerEditorModal";
 import { URL_API_TESTE } from "../utility/url_apis";
 import { Play, Pause, Mic, Music, Users, MessageSquare, Lightbulb, Pencil, Trash2 } from "lucide-react";
 import type { Project, Camada } from "../types";
@@ -28,6 +29,8 @@ function Studio() {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [createLayerModalOpen, setCreateLayerModalOpen] = useState(false);
     const [deleteLayerTarget, setDeleteLayerTarget] = useState<{ id: string; nome: string } | null>(null);
+    const [isCollaborator, setIsCollaborator] = useState(false);
+    const [editLayerTarget, setEditLayerTarget] = useState<{ id: string; audioUrl: string; nome: string } | null>(null);
 
     const wavesurferRefs = useRef<Record<string, WaveSurfer>>({});
 
@@ -54,6 +57,35 @@ function Studio() {
         }
         if (id) carregarProjeto();
     }, [id]);
+
+    useEffect(() => {
+        if (!id) return;
+        const usuarioId = localStorage.getItem("usuario_id");
+        if (!usuarioId || !projeto) return;
+
+        if (projeto.autor?.id === usuarioId) {
+            setIsCollaborator(false);
+            return;
+        }
+
+        async function checkCollaborator() {
+            try {
+                const response = await fetch(`${URL_API_TESTE}/colaboration/${id}`, {
+                    credentials: 'include'
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    const collaborators = data.colaboradores || data || [];
+                    const isCollab = Array.isArray(collaborators) &&
+                        collaborators.some((c: { userId: string }) => c.userId === usuarioId);
+                    setIsCollaborator(isCollab);
+                }
+            } catch {
+                // ignore
+            }
+        }
+        checkCollaborator();
+    }, [id, projeto]);
 
     const refetchProjeto = async () => {
         if (!id) return;
@@ -182,6 +214,22 @@ function Studio() {
         setDeleteLayerTarget({ id: layerId, nome: layerName });
     };
 
+    const handleEditLayer = (layerId: string) => {
+        const camada = projeto?.camadas?.find(c => c.id === layerId);
+        if (camada) {
+            setEditLayerTarget({
+                id: camada.id,
+                audioUrl: camada.audio_url,
+                nome: camada.instrumento_tag || 'Track'
+            });
+        }
+    };
+
+    const handleLayerVersionCreated = () => {
+        setEditLayerTarget(null);
+        refetchProjeto();
+    };
+
     const handleLayerDeleted = () => {
         setDeleteLayerTarget(null);
         refetchProjeto();
@@ -301,6 +349,7 @@ function Studio() {
                                 isGuia={false}
                                 estaAprovada={camada.esta_aprovada}
                                 isOwner={isOwner}
+                                isCollaborator={isCollaborator}
                                 totalVersoes={camada.totalVersoes || 0}
                                 versaoAtual={camada.versaoAtual || null}
                                 saving={saving === camada.id}
@@ -308,6 +357,7 @@ function Studio() {
                                 onRegister={registerWavesurfer}
                                 onAuthorize={handleAuthorizeLayer}
                                 onDelete={handleDeleteLayer}
+                                onEdit={handleEditLayer}
                                 onVersionChange={refetchProjeto}
                             />
                         ))}
@@ -356,6 +406,17 @@ function Studio() {
                     isOpen={!!deleteLayerTarget}
                     onClose={() => setDeleteLayerTarget(null)}
                     onDeleted={handleLayerDeleted}
+                />
+            )}
+
+            {editLayerTarget && (
+                <LayerEditorModal
+                    layerId={editLayerTarget.id}
+                    audioUrl={editLayerTarget.audioUrl}
+                    nomeTrilha={editLayerTarget.nome}
+                    isOpen={!!editLayerTarget}
+                    onClose={() => setEditLayerTarget(null)}
+                    onVersionCreated={handleLayerVersionCreated}
                 />
             )}
         </div>

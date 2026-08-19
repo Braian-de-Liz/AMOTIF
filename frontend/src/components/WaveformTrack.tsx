@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
-import { Play, Pause, Volume2, VolumeX, Save, Loader2, Trash2, History } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Save, Loader2, Trash2, History, Pencil } from 'lucide-react';
 import { LayerVersionPanel } from './LayerVersionPanel';
 
 const COLORS = [
@@ -30,6 +30,7 @@ interface WaveformTrackProps {
     isGuia?: boolean
     estaAprovada?: boolean
     isOwner?: boolean
+    isCollaborator?: boolean
     isLayerAuthor?: boolean
     totalVersoes?: number
     versaoAtual?: { numero: number } | null
@@ -37,6 +38,7 @@ interface WaveformTrackProps {
     onRegister?: (layerId: string, ws: WaveSurfer | null) => void
     onAuthorize?: (layerId: string, aprovada: boolean) => void
     onDelete?: (layerId: string, layerName: string) => void
+    onEdit?: (layerId: string) => void
     onVersionChange?: () => void
     saving?: boolean
 }
@@ -52,12 +54,14 @@ function WaveformTrack({
     isGuia = false,
     estaAprovada = false,
     isOwner = false,
+    isCollaborator = false,
     totalVersoes = 0,
     versaoAtual = null,
     onSave,
     onRegister,
     onAuthorize,
     onDelete,
+    onEdit,
     onVersionChange,
     saving = false
 }: WaveformTrackProps) {
@@ -231,6 +235,15 @@ function WaveformTrack({
                             >
                                 <History size={14} />
                                 v{versaoAtual?.numero || 1}
+                            </button>
+                        )}
+                        {(isOwner || isCollaborator) && (
+                            <button
+                                className="btn-auth approve"
+                                onClick={() => onEdit?.(layerId)}
+                                title="Editar áudio"
+                            >
+                                <Pencil size={14} />
                             </button>
                         )}
                         {isOwner && (
