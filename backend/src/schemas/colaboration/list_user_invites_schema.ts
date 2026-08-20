@@ -5,6 +5,10 @@ const list_user_invites_schema = {
     schema: {
         tags: ['Convites'],
         description: 'Lista todos os convites pendentes recebidos pelo usuário logado',
+        querystring: Type.Object({
+            cursor: Type.Optional(Type.String()),
+            limit: Type.Optional(Type.String())
+        }),
         response: {
             200: Type.Object({
                 status: Type.String(),
@@ -18,7 +22,8 @@ const list_user_invites_schema = {
                     mensagem: Type.Union([Type.String(), Type.Null()]),
                     token_convite: Type.String(),
                     expira_em: Type.String()
-                }))
+                })),
+                nextCursor: Type.Union([Type.String(), Type.Null()])
             }),
             ...Error_schema
         }

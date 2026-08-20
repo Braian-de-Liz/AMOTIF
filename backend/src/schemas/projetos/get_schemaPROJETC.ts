@@ -20,11 +20,16 @@ const get_schemaPROJETC = {
         params: Type.Object({
             id: Type.String({ format: 'uuid' })
         }),
+        querystring: Type.Object({
+            cursor: Type.Optional(Type.String()),
+            limit: Type.Optional(Type.String())
+        }),
         response: {
             200: Type.Object({
                 status: Type.String(),
                 mensagem: Type.String(),
-                projetos: Type.Array(projetoSchema)
+                projetos: Type.Array(projetoSchema),
+                nextCursor: Type.Union([Type.String(), Type.Null()])
             }),
             ...Error_schema
         }

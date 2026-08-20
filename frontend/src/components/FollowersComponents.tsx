@@ -1,4 +1,5 @@
 import { useApi } from '../hooks/useApi';
+import { useUserData } from '../contexts/UserDataContext';
 import { Avatar } from './Avatar';
 import type { User, FollowData } from '../types';
 
@@ -51,15 +52,12 @@ interface UserStatsProps {
 }
 
 function UserStats({ userId }: UserStatsProps) {
-    const { data, loading } = useApi<{ usuario: User }>(
-        `/usuario/${userId}/completo`,
-        { immediate: !!userId }
-    );
+    const { usuario, loading } = useUserData();
 
     if (loading) return <div className="loading">Carregando dados...</div>;
-    if (!data?.usuario) return null;
+    if (!usuario) return null;
 
-    const stats = data.usuario;
+    const stats = usuario;
 
     return (
         <div className="user-stats">

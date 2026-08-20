@@ -1,15 +1,11 @@
 import { useState } from 'react';
-import { useApi } from '../hooks/useApi';
+import { useUserData } from '../contexts/UserDataContext';
 import { URL_API_TESTE } from '../utility/url_apis';
-import type { User } from '../types';
 
 function BioEditor() {
     const usuarioId = localStorage.getItem("usuario_id");
 
-    const { data, loading } = useApi<{ usuario: User }>(
-        `/usuario/${usuarioId}/completo`,
-        { immediate: !!usuarioId }
-    );
+    const { usuario, loading } = useUserData();
 
     const [bio, setBio] = useState('');
     const [originalBio, setOriginalBio] = useState<string | null>(null);
@@ -20,10 +16,9 @@ function BioEditor() {
 
     const MAX_CHARS = 500;
 
-    if (data?.usuario && !initialized) {
-        const u = data.usuario;
-        setBio(u.bio ?? '');
-        setOriginalBio(u.bio ?? '');
+    if (usuario && !initialized) {
+        setBio(usuario.bio ?? '');
+        setOriginalBio(usuario.bio ?? '');
         setInitialized(true);
     }
 
@@ -65,7 +60,7 @@ function BioEditor() {
     }
 
     if (loading) return <div className="loading">Carregando bio...</div>;
-    if (!data?.usuario) return null;
+    if (!usuario) return null;
 
     return (
         <div className="bio-editor">

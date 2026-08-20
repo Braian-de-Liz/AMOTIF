@@ -15,7 +15,7 @@ const upload_audio: FastifyPluginAsyncTypebox = async (Fastify) => {
                 mensagem: "Campo 'audio' não encontrado no formulário"
             });
         }
-
+        
         const result = await Fastify.storage.uploadAudio(userId, file);
 
         return reply.status(200).send({

@@ -24,6 +24,10 @@ const list_favorites_schema = {
         tags: ['favoritos'],
         description: 'Lista os projetos favoritados pelo usuário logado',
         security: [{ bearerAuth: [] }],
+        querystring: Type.Object({
+            cursor: Type.Optional(Type.String()),
+            limit: Type.Optional(Type.String())
+        }),
         response: {
             200: Type.Object({
                 status: Type.String(),
@@ -45,7 +49,8 @@ const list_favorites_schema = {
                         colaboradores: Type.Integer()
                     })
                 })),
-                total: Type.Integer()
+                total: Type.Integer(),
+                nextCursor: Type.Union([Type.String(), Type.Null()])
             }),
             ...Error_schema
         }

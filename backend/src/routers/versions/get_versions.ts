@@ -7,6 +7,8 @@ const get_versions: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.get("/layer/:id/versions", get_versions_schema, async (request, reply) => {
         const { id } = request.params;
+        const { cursor, limit: rawLimit } = request.query as { cursor?: string; limit?: string };
+        const limit = Math.min(Math.max(parseInt(rawLimit || '20', 10) || 20, 1), 100);
 
         const camada = await Fastify.prisma.camada.findUnique({
             where: { id },
@@ -21,9 +23,12 @@ const get_versions: FastifyPluginAsyncTypebox = async (Fastify) => {
         }
 
         const versoes = await Fastify.prisma.layerVersion.findMany({
-            where: { camadaId: id },
+            where: {
+                camadaId: id,
+                ...(cursor ? { versionNumber: { lt: parseInt(cursor, 10) } } : {})
+            },
             orderBy: { versionNumber: 'desc' },
-            take: 100,
+            take: limit + 1,
             include: {
                 autor: {
                     select: { id: true, nome_completo: true, avatar_url: true }
@@ -31,9 +36,13 @@ const get_versions: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         });
 
+        const hasMore = versoes.length > limit;
+        const items = hasMore ? versoes.slice(0, limit) : versoes;
+        const nextCursor = hasMore ? items[items.length - 1].versionNumber.toString() : null;
+
         return reply.status(200).send({
             status: "sucesso",
-            versoes: versoes.map(v => ({
+            versoes: items.map(v => ({
                 id: v.id,
                 camadaId: v.camadaId,
                 audio_url: v.audio_url,
@@ -45,7 +54,8 @@ const get_versions: FastifyPluginAsyncTypebox = async (Fastify) => {
                 mensagem: v.mensagem,
                 createdAt: v.createdAt.toISOString(),
                 autor: v.autor
-            }))
+            })),
+            nextCursor
         });
     });
 

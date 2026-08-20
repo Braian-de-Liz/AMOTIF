@@ -4,10 +4,14 @@ const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12;
 const SALT = 'amotif-cpf-salt';
 
+let cachedKey: Buffer | null = null;
+
 function deriveKey(): Buffer {
+    if (cachedKey) return cachedKey;
     const secret = Bun.env.JWT_PASSWORD;
     if (!secret) throw new Error("JWT_PASSWORD não definido para criptografia de CPF");
-    return scryptSync(secret, SALT, 32);
+    cachedKey = scryptSync(secret, SALT, 32);
+    return cachedKey;
 }
 
 function generateIV(cpf: string): Buffer {

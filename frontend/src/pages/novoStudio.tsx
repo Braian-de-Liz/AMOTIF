@@ -1,7 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mic, Scissors, Send, Check, Music, Loader2 } from 'lucide-react';
-import { analyze } from 'web-audio-beat-detector';
 import { AudioRecorder } from '../components/AudioRecorder';
 import { AudioEditor } from '../components/AudioEditor';
 import { URL_API_TESTE } from '../utility/url_apis';
@@ -48,6 +47,7 @@ function NovoStudio() {
             if (!blob) return;
             setDetectandoBpm(true);
             try {
+                const { analyze } = await import('web-audio-beat-detector');
                 const audioContext = new AudioContext();
                 const arrayBuffer = await blob.arrayBuffer();
                 const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
@@ -55,6 +55,7 @@ function NovoStudio() {
                 if (!cancelled && bpmDetectado && bpmDetectado >= 40 && bpmDetectado <= 300) {
                     setBpm(Math.round(bpmDetectado));
                 }
+                await audioContext.close();
             } catch {
                 // mantém o valor padrão (120) se a detecção falhar
             } finally {

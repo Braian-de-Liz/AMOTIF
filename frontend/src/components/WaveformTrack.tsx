@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
-import WaveSurfer from 'wavesurfer.js';
+import { useEffect, useRef, useState, memo } from 'react';
 import { Play, Pause, Volume2, VolumeX, Save, Loader2, Trash2, History, Pencil } from 'lucide-react';
 import { LayerVersionPanel } from './LayerVersionPanel';
 
@@ -35,7 +34,7 @@ interface WaveformTrackProps {
     totalVersoes?: number
     versaoAtual?: { numero: number } | null
     onSave?: (layerId: string, changes: LayerChanges) => void
-    onRegister?: (layerId: string, ws: WaveSurfer | null) => void
+    onRegister?: (layerId: string, ws: any) => void
     onAuthorize?: (layerId: string, aprovada: boolean) => void
     onDelete?: (layerId: string, layerName: string) => void
     onEdit?: (layerId: string) => void
@@ -43,7 +42,7 @@ interface WaveformTrackProps {
     saving?: boolean
 }
 
-function WaveformTrack({
+function WaveformTrackInner({
     audioUrl,
     nome,
     autor,
@@ -66,7 +65,7 @@ function WaveformTrack({
     saving = false
 }: WaveformTrackProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const wavesurferRef = useRef<WaveSurfer | null>(null);
+    const wavesurferRef = useRef<any>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
@@ -81,46 +80,61 @@ function WaveformTrack({
     useEffect(() => {
         if (!containerRef.current || !audioUrl) return;
 
-        const wavesurfer = WaveSurfer.create({
-            container: containerRef.current,
-            waveColor: color,
-            progressColor: '#1f2937',
-            cursorColor: '#fff',
-            barWidth: 2,
-            barGap: 1,
-            barRadius: 3,
-            height: 100,
-            normalize: true,
-            backend: 'WebAudio',
-        });
+        let cancelled = false;
 
-        wavesurfer.load(audioUrl);
+        async function initWaveSurfer() {
+            const { default: WaveSurferModule } = await import('wavesurfer.js');
+            if (cancelled || !containerRef.current) return;
 
-        wavesurfer.on('ready', () => {
-            setDuration(wavesurfer.getDuration());
-            wavesurfer.setVolume(localVolume);
-        });
+            const wavesurfer = WaveSurferModule.create({
+                container: containerRef.current,
+                waveColor: color,
+                progressColor: '#1f2937',
+                cursorColor: '#fff',
+                barWidth: 2,
+                barGap: 1,
+                barRadius: 3,
+                height: 100,
+                normalize: true,
+                backend: 'WebAudio',
+            });
 
-        wavesurfer.on('audioprocess', () => {
-            setCurrentTime(wavesurfer.getCurrentTime());
-        });
+            wavesurfer.load(audioUrl!);
 
-        wavesurfer.on('seeking', () => {
-            setCurrentTime(wavesurfer.getCurrentTime());
-        });
+            wavesurfer.on('ready', () => {
+                if (!cancelled) {
+                    setDuration(wavesurfer.getDuration());
+                    wavesurfer.setVolume(localVolume);
+                }
+            });
 
-        wavesurfer.on('play', () => setIsPlaying(true));
-        wavesurfer.on('pause', () => setIsPlaying(false));
-        wavesurfer.on('finish', () => setIsPlaying(false));
+            wavesurfer.on('audioprocess', () => {
+                if (!cancelled) setCurrentTime(wavesurfer.getCurrentTime());
+            });
 
-        wavesurferRef.current = wavesurfer;
+            wavesurfer.on('seeking', () => {
+                if (!cancelled) setCurrentTime(wavesurfer.getCurrentTime());
+            });
 
-        if (onRegister) {
-            onRegister(layerId, wavesurfer);
+            wavesurfer.on('play', () => { if (!cancelled) setIsPlaying(true); });
+            wavesurfer.on('pause', () => { if (!cancelled) setIsPlaying(false); });
+            wavesurfer.on('finish', () => { if (!cancelled) setIsPlaying(false); });
+
+            wavesurferRef.current = wavesurfer;
+
+            if (onRegister) {
+                onRegister(layerId, wavesurfer);
+            }
         }
 
+        initWaveSurfer();
+
         return () => {
-            wavesurfer.destroy();
+            cancelled = true;
+            if (wavesurferRef.current) {
+                wavesurferRef.current.destroy();
+                wavesurferRef.current = null;
+            }
             if (onRegister) {
                 onRegister(layerId, null);
             }
@@ -293,5 +307,7 @@ function WaveformTrack({
         </div>
     );
 }
+
+const WaveformTrack = memo(WaveformTrackInner);
 
 export { WaveformTrack };

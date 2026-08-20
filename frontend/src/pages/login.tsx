@@ -9,14 +9,14 @@ import { LogIn } from 'lucide-react';
 
 function Login() {
     const navigate = useNavigate();
-
-    if (localStorage.getItem("usuario_id")) {
-        return <Navigate to="/home" replace />;
-    }
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [erro, setErro] = useState('');
     const [loading, setLoading] = useState(false);
+
+    if (localStorage.getItem("usuario_id")) {
+        return <Navigate to="/home" replace />;
+    }
 
     async function requestLog(e: React.FormEvent) {
         e.preventDefault();

@@ -1,6 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Mic, Square, Play, Pause } from 'lucide-react';
-import WaveSurfer from 'wavesurfer.js';
 
 interface AudioRecorderProps {
     onRecordingComplete: (blob: Blob, duration: number) => void
@@ -26,8 +25,9 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
     const startTimeRef = useRef<number>(0);
     const pausedTimeRef = useRef<number>(0);
     const elapsedMsRef = useRef<number>(0);
-    const wavesurferRef = useRef<WaveSurfer | null>(null);
+    const wavesurferRef = useRef<any>(null);
     const previewContainerRef = useRef<HTMLDivElement | null>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
 
     const drawVisualizer = useCallback(() => {
         const canvas = canvasRef.current;
@@ -102,6 +102,7 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
             streamRef.current = stream;
 
             const audioContext = new AudioContext();
+            audioContextRef.current = audioContext;
             const source = audioContext.createMediaStreamSource(stream);
             const analyser = audioContext.createAnalyser();
             analyser.fftSize = 256;
@@ -192,7 +193,7 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
         }
     }, [stopTimer]);
 
-    const togglePreviewPlayback = useCallback(() => {
+    const togglePreviewPlayback = useCallback(async () => {
         if (!recordedBlobUrl) return;
 
         if (isPlayingPreview && wavesurferRef.current) {
@@ -208,7 +209,8 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
         }
 
         if (previewContainerRef.current) {
-            const ws = WaveSurfer.create({
+            const { default: WaveSurferModule } = await import('wavesurfer.js');
+            const ws = WaveSurferModule.create({
                 container: previewContainerRef.current,
                 waveColor: '#22c55e',
                 progressColor: '#1f2937',
@@ -239,6 +241,9 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
             stopVisualizer();
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach(t => t.stop());
+            }
+            if (audioContextRef.current) {
+                audioContextRef.current.close();
             }
             if (recordedBlobUrl) {
                 URL.revokeObjectURL(recordedBlobUrl);

@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { parseBlob } from 'music-metadata';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { createLayerSchema } from '../schemas/createLayerSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
@@ -41,6 +40,7 @@ function CreateLayerModal({ projetoId, isOpen, onClose, onLayerCreated }: Create
         setFile(arquivo);
 
         try {
+            const { parseBlob } = await import('music-metadata');
             const metadata = await parseBlob(arquivo);
             const duracao = metadata.format.duration ?? 0;
 

@@ -7,6 +7,7 @@ import { BioEditor } from '../components/BioEditor';
 import { InstrumentEditor } from '../components/InstrumentEditor';
 import { ChangePassword } from '../components/ChangePassword';
 import { DeleteAccountModal } from '../components/DeleteAccountModal';
+import { UserDataProvider } from '../contexts/UserDataContext';
 import { Lock, Trash2, Mic } from 'lucide-react';
 import '../styles/User.css';
 import { SEOHead } from '../components/SEOHead';
@@ -22,6 +23,7 @@ function UserPage() {
     const usuarioId = localStorage.getItem("usuario_id");
 
     return (
+        <UserDataProvider>
         <div className="user-dashboard">
             <SEOHead
                 title="Minha Estante Musical"
@@ -102,6 +104,7 @@ function UserPage() {
                 onClose={() => setShowDeleteModal(false)}
             />
         </div>
+        </UserDataProvider>
     )
 }
 

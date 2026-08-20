@@ -1,6 +1,4 @@
 import { useState, useRef } from 'react';
-import { parseBlob } from 'music-metadata';
-import { analyze } from 'web-audio-beat-detector';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { projectSchema, generos } from '../schemas/projectSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
@@ -41,6 +39,8 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
         setFile(arquivo);
 
         try {
+            const { parseBlob } = await import('music-metadata');
+            const { analyze } = await import('web-audio-beat-detector');
             const metadata = await parseBlob(arquivo);
             const duracao = metadata.format.duration ?? 0;
 
@@ -70,6 +70,7 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
             const arrayBuffer = await arquivo.arrayBuffer();
             const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
             const bpmDetectado = await analyze(audioBuffer, { minTempo: 40, maxTempo: 300 });
+            await audioContext.close();
             if (bpmDetectado && bpmDetectado >= 40 && bpmDetectado <= 300) {
                 setFormData(prev => ({ ...prev, bpm: Math.round(bpmDetectado) }));
             }

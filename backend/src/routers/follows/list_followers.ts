@@ -7,11 +7,16 @@ const list_followers: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.get("/follows", list_followers_schema, async (request, reply) => {
         const UserId = request.user.id;
+        const { cursor, limit: rawLimit } = request.query as { cursor?: string; limit?: string };
+        const limit = Math.min(Math.max(parseInt(rawLimit || '20', 10) || 20, 1), 100);
 
         const rawFollows = await Fastify.prisma.follows.findMany({
             where: {
-                followingId: UserId
+                followingId: UserId,
+                ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {})
             },
+            orderBy: { createdAt: 'desc' },
+            take: limit + 1,
             include: {
                 follower: {
                     select: {
@@ -24,7 +29,11 @@ const list_followers: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         });
 
-        const follows = rawFollows.map(f => ({
+        const hasMore = rawFollows.length > limit;
+        const items = hasMore ? rawFollows.slice(0, limit) : rawFollows;
+        const nextCursor = hasMore ? items[items.length - 1].createdAt.toISOString() : null;
+
+        const follows = items.map(f => ({
             ...f,
             createdAt: f.createdAt.toISOString()
         }));
@@ -35,7 +44,8 @@ const list_followers: FastifyPluginAsyncTypebox = async (Fastify) => {
             status: "sucesso",
             mensagem: "Followers listados com sucesso",
             follows: follows,
-            total: followers_count
+            total: followers_count,
+            nextCursor
         });
 
     });

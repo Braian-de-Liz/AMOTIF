@@ -16,7 +16,9 @@ const listar_sugestoes_schema = {
             id: Type.String({ format: 'uuid' })
         }),
         querystring: Type.Object({
-            status: Type.Optional(StatusSugestaoEnum)
+            status: Type.Optional(StatusSugestaoEnum),
+            cursor: Type.Optional(Type.String()),
+            limit: Type.Optional(Type.String())
         }),
         response: {
             200: Type.Object({
@@ -34,7 +36,8 @@ const listar_sugestoes_schema = {
                     }),
                     criado_em: Type.String({ format: 'date-time' }),
                     atualizado_em: Type.String({ format: 'date-time' })
-                }))
+                })),
+                nextCursor: Type.Union([Type.String(), Type.Null()])
             }),
             ...Error_schema
         }

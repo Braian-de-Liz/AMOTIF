@@ -27,10 +27,15 @@ const get_versions_schema = {
         params: Type.Object({
             id: Type.String({ format: 'uuid' })
         }),
+        querystring: Type.Object({
+            cursor: Type.Optional(Type.String()),
+            limit: Type.Optional(Type.String())
+        }),
         response: {
             200: Type.Object({
                 status: Type.String(),
-                versoes: Type.Array(VersionResponse)
+                versoes: Type.Array(VersionResponse),
+                nextCursor: Type.Union([Type.String(), Type.Null()])
             }),
             ...Error_schema
         }

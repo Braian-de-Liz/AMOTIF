@@ -1,18 +1,14 @@
-import { useState, useEffect } from 'react';
-import { useApi } from '../hooks/useApi';
+import { useState } from 'react';
+import { useUserData } from '../contexts/UserDataContext';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { X } from 'lucide-react';
 import { instrumentSchema } from '../schemas/instrumentSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
-import type { User } from '../types';
 
 function InstrumentEditor() {
     const usuarioId = localStorage.getItem("usuario_id");
 
-    const { data, loading } = useApi<{ usuario: User }>(
-        `/usuario/${usuarioId}/completo`,
-        { immediate: !!usuarioId }
-    );
+    const { usuario, loading } = useUserData();
 
     const [instrumentos, setInstrumentos] = useState<string[]>([]);
     const [originalInstrumentos, setOriginalInstrumentos] = useState<string[]>([]);
@@ -22,8 +18,8 @@ function InstrumentEditor() {
     const [novoInstrumento, setNovoInstrumento] = useState('');
     const [initialized, setInitialized] = useState(false);
 
-    if (data?.usuario && !initialized) {
-        const inst = data.usuario.instrumentos ?? [];
+    if (usuario && !initialized) {
+        const inst = usuario.instrumentos ?? [];
         setInstrumentos(inst);
         setOriginalInstrumentos(inst);
         setInitialized(true);
@@ -101,7 +97,7 @@ function InstrumentEditor() {
     }
 
     if (loading) return <div className="loading">Carregando instrumentos...</div>;
-    if (!data?.usuario) return null;
+    if (!usuario) return null;
 
     return (
         <div className="instrument-editor">

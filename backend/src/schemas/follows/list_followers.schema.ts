@@ -6,6 +6,10 @@ const list_followers_schema = {
         tags: ['seguidores'],
         description: 'Lista os seguidores do usuário',
         security: [{ bearerAuth: [] }],
+        querystring: Type.Object({
+            cursor: Type.Optional(Type.String()),
+            limit: Type.Optional(Type.String())
+        }),
         response: {
             200: Type.Object({
                 status: Type.String(),
@@ -21,7 +25,8 @@ const list_followers_schema = {
                         bio: Type.Union([Type.String(), Type.Null()])
                     })
                 })),
-                total: Type.Number()
+                total: Type.Number(),
+                nextCursor: Type.Union([Type.String(), Type.Null()])
             }),
             ...Error_schema
         }

@@ -6,6 +6,7 @@ import fastifyJwt from "@fastify/jwt";
 import swagger from '@fastify/swagger';
 import swaggerUi from '@fastify/swagger-ui';
 import multipart from '@fastify/multipart';
+import rate_limite from '@fastify/rate-limit';
 
 import { prisma_plugin } from './lib/prisma.js';
 import { Upload_Service } from './lib/upload.js';
@@ -25,13 +26,18 @@ if (COOKIE_SECRET === JWT_SECRET && !Bun.env.COOKIE_SECRET) {
     console.warn("AVISO: COOKIE_SECRET não definido. Usando JWT_PASSWORD como fallback. Defina COOKIE_SECRET em produção.");
 }
 
-const Fastify = fastify(/* { logger: true } */).withTypeProvider<TypeBoxTypeProvider>();
+const Fastify = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
 
 
 Fastify.get('/', async () => {
     return { status: "online", app: "AMOTIF API", docs: "/docs" };
 });
 
+await Fastify.register(cors, {
+    origin: ["http://localhost:5173", "https://amotif-music.onrender.com/"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true
+});
 
 await Fastify.register(swagger, {
     openapi: {
@@ -60,6 +66,7 @@ await Fastify.register(multipart, {
     }
 });
 
+// await Fastify.register(rate_limite, { max: 100, timeWindow: '1 minute' });
 
 Fastify.register(health_route);
 await Fastify.register(prisma_plugin);
@@ -80,11 +87,6 @@ await Fastify.register(fastifyJwt, {
     sign: { expiresIn: '4h', iss: 'amotif-api', aud: 'amotif-client' }
 });
 
-await Fastify.register(cors, {
-    origin: ["http://localhost:3333", "https://amotif-music.onrender.com/"],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    credentials: true
-});
 
 Fastify.register(Plugin_Routes, { prefix: "/api" });
 

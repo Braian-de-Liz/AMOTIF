@@ -9,28 +9,37 @@ const Get_projects_user: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.get("/projetos/:id/get", get_schemaPROJETC, async (request, reply) => {
         const { id } = request.params;
+        const { cursor, limit: rawLimit } = request.query as { cursor?: string; limit?: string };
+        const limit = Math.min(Math.max(parseInt(rawLimit || '20', 10) || 20, 1), 100);
 
         const projetos = await Fastify.prisma.projeto.findMany({
             where: {
-                userId: id
+                userId: id,
+                ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {})
             },
             orderBy: {
                 createdAt: 'desc'
-            }
+            },
+            take: limit + 1
         });
 
-        if (projetos.length === 0) {
+        const hasMore = projetos.length > limit;
+        const items = hasMore ? projetos.slice(0, limit) : projetos;
+        const nextCursor = hasMore ? items[items.length - 1].createdAt.toISOString() : null;
+
+        if (items.length === 0) {
             return reply.status(200).send({
                 status: 'sucesso',
                 mensagem: 'O usuário ainda não possui projetos.',
-                projetos: []
+                projetos: [],
+                nextCursor: null
             });
         }
 
         return reply.status(200).send({
             status: 'sucesso',
             mensagem: 'Projetos encontrados com sucesso.',
-            projetos: projetos.map(({ id, titulo, genero, descricao, bpm, escala, createdAt }) => ({
+            projetos: items.map(({ id, titulo, genero, descricao, bpm, escala, createdAt }) => ({
                 id,
                 titulo,
                 genero,
@@ -38,7 +47,8 @@ const Get_projects_user: FastifyPluginAsyncTypebox = async (Fastify) => {
                 bpm,
                 escala,
                 createdAt: createdAt.toISOString()
-            }))
+            })),
+            nextCursor
         });
 
     });

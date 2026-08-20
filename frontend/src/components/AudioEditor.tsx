@@ -1,5 +1,4 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import WaveSurfer from 'wavesurfer.js';
 import { Play, Pause, Scissors, Volume2, Mic, Square, Loader2 } from 'lucide-react';
 
 interface AudioEditorProps {
@@ -105,7 +104,7 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
     const [elapsedTime, setElapsedTime] = useState(0);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const wavesurferRef = useRef<WaveSurfer | null>(null);
+    const wavesurferRef = useRef<any>(null);
     const audioUrlRef = useRef<string | null>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
@@ -118,7 +117,8 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
     const analyserRef = useRef<AnalyserNode | null>(null);
     const animFrameRef = useRef<number>(0);
     const previewContainerRef = useRef<HTMLDivElement | null>(null);
-    const previewWaveSurferRef = useRef<WaveSurfer | null>(null);
+    const previewWaveSurferRef = useRef<any>(null);
+    const audioContextRef = useRef<AudioContext | null>(null);
 
     const trimStartSec = (trimStart / 100) * audioDuration;
     const trimEndSec = (trimEnd / 100) * audioDuration;
@@ -140,36 +140,49 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
     useEffect(() => {
         if (!containerRef.current) return;
 
-        const url = audioBlob ? URL.createObjectURL(audioBlob) : audioUrl!;
-        audioUrlRef.current = url;
+        let cancelled = false;
 
-        const ws = WaveSurfer.create({
-            container: containerRef.current,
-            waveColor: '#22c55e',
-            progressColor: '#1f2937',
-            cursorColor: '#fff',
-            barWidth: 2,
-            barGap: 1,
-            barRadius: 3,
-            height: 140,
-            normalize: true,
-            backend: 'WebAudio',
-        });
+        async function initWaveSurfer() {
+            const { default: WaveSurferModule } = await import('wavesurfer.js');
+            if (cancelled || !containerRef.current) return;
 
-        ws.load(url);
+            const url = audioBlob ? URL.createObjectURL(audioBlob) : audioUrl!;
+            audioUrlRef.current = url;
 
-        ws.on('ready', () => {
-            setTrimEnd(100);
-        });
+            const ws = WaveSurferModule.create({
+                container: containerRef.current,
+                waveColor: '#22c55e',
+                progressColor: '#1f2937',
+                cursorColor: '#fff',
+                barWidth: 2,
+                barGap: 1,
+                barRadius: 3,
+                height: 140,
+                normalize: true,
+                backend: 'WebAudio',
+            });
 
-        ws.on('play', () => setIsPlaying(true));
-        ws.on('pause', () => setIsPlaying(false));
-        ws.on('finish', () => setIsPlaying(false));
+            ws.load(url);
 
-        wavesurferRef.current = ws;
+            ws.on('ready', () => {
+                if (!cancelled) setTrimEnd(100);
+            });
+
+            ws.on('play', () => { if (!cancelled) setIsPlaying(true); });
+            ws.on('pause', () => { if (!cancelled) setIsPlaying(false); });
+            ws.on('finish', () => { if (!cancelled) setIsPlaying(false); });
+
+            wavesurferRef.current = ws;
+        }
+
+        initWaveSurfer();
 
         return () => {
-            ws.destroy();
+            cancelled = true;
+            if (wavesurferRef.current) {
+                wavesurferRef.current.destroy();
+                wavesurferRef.current = null;
+            }
             if (audioBlob && audioUrlRef.current) {
                 URL.revokeObjectURL(audioUrlRef.current);
             }
@@ -181,6 +194,9 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
             if (timerRef.current) clearInterval(timerRef.current);
             if (streamRef.current) {
                 streamRef.current.getTracks().forEach(t => t.stop());
+            }
+            if (audioContextRef.current) {
+                audioContextRef.current.close();
             }
             if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
             if (previewWaveSurferRef.current) previewWaveSurferRef.current.destroy();
@@ -297,6 +313,7 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
             streamRef.current = stream;
 
             const audioContext = new AudioContext();
+            audioContextRef.current = audioContext;
             const source = audioContext.createMediaStreamSource(stream);
             const analyser = audioContext.createAnalyser();
             analyser.fftSize = 256;

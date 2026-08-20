@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { WaveformTrack } from "../components/WaveformTrack";
 import { StudioMural } from "../components/StudioMural";
@@ -12,7 +12,6 @@ import { LayerEditorModal } from "../components/LayerEditorModal";
 import { URL_API_TESTE } from "../utility/url_apis";
 import { Play, Pause, Mic, Music, Users, MessageSquare, Lightbulb, Pencil, Trash2 } from "lucide-react";
 import type { Project, Camada } from "../types";
-import type WaveSurfer from 'wavesurfer.js';
 import '../styles/Studio.css';
 import { SEOHead } from '../components/SEOHead';
 
@@ -32,7 +31,7 @@ function Studio() {
     const [isCollaborator, setIsCollaborator] = useState(false);
     const [editLayerTarget, setEditLayerTarget] = useState<{ id: string; audioUrl: string; nome: string } | null>(null);
 
-    const wavesurferRefs = useRef<Record<string, WaveSurfer>>({});
+    const wavesurferRefs = useRef<Record<string, any>>({});
 
     useEffect(() => {
         async function carregarProjeto() {
@@ -87,7 +86,7 @@ function Studio() {
         checkCollaborator();
     }, [id, projeto]);
 
-    const refetchProjeto = async () => {
+    const refetchProjeto = useCallback(async () => {
         if (!id) return;
         try {
             const response = await fetch(`${URL_API_TESTE}/projetos/${id}`, { credentials: 'include' });
@@ -96,9 +95,9 @@ function Studio() {
         } catch (err) {
             console.error(err);
         }
-    };
+    }, [id]);
 
-    const registerWavesurfer = useCallback((layerId: string, ws: WaveSurfer | null) => {
+    const registerWavesurfer = useCallback((layerId: string, ws: any) => {
         if (ws) {
             wavesurferRefs.current[layerId] = ws;
         } else {
@@ -106,7 +105,7 @@ function Studio() {
         }
     }, []);
 
-    const playAll = async () => {
+    const playAll = useCallback(() => {
         if (!projeto) return;
 
         const allWavesurfers = wavesurferRefs.current;
@@ -125,9 +124,9 @@ function Studio() {
             layerWses.forEach(ws => ws?.play());
             setIsPlayingAll(true);
         }
-    };
+    }, [projeto, isPlayingAll]);
 
-    const handleStopAll = () => {
+    const handleStopAll = useCallback(() => {
         const allWavesurfers = wavesurferRefs.current;
 
         const guideWs = allWavesurfers['__guide__'];
@@ -141,9 +140,9 @@ function Studio() {
         });
 
         setIsPlayingAll(false);
-    };
+    }, [projeto]);
 
-    const handleSaveLayer = async (layerId: string, changes: { volume_padrao: number; delay_offset: number }) => {
+    const handleSaveLayer = useCallback(async (layerId: string, changes: { volume_padrao: number; delay_offset: number }) => {
         setSaving(layerId);
         try {
             const response = await fetch(`${URL_API_TESTE}/layer/${layerId}`, {
@@ -172,13 +171,13 @@ function Studio() {
         } finally {
             setSaving(null);
         }
-    };
+    }, []);
 
     if (loading) return <div className="loading-txt">Montando setup do estúdio...</div>;
     if (erro) return <div className="error-msg">{erro}</div>;
     if (!projeto) return <div className="error-msg">Projeto não encontrado.</div>;
 
-    const handleAuthorizeLayer = async (layerId: string, aprovada: boolean) => {
+    const handleAuthorizeLayer = useCallback(async (layerId: string, aprovada: boolean) => {
         try {
             const response = await fetch(`${URL_API_TESTE}/layer/${layerId}/status`, {
                 method: 'PATCH',
@@ -206,15 +205,15 @@ function Studio() {
             console.error('Erro ao autorizar camada:', err);
             setSaveErro('Erro ao conectar ao servidor');
         }
-    };
+    }, []);
 
-    const isOwner = projeto.autor?.id === localStorage.getItem("usuario_id");
+    const isOwner = useMemo(() => projeto?.autor?.id === localStorage.getItem("usuario_id"), [projeto]);
 
-    const handleDeleteLayer = (layerId: string, layerName: string) => {
+    const handleDeleteLayer = useCallback((layerId: string, layerName: string) => {
         setDeleteLayerTarget({ id: layerId, nome: layerName });
-    };
+    }, []);
 
-    const handleEditLayer = (layerId: string) => {
+    const handleEditLayer = useCallback((layerId: string) => {
         const camada = projeto?.camadas?.find(c => c.id === layerId);
         if (camada) {
             setEditLayerTarget({
@@ -223,21 +222,21 @@ function Studio() {
                 nome: camada.instrumento_tag || 'Track'
             });
         }
-    };
+    }, [projeto]);
 
-    const handleLayerVersionCreated = () => {
+    const handleLayerVersionCreated = useCallback(() => {
         setEditLayerTarget(null);
         refetchProjeto();
-    };
+    }, [refetchProjeto]);
 
-    const handleLayerDeleted = () => {
+    const handleLayerDeleted = useCallback(() => {
         setDeleteLayerTarget(null);
         refetchProjeto();
-    };
+    }, [refetchProjeto]);
 
-    const handleProjectUpdated = (updated: Project) => {
+    const handleProjectUpdated = useCallback((updated: Project) => {
         setProjeto(prev => prev ? { ...prev, ...updated } : prev);
-    };
+    }, []);
 
     return (
         <div className="studio-page">

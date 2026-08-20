@@ -9,11 +9,18 @@ const Favorites_plugin: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.get("/projetos/favoritos", list_favorites_schema, async (request, reply) => {
         
         const userId = request.user.id;
+        const { cursor, limit: rawLimit } = request.query as { cursor?: string; limit?: string };
+        const limit = Math.min(Math.max(parseInt(rawLimit || '20', 10) || 20, 1), 100);
 
         const favoritos_raw = await Fastify.prisma.favorite.findMany({
-            where: { userId },
+            where: {
+                userId,
+                ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {})
+            },
             orderBy: { createdAt: 'desc' },
+            take: limit + 1,
             select: {
+                createdAt: true,
                 projeto: {
                     select: {
                         id: true,
@@ -41,7 +48,11 @@ const Favorites_plugin: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         });
 
-        const Favotitos = favoritos_raw.map((f) => ({
+        const hasMore = favoritos_raw.length > limit;
+        const items = hasMore ? favoritos_raw.slice(0, limit) : favoritos_raw;
+        const nextCursor = hasMore ? items[items.length - 1].createdAt.toISOString() : null;
+
+        const Favotitos = items.map((f) => ({
             ...f.projeto,
             createdAt: f.projeto.createdAt.toISOString()
         }));
@@ -49,7 +60,8 @@ const Favorites_plugin: FastifyPluginAsyncTypebox = async (Fastify) => {
         return reply.status(200).send({
             status: 'sucesso',
             favoritos: Favotitos,
-            total: Favotitos.length
+            total: Favotitos.length,
+            nextCursor
         });
 
     });

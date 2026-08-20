@@ -10,22 +10,32 @@ const list_invite: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.get("/colaboration/:id/invite", List_invite_schema, async (request, reply) => {
 
         const { id } = request.params;
+        const { cursor, limit: rawLimit } = request.query as { cursor?: string; limit?: string };
+        const limit = Math.min(Math.max(parseInt(rawLimit || '20', 10) || 20, 1), 100);
 
         const Check_invites = await Fastify.prisma.convite.findMany({
             where: {
-                projetoId: id
+                projetoId: id,
+                ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {})
             },
+            orderBy: { createdAt: 'desc' },
+            take: limit + 1,
             select: {
                 id: true,
                 projetoId: true,
                 cargo: true,
                 email_destinatario: true,
                 mensagem: true,
-                expira_em: true
+                expira_em: true,
+                createdAt: true
             }
         });
 
-        const convites = Check_invites.map(c => ({
+        const hasMore = Check_invites.length > limit;
+        const items = hasMore ? Check_invites.slice(0, limit) : Check_invites;
+        const nextCursor = hasMore ? items[items.length - 1].createdAt.toISOString() : null;
+
+        const convites = items.map(c => ({
             id: c.id,
             projetoId: c.projetoId,
             cargo: c.cargo,
@@ -36,7 +46,8 @@ const list_invite: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         return reply.status(200).send({
             status: 'sucesso',
-            convites
+            convites,
+            nextCursor
         });
     });
 }

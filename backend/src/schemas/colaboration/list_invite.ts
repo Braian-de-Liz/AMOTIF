@@ -9,6 +9,10 @@ const List_invite_schema = {
         params: Type.Object({
             id: Type.String({ format: 'uuid' })
         }),
+        querystring: Type.Object({
+            cursor: Type.Optional(Type.String()),
+            limit: Type.Optional(Type.String())
+        }),
         response: {
             200: Type.Object({
                 status: Type.String(),
@@ -19,7 +23,8 @@ const List_invite_schema = {
                     mensagem: Type.Union([Type.String(), Type.Null()]),
                     expira_em: Type.String({ format: 'date-time' }),
                     projetoId: Type.String()
-                }))
+                })),
+                nextCursor: Type.Union([Type.String(), Type.Null()])
             }),
             ...Error_schema
         }
