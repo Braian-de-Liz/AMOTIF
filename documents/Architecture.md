@@ -8,29 +8,28 @@ Metadados críticos como **BPM**, **Tonalidade** e **Offset (delay)** são armaz
 
 ---
 
-## 2. Arquitetura de Microserviços
+## 2. Arquitetura
 
-A arquitetura adota uma separação clara entre a API principal e o serviço de upload, visando **performance**, **escalabilidade** e **isolamento de responsabilidades**.
+A arquitetura adota uma abordagem flat e baseada em plugins do Fastify, com separação clara de responsabilidades entre rotas, hooks e schemas.
 
 ### 2.1 API Principal (Backend – Bun + Fastify)
 - **Tecnologias**: Bun (runtime), Fastify v5, Prisma v7, TypeBox, TypeScript.
-- **Função**: Gerencia toda a lógica de negócio, autenticação, autorização, relacionamentos (projetos, layers, colaboradores, seguidores), buscas e notificações.
+- **Função**: Gerencia toda a lógica de negócio, autenticação, autorização, relacionamentos (projetos, layers, colaboradores, seguidores), buscas, notificações e upload de áudio.
+- **Upload de Áudio**: Utiliza `@fastify/multipart` para receber arquivos diretamente no servidor, com validação de tamanho (40MB) e tipo. O binário é transmitido via streaming para o **Supabase Storage**, sem carregar o arquivo completo em memória.
 - **Por que Bun/Fastify?**  
   - **Bun** oferece startup extremamente rápido e baixo consumo de memória, ideal para um servidor de API com alta concorrência.  
   - **Fastify** é um dos frameworks Node.js mais performáticos, com schema-based validation (usando TypeBox) e suporte nativo a plugins.  
   - A combinação permite máxima eficiência no processamento de requisições e manutenção de uma base de código tipada.
 
-### 2.2 Serviço de Upload (Go)
-- **Tecnologias**: Go (runtime nativo), sem dependências externas.
-- **Função**: Recebe o streaming do áudio enviado pelo frontend, valida metadados iniciais, faz o upload direto para o **Supabase Storage** e retorna a URL pública.
-- **Por que Go?**  
-  - O upload de arquivos é uma operação I/O‑intensiva. Go lida com concorrência de forma nativa e tem um coletor de lixo otimizado, evitando bloqueios.  
-  - Isolar esse processo em um serviço separado evita que o event loop do Node.js (Fastify) seja impactado por operações longas de I/O, mantendo a API responsiva.
+### 2.2 Fluxo de Upload
 
-### 2.3 Comunicação entre Serviços
-- O frontend envia o áudio diretamente ao serviço Go, que responde com a URL do arquivo no Supabase.
-- O frontend então envia uma requisição à API principal (Fastify) com os metadados da layer (incluindo a URL) para persistência no banco de dados.
-- Esta abordagem mantém o acoplamento baixo e facilita a evolução independente de cada serviço.
+O processo de envio de áudio é executado diretamente pela API principal:
+
+1. O frontend envia o arquivo de áudio via `multipart/form-data` para o endpoint `POST /upload`.
+2. A API valida o tamanho do arquivo (máximo 40MB) e o tipo MIME.
+3. O binário é transmitido via streaming para o Supabase Storage.
+4. A URL pública do arquivo é retornada ao frontend.
+5. O frontend utiliza essa URL para criar ou atualizar uma layer via `POST /layers`.
 
 ---
 
@@ -44,7 +43,7 @@ O processo completo de envio e aprovação de uma layer é:
 
 2. **Envio de Layer por Colaborador**  
    - O músico acessa o projeto e envia um arquivo de áudio.  
-   - O frontend envia o arquivo para o **serviço Go**, que faz o upload para o Supabase e retorna a URL pública.  
+   - O frontend envia o arquivo para o endpoint `POST /upload`, que transmite via streaming para o Supabase e retorna a URL pública.  
    - Em seguida, o frontend chama a API `POST /layers` com os metadados da layer: URL, instrumento, BPM (opcional, pode herdar do projeto), tonalidade e **offset** (delay em milissegundos para sincronia).  
    - A API cria um registro de layer com status `PENDING`.
 
@@ -108,21 +107,21 @@ O uso intensivo de hooks no Fastify garante que as verificações de propriedade
 
 | Componente       | Tecnologia                          | Justificativa                                                                                     |
 |------------------|-------------------------------------|---------------------------------------------------------------------------------------------------|
-| **Runtime**      | Bun (backend) / Go (upload)         | Performance e isolamento de cargas intensivas.                                                   |
+| **Runtime**      | Bun                                 | Performance, baixo consumo de memória e startup rápido.                                          |
 | **API Server**   | Fastify (Node.js)                   | Alto desempenho, schema validation nativa e suporte a plugins.                                   |
 | **ORM**          | Prisma                              | Type-safe, migrations robustas, excelente para relações complexas.                               |
 | **Validação**    | TypeBox                              | Integração perfeita com Fastify e TypeScript, garantindo tipos inferidos automaticamente.       |
 | **Frontend**     | React + Vite                        | Vite para dev experience rápida, React para construção da UI.                                    |
 | **Banco de Dados** | PostgreSQL (Neon)                  | Neon oferece banco serverless, com branching automático e baixa latência.                       |
 | **Storage**      | Supabase Storage                    | API simples, integração com buckets e URLs públicas.                                             |
-| **Deploy**       | Render                              | Plataforma PaaS que suporta serviços Node.js e Go, com deploys automáticos via Git.              |
+| **Deploy**       | Render                              | Plataforma PaaS com deploys automáticos via Git.                                                 |
 
 ---
 
 ## 7. Considerações Finais
 
 A arquitetura do AMOTIF foi projetada para ser **escalável**, **segura** e **de fácil manutenção**.  
-A separação entre a API principal (Fastify) e o serviço de upload (Go) reflete uma estratégia de microserviços focada em responsabilidades únicas, enquanto o uso de hooks e schemas garante consistência e segurança na camada de negócios.
+O uso de plugins e schemas do Fastify garante consistência e segurança na camada de negócios, enquanto a arquitetura flat (Rota → Prisma) reduz complexidade e overhead de indireção.
 
 O modelo de dados, com campos como BPM e offset, resolve os desafios de sincronia inerentes à colaboração musical assíncrona, posicionando a plataforma como uma ferramenta inovadora para músicos.
 

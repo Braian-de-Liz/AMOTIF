@@ -155,68 +155,56 @@ Directory structure:
     │   ├── Architecture.md
     │   ├── organization.md
     │   └── typebox-fastify-bun.md
-    ├── front_end/
-    │   ├── eslint.config.js
-    │   ├── index.html
-    │   ├── package.json
-    │   ├── pnpm-workspace.yaml
-    │   ├── vite.config.js
-    │   ├── public/
-    │   │   └── assets/
-    │   │       ├── images.jfif
-    │   │       └── top secret.jfif
-    │   └── src/
-    │       ├── App.jsx
-    │       ├── main.jsx
-    │       ├── components/
-    │       │   ├── AppLayout.jsx
-    │       │   ├── FavoritesList.jsx
-    │       │   ├── feed.jsx
-    │       │   ├── FloatingNotifications.jsx
-    │       │   ├── FollowersComponents.jsx
-    │       │   ├── init_project.jsx
-    │       │   ├── MyLoadProjects.jsx
-    │       │   ├── nav.jsx
-    │       │   ├── project_Card.jsx
-    │       │   ├── ProtectedRoute.jsx
-    │       │   ├── pull_notifications.jsx
-    │       │   ├── SearchBar.jsx
-    │       │   ├── StudioColaboradores.jsx
-    │       │   ├── StudioMural.jsx
-    │       │   ├── UserCard.jsx
-    │       │   └── WaveformTrack.jsx
-    │       ├── pages/
-    │       │   ├── cadastro.jsx
-    │       │   ├── favoritesPage.jsx
-    │       │   ├── home.jsx
-    │       │   ├── invitesPage.jsx
-    │       │   ├── login.jsx
-    │       │   ├── studio.jsx
-    │       │   ├── user.jsx
-    │       │   └── userProfile.jsx
-    │       ├── styles/
-    │       │   ├── Cadastro.css
-    │       │   ├── Form.css
-    │       │   ├── Global.css
-    │       │   ├── Home.css
-    │       │   ├── Login.css
-    │       │   ├── Navbar.css
-    │       │   ├── Shared.css
-    │       │   ├── Studio.css
-    │       │   └── User.css
-    │       └── utility/
-    │           ├── url_apis.js
-    │           ├── validar_cpf.js
-    │           └── validar_email.js
-    └── upload_service/
-        ├── go.mod
-        ├── go.sum
-        ├── main.go
-        ├── config/
-        │   └── config.go
-        ├── handlers/
-        │   └── upload.go
-        ├── middleware/
-        │   └── auth.go
-        └── service/
-            └── storage.go
+    └── front_end/
+        ├── eslint.config.js
+        ├── index.html
+        ├── package.json
+        ├── pnpm-workspace.yaml
+        ├── vite.config.js
+        ├── public/
+        │   └── assets/
+        │       ├── images.jfif
+        │       └── top secret.jfif
+        └── src/
+            ├── App.jsx
+            ├── main.jsx
+            ├── components/
+            │   ├── AppLayout.jsx
+            │   ├── FavoritesList.jsx
+            │   ├── feed.jsx
+            │   ├── FloatingNotifications.jsx
+            │   ├── FollowersComponents.jsx
+            │   ├── init_project.jsx
+            │   ├── MyLoadProjects.jsx
+            │   ├── nav.jsx
+            │   ├── project_Card.jsx
+            │   ├── ProtectedRoute.jsx
+            │   ├── pull_notifications.jsx
+            │   ├── SearchBar.jsx
+            │   ├── StudioColaboradores.jsx
+            │   ├── StudioMural.jsx
+            │   ├── UserCard.jsx
+            │   └── WaveformTrack.jsx
+            ├── pages/
+            │   ├── cadastro.jsx
+            │   ├── favoritesPage.jsx
+            │   ├── home.jsx
+            │   ├── invitesPage.jsx
+            │   ├── login.jsx
+            │   ├── studio.jsx
+            │   ├── user.jsx
+            │   └── userProfile.jsx
+            ├── styles/
+            │   ├── Cadastro.css
+            │   ├── Form.css
+            │   ├── Global.css
+            │   ├── Home.css
+            │   ├── Login.css
+            │   ├── Navbar.css
+            │   ├── Shared.css
+            │   ├── Studio.css
+            │   └── User.css
+            └── utility/
+                ├── url_apis.js
+                ├── validar_cpf.js
+                └── validar_email.js

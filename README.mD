@@ -67,28 +67,21 @@ O objetivo principal e remover barreiras geograficas e logisticas da producao mu
 
 ## Arquitetura
 
-A aplicacao adota uma arquitetura de microsservicos hibridos com separacao clara de responsabilidades.
+A aplicacao adota uma arquitetura flat baseada em plugins Fastify, com separacao clara de responsabilidades.
 
 ### API Principal (Fastify + Bun)
 
-Backend responsavel por toda a logica de negocio: autenticacao JWT, autorizacao via hooks, gestao de entidades (projetos, layers, colaboradores, follows, notificacoes), buscas e integracao com o banco de dados.
+Backend responsavel por toda a logica de negocio: autenticacao JWT, autorizacao via hooks, gestao de entidades (projetos, layers, colaboradores, follows, notificacoes), buscas, integracao com o banco de dados e upload de arquivos de audio.
 
 A arquitetura interna segue o modelo de plugins do Fastify, onde cada dominio e encapsulado como um plugin autonomo com suas rotas e schemas associados. A validacao de requisicoes e feita via schemas TypeBox com compilacao JIT, garantindo type-safety em runtime e eliminando codigo boilerplate.
 
-### Servico de Upload (Go)
+### Fluxo de Upload
 
-Microsservico dedicado ao trafego de arquivos de audio. Utiliza goroutines para processamento paralelo e streaming direto ao Supabase Storage, evitando o carregamento completo do binario em memoria (zero-RAM loading). O servico valida a assinatura JWT gerada pela API principal antes de processar qualquer upload.
+O trafego de audio segue um caminho otimizado:
 
-Essa separacao garante que operacoes I/O-intensivas de upload nao impactem a performance da API principal, mantendo o event loop do Bun responsivo para requisicoes de logica de negocio.
-
-### Fluxo de Arquivos
-
-O trafego de audio segue um caminho otimizado para evitar gargalos:
-
-1. **Validacao de Negocio (API):** Verificacao de permissoes, autenticacao (JWT) e existencia do projeto.
-2. **Handover de Dados (Go):** O frontend envia o binario diretamente ao servico de upload (porta 4444).
-3. **Processamento e Pipe:** O Go valida schema do arquivo (tamanho maximo e extensao) e inicia um pipe HTTP para o Supabase Storage.
-4. **Persistencia:** Apos o sucesso, a URL final e vinculada a Layer no banco de dados via Prisma.
+1. **Upload:** O frontend envia o binario via `multipart/form-data` para o endpoint `POST /upload`.
+2. **Streaming:** A API valida o tamanho (maximo 40MB) e transmite via streaming para o Supabase Storage.
+3. **Persistencia:** Apos o sucesso, a URL final e vinculada a Layer no banco de dados via Prisma.
 
 Detalhes: [documents/Architecture.md](./documents/Architecture.md)
 
@@ -98,8 +91,7 @@ Detalhes: [documents/Architecture.md](./documents/Architecture.md)
 
 | Componente         | Tecnologia                       | Funcao                                                           |
 |--------------------|----------------------------------|------------------------------------------------------------------|
-| Backend API        | Fastify v5 + Bun                 | API REST com validacao JIT e plugins encapsulados                |
-| Upload Service     | Go (Fiber)                       | Streaming e upload de audio com concorrencia nativa              |
+| Backend API        | Fastify v5 + Bun                 | API REST com validacao JIT, plugins encapsulados e upload        |
 | Banco de Dados     | PostgreSQL (Neon)                | Persistencia relacional com branching serverless                 |
 | ORM                | Prisma v7                        | Type-safe access layer com migrations versionadas                |
 | Validacao          | TypeBox                          | Schemas executaveis com geracao automatica de tipos              |
@@ -113,7 +105,6 @@ Detalhes: [documents/Architecture.md](./documents/Architecture.md)
 - **Bun:** Startup em ~50ms (vs ~200ms do Node.js), throughput HTTP de ~50k req/s, consumo base de ~30MB de memoria. Compativel com todo o ecossistema Node.js.
 - **Prisma:** Type-safe database access em TypeScript. Se amanha mudar do Neon para outro provider, o codigo e quase o mesmo.
 - **TypeBox:** Garante que o usuario nao envie um "texto" onde deveria ser um "CPF". Type-safety em runtime com schemas reutilizaveis.
-- **Go (Fiber):** Goroutines permitem processar multiplos uploads simultaneos com uso insignificante de CPU e RAM. Binario nativo leve, sem overhead de maquinas virtuais.
 - **Supabase Storage:** O banco de dados (Neon) guarda o link, o Supabase guarda o arquivo fisico. Melhor forma de manter custo zero.
 
 ---
@@ -211,12 +202,6 @@ AMOTIF/
 │   │   ├── schemas/               # Validacao Zod no frontend
 │   │   └── utility/               # Helpers e utilitarios
 │   └── public/                    # Assets estaticos
-├── upload_service/
-│   ├── main.go                    # Entrypoint do servico Go
-│   ├── config/                    # Configuracao
-│   ├── handlers/                  # Handlers HTTP
-│   ├── middleware/                 # Auth middleware
-│   └── service/                   # Logica de upload ao Supabase
 └── documents/                     # Documentacao tecnica
 ```
 

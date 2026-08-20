@@ -53,7 +53,3 @@ ehthumbs.db
 *.tmp
 *.temp
 *.bak
-
-# Upload service
-
-upload_service/.env
