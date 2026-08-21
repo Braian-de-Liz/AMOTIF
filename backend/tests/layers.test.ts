@@ -15,13 +15,36 @@ const VALID_UUID = "123e4567-e89b-12d3-a456-426614174000";
 
 const mockPrisma = {
   camada: {
-    findUnique: async () => null,
-    create: async (data: any) => ({ id: VALID_UUID, ...data.data }),
+    findUnique: async (args: any) => {
+      if (args.where?.id === VALID_UUID) {
+        return {
+          id: VALID_UUID,
+          userId: "test-user-id",
+          projetoId: VALID_UUID,
+          esta_aprovada: false,
+          audio_url: "https://example.com/audio.mp3",
+          versions: [],
+          projeto: { userId: "test-user-id", id: VALID_UUID },
+        };
+      }
+      return null;
+    },
+    create: async (data: any) => ({ id: VALID_UUID, ...data.data, createdAt: new Date(), esta_aprovada: false }),
     update: async (data: any) => ({ id: VALID_UUID, ...data.data }),
     delete: async () => ({ id: VALID_UUID }),
   },
   projeto: {
     findUnique: async () => ({ id: VALID_UUID, userId: "test-user-id", titulo: "Test Project" }),
+  },
+  layerVersion: {
+    findFirst: async () => null,
+    create: async (data: any) => ({ id: "version-id", ...data.data, createdAt: new Date() }),
+  },
+  notification: {
+    create: async () => ({}),
+  },
+  colaborador: {
+    findUnique: async () => null,
   },
 };
 
@@ -36,6 +59,10 @@ const prismaPlugin = fp(async (fastify: FastifyInstance) => {
     NEW_FOLLOWER: "NEW_FOLLOWER",
     PROJECT_RELEASED: "PROJECT_RELEASED",
     NEW_LIKE: "NEW_LIKE",
+  });
+  fastify.decorate("storage", {
+    uploadAudio: async () => ({ fileUrl: "https://example.com/audio.mp3", path: "test/file.mp3" }),
+    deleteAudio: async () => {},
   });
 });
 
@@ -234,5 +261,46 @@ describe("Layers Routes - PATCH /api/layer/:layerId/status", () => {
     });
 
     expect(res.statusCode).toBe(400);
+  });
+});
+
+describe("Layers Routes - Happy Paths", () => {
+  let app: FastifyInstance;
+  let token: string;
+
+  beforeAll(async () => {
+    app = await buildApp();
+    token = app.jwt.sign({
+      id: "test-user-id",
+      nome: "Test User",
+      email: "test@example.com",
+    });
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it("deve retornar 201 ao criar layer com dados válidos", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: `/api/layer/${VALID_UUID}`,
+      headers: { Authorization: `Bearer ${token}` },
+      payload: {
+        nome_trilha: "Guitarra Solo",
+        audio_url: "https://example.com/audio.mp3",
+        instrumento_tag: "Guitarra",
+        delay_offset: 0,
+        volume_padrao: 1.0,
+      },
+    });
+
+    expect(res.statusCode).toBe(201);
+    const body = res.json();
+    expect(body.status).toBe("sucesso");
+    expect(body).toHaveProperty("camada");
+    expect(body.camada).toHaveProperty("id");
+    expect(body.camada.nome_trilha).toBe("Guitarra Solo");
+    expect(body.camada.instrumento_tag).toBe("Guitarra");
   });
 });

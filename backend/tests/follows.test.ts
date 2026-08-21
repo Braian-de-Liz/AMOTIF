@@ -153,7 +153,7 @@ describe("Follows Routes - GET /api/follows", () => {
     await app.close();
   });
 
-  it.skip("deve retornar 401 se não houver token (hits ERR_HTTP_HEADERS_SENT)", async () => {
+  it("deve retornar 401 se não houver token", async () => {
     const res = await app.inject({
       method: "GET",
       url: "/api/follows",

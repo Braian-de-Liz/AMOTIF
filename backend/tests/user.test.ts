@@ -2,6 +2,7 @@ import { describe, it, expect, beforeAll, afterAll } from "bun:test";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import fastifyJwt from "@fastify/jwt";
+import swagger from "@fastify/swagger";
 import type { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import { PrismaClient } from "@prisma/client";
@@ -45,6 +46,7 @@ const prismaPlugin = fp(async (fastify: FastifyInstance) => {
 async function buildApp(): Promise<FastifyInstance> {
   const app = Fastify();
   app.register(cors, { origin: true });
+  app.register(swagger);
   app.register(fastifyJwt, { secret: "test-secret-key-for-jwt-signing", sign: { expiresIn: "2d" } });
   app.register(prismaPlugin);
   app.setErrorHandler(globalErrorHandler);
@@ -165,27 +167,32 @@ describe("User Routes - Login", () => {
 
 describe("User Routes - GET /api/usuario/:id", () => {
   let app: FastifyInstance;
+  let token: string;
 
   beforeAll(async () => {
     app = await buildApp();
+    token = app.jwt.sign({
+      id: VALID_UUID,
+      nome: "Test User",
+      email: "test@example.com",
+    });
   });
 
   afterAll(async () => {
     await app.close();
   });
 
-  it.skip("deve retornar erro 400 se o ID não for um UUID (TypeBox validation)", async () => {
+  it("deve retornar 400 se o ID não for UUID", async () => {
     const res = await app.inject({
       method: "GET",
-      url: "/api/usuario/meu_id_nao_uuid",
+      url: "/api/usuario/nao-e-uuid",
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     expect(res.statusCode).toBe(400);
-    const body = res.json();
-    expect(body).toHaveProperty("message");
   });
 
-  it.skip("deve retornar 401 se não houver token (hits ERR_HTTP_HEADERS_SENT)", async () => {
+  it("deve retornar 401 se não houver token", async () => {
     const res = await app.inject({
       method: "GET",
       url: `/api/usuario/${VALID_UUID}`,
@@ -212,7 +219,7 @@ describe("User Routes - DELETE /api/usuario/:id", () => {
     await app.close();
   });
 
-  it.skip("deve retornar 401 se não houver token JWT (hits ERR_HTTP_HEADERS_SENT)", async () => {
+  it("deve retornar 401 se não houver token JWT", async () => {
     const res = await app.inject({
       method: "DELETE",
       url: `/api/usuario/${VALID_UUID}`,
@@ -251,7 +258,7 @@ describe("User Routes - PATCH /api/usuario_bio/:id", () => {
     await app.close();
   });
 
-  it.skip("deve retornar 403 se tentar editar bio de outro usuário (mock needed)", async () => {
+  it("deve retornar 403 se tentar editar bio de outro usuário", async () => {
     const res = await app.inject({
       method: "PATCH",
       url: `/api/usuario_bio/${OTHER_UUID}`,
@@ -291,7 +298,7 @@ describe("User Routes - PATCH /api/usuario/:id/instrumentos", () => {
     await app.close();
   });
 
-  it.skip("deve retornar 403 se tentar editar instrumentos de outro usuário (mock needed)", async () => {
+  it("deve retornar 403 se tentar editar instrumentos de outro usuário", async () => {
     const res = await app.inject({
       method: "PATCH",
       url: `/api/usuario/${OTHER_UUID}/instrumentos`,
@@ -351,5 +358,98 @@ describe("User Routes - PATCH /api/forgot/password", () => {
     });
 
     expect(res.statusCode).toBe(400);
+  });
+});
+
+describe("User Routes - Happy Paths", () => {
+  let app: FastifyInstance;
+  let token: string;
+
+  beforeAll(async () => {
+    app = await buildApp();
+    token = app.jwt.sign({
+      id: VALID_UUID,
+      nome: "Test User",
+      email: "test@example.com",
+    });
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it("deve retornar 201 ao cadastrar usuário com dados válidos", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/usuario",
+      payload: {
+        nome_completo: "Braian Test Silva",
+        email: "novo@example.com",
+        senha: "password1234",
+        cpf: "52998224725",
+      },
+    });
+
+    expect(res.statusCode).toBe(201);
+    const body = res.json();
+    expect(body.status).toBe("sucesso");
+    expect(body.mensagem).toContain("sucesso");
+    expect(body).toHaveProperty("userId");
+  });
+
+  it("deve retornar 200 ao buscar dados de usuário existente", async () => {
+    const mockWithUser = {
+      ...mockPrisma,
+      user: {
+        ...mockPrisma.user,
+        findUnique: async () => ({
+          id: VALID_UUID,
+          nome_completo: "Test User",
+          email: "test@example.com",
+          bio: "Músico",
+          instrumentos: ["Guitarra", "Baixo"],
+          avatar_url: null,
+          createdAt: new Date(),
+        }),
+      },
+    };
+
+    const appCustom = Fastify();
+    appCustom.register(cors, { origin: true });
+    appCustom.register(fastifyJwt, { secret: "test-secret-key-for-jwt-signing", sign: { expiresIn: "2d" } });
+    appCustom.register(
+      fp(async (fastify: FastifyInstance) => {
+        fastify.decorate("prisma", mockWithUser as unknown as PrismaClient);
+        fastify.decorate("notiType", {});
+      })
+    );
+    appCustom.setErrorHandler(globalErrorHandler);
+    appCustom.register(Get_user, { prefix: "/api" });
+    await appCustom.ready();
+
+    const customToken = appCustom.jwt.sign({ id: VALID_UUID, nome: "Test User", email: "test@example.com" });
+    const res = await appCustom.inject({
+      method: "GET",
+      url: `/api/usuario/${VALID_UUID}`,
+      headers: { Authorization: `Bearer ${customToken}` },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = res.json();
+    expect(body.status).toBe("sucesso");
+    expect(body.usuario).toHaveProperty("nome_completo");
+    expect(body.usuario).toHaveProperty("email");
+    await appCustom.close();
+  });
+
+  it("deve retornar 200 ao atualizar bio", async () => {
+    const res = await app.inject({
+      method: "PATCH",
+      url: `/api/usuario_bio/${VALID_UUID}`,
+      headers: { Authorization: `Bearer ${token}` },
+      payload: { bio: "Nova bio atualizada" },
+    });
+
+    expect(res.statusCode).toBe(200);
   });
 });

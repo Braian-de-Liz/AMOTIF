@@ -2,6 +2,7 @@
     "scripts": {
         "clean_m": "rm -rf backend/node_modules && rm -rf frontend/node_modules",
         "clean": "rm -rf backend/dist && rm -rf frontend/dist",
-        "itl": "bun install --cwd backend && bun install --cwd frontend"
+        "itl": "bun install --cwd backend && bun install --cwd frontend",
+        "comp": "bun run build --cwd backend && bun run build --cwd frontend"
     }
 }

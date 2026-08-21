@@ -173,10 +173,6 @@ function Studio() {
         }
     }, []);
 
-    if (loading) return <div className="loading-txt">Montando setup do estúdio...</div>;
-    if (erro) return <div className="error-msg">{erro}</div>;
-    if (!projeto) return <div className="error-msg">Projeto não encontrado.</div>;
-
     const handleAuthorizeLayer = useCallback(async (layerId: string, aprovada: boolean) => {
         try {
             const response = await fetch(`${URL_API_TESTE}/layer/${layerId}/status`, {
@@ -237,6 +233,10 @@ function Studio() {
     const handleProjectUpdated = useCallback((updated: Project) => {
         setProjeto(prev => prev ? { ...prev, ...updated } : prev);
     }, []);
+
+    if (loading) return <div className="loading-txt">Montando setup do estúdio...</div>;
+    if (erro) return <div className="error-msg">{erro}</div>;
+    if (!projeto) return <div className="error-msg">Projeto não encontrado.</div>;
 
     return (
         <div className="studio-page">

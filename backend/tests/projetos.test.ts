@@ -17,9 +17,31 @@ import { globalErrorHandler } from "../src/lib/global_Error.js";
 
 const mockPrisma = {
   projeto: {
-    findUnique: async () => null,
+    findUnique: async (args: any) => {
+      if (args.where?.id === "123e4567-e89b-12d3-a456-426614174000") {
+        return {
+          id: "123e4567-e89b-12d3-a456-426614174000",
+          titulo: "Projeto Teste",
+          genero: "ROCK",
+          bpm: 120,
+          escala: "C",
+          descricao: "Teste",
+          audio_guia: "https://example.com/audio.mp3",
+          userId: "test-user-id",
+          createdAt: new Date(),
+          autor: { nome_completo: "Test User", avatar_url: null },
+          _count: { camadas: 0, colaboradores: 0 },
+        };
+      }
+      return null;
+    },
     findMany: async () => [],
-    create: async (data: any) => ({ id: "test-project-id", ...data.data }),
+    create: async (data: any) => ({
+      id: "test-project-id",
+      ...data.data,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    }),
     update: async (data: any) => ({ id: "test-project-id", ...data.data }),
     delete: async () => ({ id: "test-project-id" }),
   },
@@ -28,7 +50,25 @@ const mockPrisma = {
   },
   muralPost: {
     findMany: async () => [],
-    create: async (data: any) => ({ id: "test-mural-id", ...data.data }),
+    findUnique: async () => null,
+    create: async (data: any) => ({ id: "test-mural-id", ...data.data, createdAt: new Date() }),
+    delete: async () => ({}),
+  },
+  follows: {
+    findMany: async () => [],
+  },
+  notification: {
+    create: async () => ({}),
+    createMany: async () => ({}),
+  },
+  like: {
+    findMany: async () => [],
+  },
+  favorite: {
+    findMany: async () => [],
+  },
+  layerVersion: {
+    create: async (data: any) => ({ id: "version-id", ...data.data, createdAt: new Date() }),
   },
 };
 
@@ -83,7 +123,7 @@ describe("Projetos Routes - POST /api/projetos", () => {
     await app.close();
   });
 
-  it.skip("deve retornar 401 se não houver token JWT (sem params, validação passa primeiro) (hits ERR_HTTP_HEADERS_SENT)", async () => {
+  it("deve retornar 401 se não houver token JWT (sem params, validação passa primeiro)", async () => {
     const res = await app.inject({
       method: "POST",
       url: "/api/projetos",
@@ -258,7 +298,7 @@ describe("Projetos Routes - GET /api/projetos/feed", () => {
     await app.close();
   });
 
-  it.skip("deve retornar 401 se não houver token (hits ERR_HTTP_HEADERS_SENT)", async () => {
+  it("deve retornar 401 ao buscar feed sem token", async () => {
     const res = await app.inject({
       method: "GET",
       url: "/api/projetos/feed",
@@ -267,7 +307,17 @@ describe("Projetos Routes - GET /api/projetos/feed", () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it("deve aceitar query params de filtro", async () => {
+  it("deve retornar 200 ao buscar feed com token", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: "/api/projetos/feed",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    expect(res.statusCode).toBe(200);
+  });
+
+  it("deve retornar 200 ao buscar feed com filtro de gênero", async () => {
     const res = await app.inject({
       method: "GET",
       url: "/api/projetos/feed?genero=ROCK",
@@ -295,7 +345,7 @@ describe("Projetos Routes - PATCH /api/projetos/:id", () => {
     await app.close();
   });
 
-  it.skip("deve retornar 401 se não houver token (hits ERR_HTTP_HEADERS_SENT)", async () => {
+  it("deve retornar 401 ao atualizar projeto sem token", async () => {
     const res = await app.inject({
       method: "PATCH",
       url: "/api/projetos/123e4567-e89b-12d3-a456-426614174000",
@@ -334,7 +384,7 @@ describe("Projetos Routes - DELETE /api/projetos/:id", () => {
     await app.close();
   });
 
-  it.skip("deve retornar 401 se não houver token (hits ERR_HTTP_HEADERS_SENT)", async () => {
+  it("deve retornar 401 ao deletar projeto sem token", async () => {
     const res = await app.inject({
       method: "DELETE",
       url: "/api/projetos/123e4567-e89b-12d3-a456-426614174000",
@@ -373,7 +423,7 @@ describe("Projetos Routes - POST /api/projetos/:id/mural", () => {
     await app.close();
   });
 
-  it.skip("deve retornar 401 se não houver token (hits ERR_HTTP_HEADERS_SENT)", async () => {
+  it("deve retornar 401 ao postar no mural sem token", async () => {
     const res = await app.inject({
       method: "POST",
       url: "/api/projetos/123e4567-e89b-12d3-a456-426614174000/mural",
@@ -412,7 +462,7 @@ describe("Projetos Routes - GET /api/mural/:projeto_id", () => {
     await app.close();
   });
 
-  it.skip("deve retornar 401 se não houver token (hits ERR_HTTP_HEADERS_SENT)", async () => {
+  it("deve retornar 401 ao buscar mural sem token", async () => {
     const res = await app.inject({
       method: "GET",
       url: "/api/mural/123e4567-e89b-12d3-a456-426614174000",
@@ -429,5 +479,66 @@ describe("Projetos Routes - GET /api/mural/:projeto_id", () => {
     });
 
     expect(res.statusCode).toBe(400);
+  });
+});
+
+describe("Projetos Routes - Happy Paths", () => {
+  let app: FastifyInstance;
+  let token: string;
+
+  const VALID_UUID = "123e4567-e89b-12d3-a456-426614174000";
+
+  beforeAll(async () => {
+    app = await buildApp();
+    token = app.jwt.sign({
+      id: "test-user-id",
+      nome: "Test User",
+      email: "test@example.com",
+    });
+  });
+
+  afterAll(async () => {
+    await app.close();
+  });
+
+  it.skip("deve retornar 201 ao criar projeto com dados válidos (ERR_HTTP_HEADERS_SENT bug)", async () => {
+    const res = await app.inject({
+      method: "POST",
+      url: "/api/projetos",
+      headers: { Authorization: `Bearer ${token}` },
+      payload: {
+        titulo: "Meu Projeto Musical",
+        genero: "ROCK",
+        bpm: 120,
+        audio_guia: "https://example.com/audio.mp3",
+      },
+    });
+
+    expect(res.statusCode).toBe(201);
+    const body = res.json();
+    expect(body.status).toBe("sucesso");
+    expect(body).toHaveProperty("projeto");
+    expect(body.projeto).toHaveProperty("id");
+  });
+
+  it("deve retornar 200 ao listar mural do projeto", async () => {
+    const res = await app.inject({
+      method: "GET",
+      url: `/api/mural/${VALID_UUID}`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    expect(res.statusCode).toBe(200);
+  });
+
+  it("deve retornar 404 ao buscar projeto inexistente", async () => {
+    const otherUUID = "223e4567-e89b-12d3-a456-426614174001";
+    const res = await app.inject({
+      method: "GET",
+      url: `/api/projetos/${otherUUID}`,
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    expect(res.statusCode).toBe(404);
   });
 });

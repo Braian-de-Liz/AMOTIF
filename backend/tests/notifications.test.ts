@@ -61,7 +61,7 @@ describe("Notifications Routes - GET /api/notifications", () => {
     await app.close();
   });
 
-  it.skip("deve retornar 401 se não houver token (hits ERR_HTTP_HEADERS_SENT)", async () => {
+  it("deve retornar 401 se não houver token", async () => {
     const res = await app.inject({
       method: "GET",
       url: "/api/notifications",
@@ -101,7 +101,7 @@ describe("Notifications Routes - PATCH /api/notifications/read-all", () => {
     await app.close();
   });
 
-  it.skip("deve retornar 401 se não houver token (hits ERR_HTTP_HEADERS_SENT)", async () => {
+  it("deve retornar 401 se não houver token", async () => {
     const res = await app.inject({
       method: "PATCH",
       url: "/api/notifications/read-all",
@@ -110,7 +110,7 @@ describe("Notifications Routes - PATCH /api/notifications/read-all", () => {
     expect(res.statusCode).toBe(401);
   });
 
-  it.skip("deve retornar 200 ao marcar todas como lidas (mock needed)", async () => {
+  it("deve retornar 200 ao marcar todas como lidas", async () => {
     const res = await app.inject({
       method: "PATCH",
       url: "/api/notifications/read-all",

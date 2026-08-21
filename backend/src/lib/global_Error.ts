@@ -52,6 +52,8 @@ const globalErrorHandler = async (
   request: FastifyRequest,
   reply: FastifyReply
 ): Promise<void> => {
+  if (reply.sent) return;
+
   if (error.statusCode && error.statusCode >= 500) {
     request.log.error(error, "Erro interno do servidor");
   } else if (error.statusCode && error.statusCode >= 400) {
