@@ -13,7 +13,7 @@
   animation: fadeIn 0.3s ease-out;
 }
 
-.form_login div {
+.form_login > div {
   margin-bottom: var(--space-lg);
 }
 
@@ -26,7 +26,7 @@
   transition: color 0.15s ease;
 }
 
-.form_login div:focus-within label {
+.form_login > div:focus-within label {
   color: var(--verde-musgo);
 }
 
@@ -54,6 +54,42 @@
 
 .form_login input:focus::placeholder {
   opacity: 0.5;
+}
+
+.password-input {
+  position: relative;
+  width: 100%;
+}
+
+.password-input input {
+  padding-right: 3rem !important;
+}
+
+.password-toggle {
+  position: absolute;
+  top: 50%;
+  right: 0.7rem;
+  display: grid;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
+  place-items: center;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--texto-secundario);
+  cursor: pointer;
+}
+
+.password-toggle:hover {
+  background: var(--cinza-suave);
+  color: var(--verde-musgo);
+}
+
+.password-toggle:focus-visible {
+  outline: 2px solid var(--verde-medio);
+  outline-offset: 1px;
 }
 
 .btn-submit {

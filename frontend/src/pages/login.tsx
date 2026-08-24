@@ -6,6 +6,7 @@ import { loginSchema } from '../schemas/loginSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
 import { SEOHead } from '../components/SEOHead'
 import { LogIn } from 'lucide-react';
+import { PasswordInput } from '../components/PasswordInput';
 
 function Login() {
     const navigate = useNavigate();
@@ -95,9 +96,8 @@ function Login() {
 
                     <div>
                         <label htmlFor="login-senha">Senha</label>
-                        <input
+                        <PasswordInput
                             id="login-senha"
-                            type="password"
                             value={senha}
                             onChange={(e) => setSenha(e.target.value)}
                             placeholder="••••••••"

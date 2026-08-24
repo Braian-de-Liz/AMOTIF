@@ -4,6 +4,7 @@ import { passwordSchema } from '../schemas/passwordSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
 import { Lock } from 'lucide-react';
 import { URL_API_TESTE } from '../utility/url_apis';
+import { PasswordInput } from './PasswordInput';
 
 interface ChangePasswordProps {
     isOpen: boolean
@@ -71,9 +72,8 @@ function ChangePassword({ isOpen, onClose }: ChangePasswordProps) {
             <form onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label htmlFor="senha-atual">Senha Atual</label>
-                    <input
+                    <PasswordInput
                         id="senha-atual"
-                        type="password"
                         value={senha}
                         onChange={(e) => setSenha(e.target.value)}
                         placeholder="Digite sua senha atual"
@@ -84,9 +84,8 @@ function ChangePassword({ isOpen, onClose }: ChangePasswordProps) {
 
                 <div className="form-group">
                     <label htmlFor="nova-senha">Nova Senha</label>
-                    <input
+                    <PasswordInput
                         id="nova-senha"
-                        type="password"
                         value={novaSenha}
                         onChange={(e) => setNovaSenha(e.target.value)}
                         placeholder="Digite a nova senha"
@@ -97,9 +96,8 @@ function ChangePassword({ isOpen, onClose }: ChangePasswordProps) {
 
                 <div className="form-group">
                     <label htmlFor="confirmar-senha">Confirmar Nova Senha</label>
-                    <input
+                    <PasswordInput
                         id="confirmar-senha"
-                        type="password"
                         value={confirmarSenha}
                         onChange={(e) => setConfirmarSenha(e.target.value)}
                         placeholder="Confirme a nova senha"

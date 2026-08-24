@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { Modal } from './Modal';
 import { Trash2 } from 'lucide-react';
+import { PasswordInput } from './PasswordInput';
 
 interface DeleteAccountModalProps {
     isOpen: boolean
@@ -69,9 +70,8 @@ function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps) {
             <form onSubmit={handleDelete}>
                 <div className="form-group">
                     <label htmlFor="senha-confirmacao">Digite sua senha para confirmar</label>
-                    <input
+                    <PasswordInput
                         id="senha-confirmacao"
-                        type="password"
                         value={senha}
                         onChange={(e) => setSenha(e.target.value)}
                         placeholder="Sua senha atual"

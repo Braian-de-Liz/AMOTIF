@@ -6,6 +6,7 @@ import { cadastroSchema } from '../schemas/cadastroSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
 import { SEOHead } from '../components/SEOHead'
 import { UserPlus } from 'lucide-react';
+import { PasswordInput } from '../components/PasswordInput';
 
 function Cadastro() {
     const navigate = useNavigate();
@@ -107,9 +108,8 @@ function Cadastro() {
 
                     <div>
                         <label htmlFor="cad-senha">Senha</label>
-                        <input
+                        <PasswordInput
                             id="cad-senha"
-                            type="password"
                             value={senha}
                             onChange={(e) => setSenha(e.target.value)}
                             placeholder="Mínimo 8 caracteres"

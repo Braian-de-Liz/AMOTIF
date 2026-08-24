@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { Modal } from './Modal';
+import { PasswordInput } from './PasswordInput';
 
 interface DeleteProjectModalProps {
     projetoId: string
@@ -61,9 +62,8 @@ function DeleteProjectModal({ projetoId, isOpen, onClose }: DeleteProjectModalPr
             <form onSubmit={handleDelete}>
                 <div className="form-group">
                     <label htmlFor="senha-projeto">Digite sua senha para confirmar</label>
-                    <input
+                    <PasswordInput
                         id="senha-projeto"
-                        type="password"
                         value={senha}
                         onChange={(e) => setSenha(e.target.value)}
                         placeholder="Sua senha atual"
