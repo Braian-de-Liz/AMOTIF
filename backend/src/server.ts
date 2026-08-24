@@ -33,11 +33,11 @@ Fastify.get('/', async () => {
     return { status: "online", app: "AMOTIF API", docs: "/docs" };
 });
 
-await Fastify.register(cors, {
-    origin: ["http://localhost:5173", "https://amotif-music.onrender.com/"],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    credentials: true
-});
+// await Fastify.register(cors, {
+//     origin: ["http://localhost:5173", "https://amotif-music.onrender.com/"],
+//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+//     credentials: true
+// });
 
 await Fastify.register(swagger, {
     openapi: {
