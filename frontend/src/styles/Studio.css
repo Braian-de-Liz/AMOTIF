@@ -417,10 +417,43 @@ audio::-webkit-media-controls-panel {
     .track-controls {
         width: 100%;
         justify-content: flex-start;
+        gap: 0.55rem;
+    }
+
+    .track-controls .btn-icon {
+        width: 44px;
+        min-width: 44px;
+        height: 44px;
+        padding: 0;
     }
 
     .volume-slider {
-        width: 60px;
+        width: 96px;
+        height: 32px;
+        background: transparent;
+    }
+
+    .volume-slider::-webkit-slider-runnable-track {
+        height: 5px;
+        border-radius: var(--radius-full);
+        background: var(--fundo-secundario);
+    }
+
+    .volume-slider::-moz-range-track {
+        height: 5px;
+        border-radius: var(--radius-full);
+        background: var(--fundo-secundario);
+    }
+
+    .delay-input {
+        width: 78px;
+        min-height: 44px;
+        padding: 0.5rem 0.6rem;
+    }
+
+    .studio-controls > button,
+    .track-controls .btn-save {
+        min-height: 44px;
     }
 
     .mural-form {

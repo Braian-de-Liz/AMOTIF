@@ -139,9 +139,17 @@ nav ul li button:hover {
     align-items: center;
     justify-content: center;
     gap: 3px;
-    padding: 0.4rem;
+    width: 100%;
+    min-height: 52px;
+    padding: 0.45rem 0.25rem;
     border-bottom: none;
     color: var(--texto-secundario);
+    border-radius: var(--radius-base);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  nav ul li a:active {
+    background: var(--verde-pastel);
   }
 
   nav ul li button {
