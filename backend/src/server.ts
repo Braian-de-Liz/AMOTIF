@@ -33,11 +33,11 @@ Fastify.get('/', async () => {
     return { status: "online", app: "AMOTIF API", docs: "/docs" };
 });
 
-// await Fastify.register(cors, {
-//     origin: ["http://localhost:5173", "https://amotif-music.onrender.com/"],
-//     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-//     credentials: true
-// });
+await Fastify.register(cors, {
+    origin: ["http://localhost:5173", "https://amotif-music.onrender.com"],
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true
+});
 
 await Fastify.register(swagger, {
     openapi: {
@@ -66,7 +66,7 @@ await Fastify.register(multipart, {
     }
 });
 
-// await Fastify.register(rate_limite, { max: 100, timeWindow: '1 minute' });
+// await Fastify.register(rate_limite, { max: 100, timeWindow: '1 minute' }); //só ativar em produção
 
 Fastify.register(health_route);
 await Fastify.register(prisma_plugin);
