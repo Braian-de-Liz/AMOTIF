@@ -1,5 +1,5 @@
 import { FastifyPluginAsyncTypebox, Type } from '@fastify/type-provider-typebox';
-import { deleteRefreshToken } from '../../lib/refreshToken.js';
+import { deleteRefreshToken } from '../../services/refreshToken.js';
 
 const logout_user: FastifyPluginAsyncTypebox = async (Fastify) => {
 
@@ -20,15 +20,15 @@ const logout_user: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         reply.clearCookie('token', {
             path: '/',
-            sameSite: 'none',
-            secure: true,
+            sameSite: 'lax',
+            secure: false,
             httpOnly: true
         });
 
         reply.clearCookie('refresh_token', {
             path: '/',
-            sameSite: 'none',
-            secure: true,
+            sameSite: 'lax',
+            secure: false,
             httpOnly: true
         });
 

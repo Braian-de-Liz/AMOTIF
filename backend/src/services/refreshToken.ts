@@ -47,19 +47,33 @@ async function deleteRefreshTokensByUser(Fastify: FastifyInstance, userId: strin
 }
 
 async function rotateRefreshToken(Fastify: FastifyInstance, oldToken: string) {
-    const record = await validateRefreshToken(Fastify, oldToken);
-    if (!record) return null;
+    return await Fastify.prisma.$transaction(async (tx) => {
+        const record = await tx.refreshToken.findUnique({
+            where: { token: oldToken },
+            include: { user: { select: { id: true, nome_completo: true, email: true } } }
+        });
 
-    await Fastify.prisma.refreshToken.update({
-        where: { id: record.id },
-        data: { used: true }
+        if (!record) return null;
+        if (record.used) {
+            await tx.refreshToken.deleteMany({ where: { userId: record.userId } });
+            return null;
+        }
+        if (new Date() > record.expiresAt) {
+            await tx.refreshToken.delete({ where: { id: record.id } });
+            return null;
+        }
+
+        const newToken = randomUUID();
+        const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRY_DAYS * 24 * 60 * 60 * 1000);
+
+        await tx.refreshToken.create({
+            data: { token: newToken, userId: record.userId, expiresAt }
+        });
+
+        await tx.refreshToken.delete({ where: { id: record.id } });
+
+        return { token: newToken, user: record.user };
     });
-
-    const newToken = await generateRefreshToken(Fastify, record.userId);
-
-    await Fastify.prisma.refreshToken.delete({ where: { id: record.id } });
-
-    return { token: newToken, user: record.user };
 }
 
 export { generateRefreshToken, validateRefreshToken, deleteRefreshToken, deleteRefreshTokensByUser, rotateRefreshToken };

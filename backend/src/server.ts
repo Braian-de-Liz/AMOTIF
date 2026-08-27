@@ -13,6 +13,7 @@ import { Upload_Service } from './lib/upload.js';
 import { globalErrorHandler } from './lib/global_Error.js';
 import { Plugin_Routes } from './routers/plugin_routes.js';
 import { health_route } from './routers/health/health.js';
+import { Dados_route } from './routers/dados.js';
 
 if (!Bun.env.JWT_PASSWORD) {
     console.error("ERRO FATAL: A variável de ambiente JWT_PASSWORD não foi definida.");
@@ -20,6 +21,7 @@ if (!Bun.env.JWT_PASSWORD) {
 }
 
 const JWT_SECRET: string = Bun.env.JWT_PASSWORD;
+const dev = (Bun.env.STATE_APP === "DEV") ? false : true
 const COOKIE_SECRET: string = Bun.env.COOKIE_SECRET || JWT_SECRET;
 
 if (COOKIE_SECRET === JWT_SECRET && !Bun.env.COOKIE_SECRET) {
@@ -73,12 +75,14 @@ await Fastify.register(prisma_plugin);
 
 Fastify.setErrorHandler(globalErrorHandler);
 await Fastify.register(Upload_Service);
+await Fastify.register(Dados_route);
+
 
 await Fastify.register(cookie, {
     secret: COOKIE_SECRET,
     parseOptions: {
-        sameSite: "none",
-        secure: true
+        sameSite: "lax",
+        secure: dev
     }
 });
 

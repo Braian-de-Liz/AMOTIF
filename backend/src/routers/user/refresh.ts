@@ -1,13 +1,12 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { schema_refresh } from '../../schemas/user_schema/schema_refresh.js';
-import { rotateRefreshToken } from '../../lib/refreshToken.js';
+import { rotateRefreshToken } from '../../services/refreshToken.js';
 
-const REFRESH_COOKIE_OPTIONS = {
-    secure: true,
+const COOKIE_OPTIONS = {
+    secure: false,
     httpOnly: true,
-    sameSite: 'none' as const,
+    sameSite: 'lax' as const,
     path: '/',
-    maxAge: 7 * 24 * 60 * 60
 };
 
 const refresh_token: FastifyPluginAsyncTypebox = async (Fastify) => {
@@ -42,14 +41,14 @@ const refresh_token: FastifyPluginAsyncTypebox = async (Fastify) => {
         });
 
         reply.setCookie('token', newAccessToken, {
-            secure: true,
-            httpOnly: true,
-            sameSite: 'none',
-            path: '/',
+            ...COOKIE_OPTIONS,
             maxAge: 4 * 60 * 60
         });
 
-        reply.setCookie('refresh_token', result.token, REFRESH_COOKIE_OPTIONS);
+        reply.setCookie('refresh_token', result.token, {
+            ...COOKIE_OPTIONS,
+            maxAge: 7 * 24 * 60 * 60
+        });
 
         return reply.status(200).send({
             status: "sucesso",

@@ -1,6 +1,6 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { schema_login } from "../../schemas/user_schema/schema_login.js";
-import { generateRefreshToken } from '../../lib/refreshToken.js';
+import { generateRefreshToken } from '../../services/refreshToken.js';
 
 const ACCESS_TOKEN_MAX_AGE = 4 * 60 * 60;
 const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60;
@@ -40,19 +40,20 @@ const login_user: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         const refreshToken = await generateRefreshToken(Fastify, check_user.id);
 
-        reply.setCookie('token', token, {
-            secure: true,
+        const cookieOptions = {
+            secure: false,
             httpOnly: true,
-            sameSite: 'none',
+            sameSite: 'lax' as const,
             path: '/',
+        };
+
+        reply.setCookie('token', token, {
+            ...cookieOptions,
             maxAge: ACCESS_TOKEN_MAX_AGE
         });
 
         reply.setCookie('refresh_token', refreshToken, {
-            secure: true,
-            httpOnly: true,
-            sameSite: 'none',
-            path: '/',
+            ...cookieOptions,
             maxAge: REFRESH_TOKEN_MAX_AGE
         });
 
