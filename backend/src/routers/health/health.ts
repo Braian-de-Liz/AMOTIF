@@ -4,7 +4,7 @@ const health_route: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.get("/health", async (request, reply) => {
 
-        return reply.status(200).send("ping") ;
+        return reply.status(200).send(0);
 
     });
 

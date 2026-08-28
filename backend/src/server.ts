@@ -1,5 +1,5 @@
 import fastify from 'fastify';
-import { Flatten, type TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
+import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import cors from "@fastify/cors";
 import cookie from '@fastify/cookie';
 import fastifyJwt from "@fastify/jwt";
@@ -31,7 +31,7 @@ Fastify.get('/', async () => {
 });
 
 await Fastify.register(cors, {
-    origin: ["http://localhost:5173", "https://amotif-music.onrender.com/"],
+    origin: ["http://localhost:5173", "https://amotif-music.onrender.com", "https://amotif.onrender.com"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true
 });
@@ -63,8 +63,8 @@ await Fastify.register(multipart, {
     }
 });
 
-if (dev === true) {
-    await Fastify.register(rate_limite, { max: 100, timeWindow: '1 minute' }); //só ativar em produção
+if (dev === false) {
+    await Fastify.register(rate_limite, { max: 60, timeWindow: '1 minute' }); //só ativar em produção
 }
 
 Fastify.register(health_route);

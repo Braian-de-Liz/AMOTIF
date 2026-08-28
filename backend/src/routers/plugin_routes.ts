@@ -1,6 +1,7 @@
 // back_end\src\schemas
 import { FastifyPluginAsync } from "fastify";
 
+import { Get_me } from "./user/get_me.js";
 import { User_register } from "./user/cadastro.js";
 import { logout_user } from "./user/logout.js";
 import { login_user } from "./user/login.js";
@@ -62,6 +63,7 @@ import { upload_audio } from "./upload/upload_point.js";
 
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
+    Fastify.register(Get_me);
     Fastify.register(User_register);
     Fastify.register(login_user);
     Fastify.register(refresh_token);
