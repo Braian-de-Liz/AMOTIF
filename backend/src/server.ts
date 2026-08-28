@@ -78,7 +78,7 @@ await Fastify.register(Dados_route);
 await Fastify.register(cookie, {
     secret: COOKIE_SECRET,
     parseOptions: {
-        sameSite: "lax",
+        sameSite: "none",
         secure: dev
     }
 });

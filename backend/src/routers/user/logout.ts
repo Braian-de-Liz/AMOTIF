@@ -21,14 +21,14 @@ const logout_user: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         reply.clearCookie('token', {
             path: '/',
-            sameSite: 'lax',
+            sameSite: 'none',
             secure: dev,
             httpOnly: true
         });
 
         reply.clearCookie('refresh_token', {
             path: '/',
-            sameSite: 'lax',
+            sameSite: 'none',
             secure: dev,
             httpOnly: true
         });

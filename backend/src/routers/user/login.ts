@@ -43,7 +43,7 @@ const login_user: FastifyPluginAsyncTypebox = async (Fastify) => {
         const cookieOptions = {
             secure: dev,
             httpOnly: true,
-            sameSite: 'lax' as const,
+            sameSite: 'none' as const,
             path: '/',
         };
 
