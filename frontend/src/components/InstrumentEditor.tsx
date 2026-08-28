@@ -6,9 +6,8 @@ import { instrumentSchema } from '../schemas/instrumentSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
 
 function InstrumentEditor() {
-    const usuarioId = localStorage.getItem("usuario_id");
-
     const { usuario, loading } = useUserData();
+    const usuarioId = usuario?.id || '';
 
     const [instrumentos, setInstrumentos] = useState<string[]>([]);
     const [originalInstrumentos, setOriginalInstrumentos] = useState<string[]>([]);

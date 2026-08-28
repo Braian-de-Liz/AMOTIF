@@ -12,6 +12,7 @@ import { LayerEditorModal } from "../components/LayerEditorModal";
 import { URL_API_TESTE } from "../utility/url_apis";
 import { Play, Pause, Mic, Music, Users, MessageSquare, Lightbulb, Pencil, Trash2 } from "lucide-react";
 import type { Project, Camada } from "../types";
+import { useUserData } from "../contexts/UserDataContext";
 import '../styles/Studio.css';
 import { SEOHead } from '../components/SEOHead';
 
@@ -30,6 +31,7 @@ function Studio() {
     const [deleteLayerTarget, setDeleteLayerTarget] = useState<{ id: string; nome: string } | null>(null);
     const [isCollaborator, setIsCollaborator] = useState(false);
     const [editLayerTarget, setEditLayerTarget] = useState<{ id: string; audioUrl: string; nome: string } | null>(null);
+    const { usuario } = useUserData();
 
     const wavesurferRefs = useRef<Record<string, any>>({});
 
@@ -59,7 +61,7 @@ function Studio() {
 
     useEffect(() => {
         if (!id) return;
-        const usuarioId = localStorage.getItem("usuario_id");
+        const usuarioId = usuario?.id || '';
         if (!usuarioId || !projeto) return;
 
         if (projeto.autor?.id === usuarioId) {
@@ -203,7 +205,7 @@ function Studio() {
         }
     }, []);
 
-    const isOwner = useMemo(() => projeto?.autor?.id === localStorage.getItem("usuario_id"), [projeto]);
+    const isOwner = useMemo(() => projeto?.autor?.id === usuario?.id, [projeto, usuario]);
 
     const handleDeleteLayer = useCallback((layerId: string, layerName: string) => {
         setDeleteLayerTarget({ id: layerId, nome: layerName });

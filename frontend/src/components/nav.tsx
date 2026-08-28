@@ -26,7 +26,6 @@ function Nav() {
         } catch {
         }
         finally {
-            localStorage.clear();
             navigate('/');
         }
     }

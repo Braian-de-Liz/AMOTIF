@@ -13,29 +13,26 @@ const UserDataContext = createContext<UserDataContextValue>({
     usuario: null,
     loading: true,
     error: null,
-    refetch: async () => {}
+    refetch: async () => { }
 });
 
 function UserDataProvider({ children }: { children: ReactNode }) {
-    const usuarioId = localStorage.getItem("usuario_id");
     const [usuario, setUsuario] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
     const fetchUser = async () => {
-        if (!usuarioId) {
-            setLoading(false);
-            return;
-        }
+        setLoading(true);
+        setError(null);
         try {
-            const res = await fetch(`${URL_API_TESTE}/usuario/${usuarioId}/completo`, {
+            const res = await fetch(`${URL_API_TESTE}/auth/me`, {
                 credentials: 'include'
             });
-            const data = await res.json();
             if (res.ok) {
+                const data = await res.json();
                 setUsuario(data.usuario);
-                setError(null);
             } else {
+                const data = await res.json().catch(() => ({}));
                 setError(data.mensagem || "Erro ao carregar dados do usuário.");
             }
         } catch {
@@ -47,7 +44,7 @@ function UserDataProvider({ children }: { children: ReactNode }) {
 
     useEffect(() => {
         fetchUser();
-    }, [usuarioId]);
+    }, []);
 
     return (
         <UserDataContext.Provider value={{ usuario, loading, error, refetch: fetchUser }}>

@@ -207,27 +207,6 @@ AMOTIF/
 
 ---
 
-## Documentacao da API
-
-A documentacao interativa das rotas esta disponivel via Swagger UI:
-
-```
-https://amotif.onrender.com/docs
-```
-
----
-
-## Testes
-
-A suite de testes utiliza o runner nativo do Bun e cobre integracao das principais rotas com Fastify inject (sem servidor HTTP real), mockando o Prisma e aplicando schemas de validacao.
-
-```bash
-bun test                        # Executa todos os testes
-bun test tests/user.test.ts     # Executa testes de usuario especificamente
-```
-
----
-
 ## Autor
 
 **Braian de Liz da Silva**

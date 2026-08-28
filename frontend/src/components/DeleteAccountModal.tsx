@@ -4,6 +4,7 @@ import { URL_API_TESTE } from '../utility/url_apis';
 import { Modal } from './Modal';
 import { Trash2 } from 'lucide-react';
 import { PasswordInput } from './PasswordInput';
+import { useUserData } from '../contexts/UserDataContext';
 
 interface DeleteAccountModalProps {
     isOpen: boolean
@@ -12,7 +13,8 @@ interface DeleteAccountModalProps {
 
 function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps) {
     const navigate = useNavigate();
-    const usuarioId = localStorage.getItem("usuario_id");
+    const { usuario } = useUserData();
+    const usuarioId = usuario?.id || '';
 
     const [senha, setSenha] = useState('');
     const [saving, setSaving] = useState(false);
@@ -46,7 +48,6 @@ function DeleteAccountModal({ isOpen, onClose }: DeleteAccountModalProps) {
             const data = await res.json();
 
             if (res.ok) {
-                localStorage.clear();
                 navigate('/');
             } else {
                 setError(data.mensagem || "Erro ao excluir conta.");

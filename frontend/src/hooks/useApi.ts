@@ -65,7 +65,6 @@ function useApi<T>(urlPath: string, options: UseApiOptions = {}): UseApiResult<T
             });
 
             if (response.status === 401) {
-                localStorage.clear();
                 window.location.href = '/';
                 return;
             }
@@ -140,7 +139,6 @@ function useApiMutation<TBody = unknown, TResponse = unknown>() {
             });
 
             if (response.status === 401) {
-                localStorage.clear();
                 window.location.href = '/';
                 return null;
             }

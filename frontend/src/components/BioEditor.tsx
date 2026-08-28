@@ -3,9 +3,8 @@ import { useUserData } from '../contexts/UserDataContext';
 import { URL_API_TESTE } from '../utility/url_apis';
 
 function BioEditor() {
-    const usuarioId = localStorage.getItem("usuario_id");
-
     const { usuario, loading } = useUserData();
+    const usuarioId = usuario?.id || '';
 
     const [bio, setBio] = useState('');
     const [originalBio, setOriginalBio] = useState<string | null>(null);

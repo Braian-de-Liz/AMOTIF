@@ -4,6 +4,7 @@ import { projectSchema, generos } from '../schemas/projectSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
 import { Modal } from './Modal';
 import { Pencil } from 'lucide-react';
+import { useUserData } from '../contexts/UserDataContext';
 import type { Project } from '../types';
 
 interface EditProjectModalProps {
@@ -14,7 +15,8 @@ interface EditProjectModalProps {
 }
 
 function EditProjectModal({ projeto, isOpen, onClose, onUpdated }: EditProjectModalProps) {
-    const usuarioId = localStorage.getItem("usuario_id");
+    const { usuario } = useUserData();
+    const usuarioId = usuario?.id || '';
 
     const [titulo, setTitulo] = useState(projeto.titulo);
     const [genero, setGenero] = useState(projeto.genero);

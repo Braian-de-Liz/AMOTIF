@@ -1,12 +1,14 @@
 import { useNavigate } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
+import { useUserData } from '../contexts/UserDataContext';
 import { Headphones } from 'lucide-react';
 import type { Project } from '../types';
 import '../styles/Shared.css';
 
 function MyProjectsList() {
     const navigate = useNavigate();
-    const usuarioId = localStorage.getItem("usuario_id");
+    const { usuario } = useUserData();
+    const usuarioId = usuario?.id || '';
     const { data, loading, error } = useApi<{ projetos: Project[] }>(
         `/projetos/${usuarioId}/get`,
         { immediate: !!usuarioId }

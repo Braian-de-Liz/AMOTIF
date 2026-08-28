@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useApi } from '../hooks/useApi';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { Send, MessageCircle, Trash2 } from 'lucide-react';
+import { useUserData } from '../contexts/UserDataContext';
 import type { MuralPost } from '../types';
 
 interface StudioMuralProps {
@@ -15,12 +16,12 @@ function StudioMural({ projetoId }: StudioMuralProps) {
         { immediate: !!projetoId }
     );
 
+    const { usuario } = useUserData();
+    const currentUserId = usuario?.id || '';
     const [newPost, setNewPost] = useState('');
     const [posting, setPosting] = useState(false);
     const [postError, setPostError] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
-
-    const currentUserId = localStorage.getItem('usuario_id');
 
     const handlePost = async (e: React.FormEvent) => {
         e.preventDefault();

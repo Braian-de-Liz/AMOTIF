@@ -3,6 +3,7 @@ import './styles/Global.css';
 import './styles/Shared.css';
 import './styles/Form.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { UserDataProvider } from './contexts/UserDataContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AppLayout } from './components/AppLayout';
 
@@ -36,28 +37,30 @@ function LoadingFallback() {
 function App() {
     return (
         <Router>
-            <React.Suspense fallback={<LoadingFallback />}>
-                <Routes>
-                    <Route path='/' element={<Login />} />
-                    <Route path='/cadastro' element={<Cadastro />} />
+            <UserDataProvider>
+                <React.Suspense fallback={<LoadingFallback />}>
+                    <Routes>
+                        <Route path='/' element={<Login />} />
+                        <Route path='/cadastro' element={<Cadastro />} />
 
-                    <Route element={
-                        <ProtectedRoute>
-                            <AppLayout />
-                        </ProtectedRoute>
-                    }>
-                        <Route path='/home' element={<Home />} />
-                        <Route path='/usuario' element={<UserPage />} />
-                        <Route path='/studio/:id' element={<Studio />} />
-                        <Route path='/usuario/:id' element={<UserProfile />} />
-                        <Route path='/novo-studio' element={<NovoStudio />} />
-                        <Route path='/convites' element={<InvitesPage />} />
-                        <Route path='/favoritos' element={<FavoritesPage />} />
-                    </Route>
+                        <Route element={
+                            <ProtectedRoute>
+                                <AppLayout />
+                            </ProtectedRoute>
+                        }>
+                            <Route path='/home' element={<Home />} />
+                            <Route path='/usuario' element={<UserPage />} />
+                            <Route path='/studio/:id' element={<Studio />} />
+                            <Route path='/usuario/:id' element={<UserProfile />} />
+                            <Route path='/novo-studio' element={<NovoStudio />} />
+                            <Route path='/convites' element={<InvitesPage />} />
+                            <Route path='/favoritos' element={<FavoritesPage />} />
+                        </Route>
 
-                    <Route path='*' element={<NotFound />} />
-                </Routes>
-            </React.Suspense>
+                        <Route path='*' element={<NotFound />} />
+                    </Routes>
+                </React.Suspense>
+            </UserDataProvider>
         </Router>
     );
 }

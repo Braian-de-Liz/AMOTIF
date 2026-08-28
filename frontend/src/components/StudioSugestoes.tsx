@@ -4,6 +4,7 @@ import { URL_API_TESTE } from '../utility/url_apis';
 import { criarSugestaoSchema } from '../schemas/sugestaoSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
 import { Lightbulb, Trash2, ChevronDown } from 'lucide-react';
+import { useUserData } from '../contexts/UserDataContext';
 import type { Sugestao } from '../types';
 
 interface StudioSugestoesProps {
@@ -23,14 +24,14 @@ function StudioSugestoes({ projetoId, isOwner }: StudioSugestoesProps) {
         { immediate: !!projetoId }
     );
 
+    const { usuario } = useUserData();
+    const currentUserId = usuario?.id || '';
     const [titulo, setTitulo] = useState('');
     const [descricao, setDescricao] = useState('');
     const [posting, setPosting] = useState(false);
     const [postError, setPostError] = useState<string | null>(null);
     const [deletingId, setDeletingId] = useState<string | null>(null);
     const [filtroStatus, setFiltroStatus] = useState<string>('');
-
-    const currentUserId = localStorage.getItem('usuario_id');
 
     const handleCreate = async (e: React.FormEvent) => {
         e.preventDefault();

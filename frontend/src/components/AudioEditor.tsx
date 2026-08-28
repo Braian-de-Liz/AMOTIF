@@ -494,7 +494,7 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
             if (bassGain !== 0) {
                 const bassFilter = offlineCtx.createBiquadFilter();
                 bassFilter.type = 'lowshelf';
-                bassFilter.frequency.value = 200;
+                bassFilter.frequency.value = 80;
                 bassFilter.gain.value = bassGain;
 
                 const tempBuffer = offlineCtx.createBuffer(numChannels, finalBuffer.length, sampleRate);
@@ -524,7 +524,7 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
             if (trebleGain !== 0) {
                 const trebleFilter = offlineCtx.createBiquadFilter();
                 trebleFilter.type = 'highshelf';
-                trebleFilter.frequency.value = 3000;
+                trebleFilter.frequency.value = 6000;
                 trebleFilter.gain.value = trebleGain;
 
                 const tempBuffer = offlineCtx.createBuffer(numChannels, finalBuffer.length, sampleRate);

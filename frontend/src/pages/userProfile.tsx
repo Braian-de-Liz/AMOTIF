@@ -4,6 +4,7 @@ import { ProjectCard } from '../components/project_Card';
 import { FollowButton } from '../components/FollowButton';
 import { Avatar } from '../components/Avatar';
 import { URL_API_TESTE } from '../utility/url_apis';
+import { useUserData } from '../contexts/UserDataContext';
 import type { User, Project } from '../types';
 import '../styles/User.css';
 import { SEOHead } from '../components/SEOHead';
@@ -15,8 +16,7 @@ function UserProfile() {
     const [projetos, setProjetos] = useState<Project[]>([]);
     const [loading, setLoading] = useState(true);
     const [erro, setErro] = useState<string | null>(null);
-
-    const currentUserId = localStorage.getItem("usuario_id");
+    const { usuario } = useUserData();
 
     useEffect(() => {
         if (id) fetchUserData();
@@ -49,7 +49,7 @@ function UserProfile() {
     if (erro) return <div className="error-msg">{erro}</div>;
     if (!user) return <div className="error-msg">Usuário não encontrado.</div>;
 
-    const isOwnProfile = currentUserId === user.id;
+    const isOwnProfile = usuario?.id === user.id;
 
     return (
         <div className="user-dashboard">

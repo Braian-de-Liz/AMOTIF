@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useUserData } from '../contexts/UserDataContext';
 import '../styles/Login.css';
 import { useNavigate, Link, Navigate } from 'react-router-dom';
 import { URL_API_TESTE } from '../utility/url_apis'
@@ -10,12 +11,13 @@ import { PasswordInput } from '../components/PasswordInput';
 
 function Login() {
     const navigate = useNavigate();
+    const { usuario, refetch } = useUserData();
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
     const [erro, setErro] = useState('');
     const [loading, setLoading] = useState(false);
 
-    if (localStorage.getItem("usuario_id")) {
+    if (usuario) {
         return <Navigate to="/home" replace />;
     }
 
@@ -48,10 +50,7 @@ function Login() {
                 throw new Error(data.mensagem || 'Erro desconhecido');
             }
 
-            localStorage.setItem("usuario_email", data.usuario.email);
-            localStorage.setItem("usuario_id", data.usuario.id);
-            localStorage.setItem("usuario_nome", data.usuario.nome);
-
+            await refetch();
             navigate("/home");
         } catch (err) {
             console.error('Erro no login:', err);

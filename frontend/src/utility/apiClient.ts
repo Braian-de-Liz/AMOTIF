@@ -1,10 +1,7 @@
 import { URL_API_TESTE } from './url_apis';
 import { refreshAccessToken } from './refreshToken';
 
-export async function apiClient<T>(
-    endpoint: string,
-    options: RequestInit = {}
-): Promise<T> {
+export async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
     const makeRequest = async (): Promise<T> => {
         const res = await fetch(`${URL_API_TESTE}${endpoint}`, {
             ...options,
@@ -21,7 +18,6 @@ export async function apiClient<T>(
                 return makeRequest();
             }
 
-            localStorage.clear();
             window.location.href = '/';
             throw new Error('Sessão expirada');
         }
@@ -39,11 +35,8 @@ export async function apiClient<T>(
 
 export const api = {
     get: <T>(endpoint: string) => apiClient<T>(endpoint, { method: 'GET' }),
-    post: <T>(endpoint: string, body: unknown) =>
-        apiClient<T>(endpoint, { method: 'POST', body: JSON.stringify(body) }),
-    put: <T>(endpoint: string, body: unknown) =>
-        apiClient<T>(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
-    patch: <T>(endpoint: string, body: unknown) =>
-        apiClient<T>(endpoint, { method: 'PATCH', body: JSON.stringify(body) }),
+    post: <T>(endpoint: string, body: unknown) => apiClient<T>(endpoint, { method: 'POST', body: JSON.stringify(body) }),
+    put: <T>(endpoint: string, body: unknown) => apiClient<T>(endpoint, { method: 'PUT', body: JSON.stringify(body) }),
+    patch: <T>(endpoint: string, body: unknown) => apiClient<T>(endpoint, { method: 'PATCH', body: JSON.stringify(body) }),
     delete: <T>(endpoint: string) => apiClient<T>(endpoint, { method: 'DELETE' }),
 };

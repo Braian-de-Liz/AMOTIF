@@ -2,10 +2,12 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { Bell, CheckCheck } from 'lucide-react';
+import { useUserData } from '../contexts/UserDataContext';
 import type { Notification } from '../types';
 import '../styles/Shared.css';
 
 export const Notificacoes = () => {
+    const { usuario } = useUserData();
     const [notificacoes, setNotificacoes] = useState<Notification[]>([]);
     const [isOpen, setIsOpen] = useState(false);
     const [popupStyle, setPopupStyle] = useState<React.CSSProperties>();
@@ -85,10 +87,6 @@ export const Notificacoes = () => {
 
     useEffect(() => {
         const fetchNotificacoes = async () => {
-            const usuarioId = localStorage.getItem('usuario_id');
-
-            if (!usuarioId) return;
-
             try {
                 const response = await fetch(`${URL_API_TESTE}/notifications`, {
                     method: 'GET',
@@ -99,7 +97,6 @@ export const Notificacoes = () => {
                 });
 
                 if (response.status === 401) {
-                    localStorage.clear();
                     window.location.href = '/';
                     return;
                 }
@@ -131,12 +128,11 @@ export const Notificacoes = () => {
             });
 
             if (response.status === 401) {
-                localStorage.clear();
-                window.location.href = '/';
-                return;
-            }
+                    window.location.href = '/';
+                    return;
+                }
 
-            if (response.ok) {
+                if (response.ok) {
                 setNotificacoes([]);
             }
         } catch (error) {
@@ -154,7 +150,6 @@ export const Notificacoes = () => {
             });
 
             if (response.status === 401) {
-                localStorage.clear();
                 window.location.href = '/';
                 return;
             }
