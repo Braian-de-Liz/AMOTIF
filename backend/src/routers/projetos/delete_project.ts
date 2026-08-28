@@ -35,13 +35,41 @@ const del_project: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         const projeto = await Fastify.prisma.projeto.findUnique({
             where: { id },
-            select: { audio_guia: true }
+            select: {
+                audio_guia: true,
+                camadas: {
+                    select: {
+                        audio_url: true,
+                        versions: { select: { audio_url: true } }
+                    }
+                }
+            }
         });
 
         if (projeto?.audio_guia) {
             const path = extractPathFromUrl(projeto.audio_guia);
             if (path) {
                 await Fastify.storage.deleteAudio(path);
+            }
+        }
+
+        if (projeto?.camadas) {
+            for (const camada of projeto.camadas) {
+                if (camada.versions) {
+                    for (const version of camada.versions) {
+                        const path = extractPathFromUrl(version.audio_url);
+                        if (path) {
+                            await Fastify.storage.deleteAudio(path);
+                        }
+                    }
+                }
+
+                if (camada.audio_url) {
+                    const path = extractPathFromUrl(camada.audio_url);
+                    if (path) {
+                        await Fastify.storage.deleteAudio(path);
+                    }
+                }
             }
         }
 

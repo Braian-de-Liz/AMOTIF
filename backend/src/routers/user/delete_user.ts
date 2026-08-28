@@ -2,6 +2,7 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_permissao } from "../../hooks/verificar_permissao.js";
 import { Schema_del_user } from "../../schemas/user_schema/delete_user_schema.js";
+import { extractPathFromUrl } from "../../lib/upload.js";
 
 const Deletar_user: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -31,6 +32,46 @@ const Deletar_user: FastifyPluginAsyncTypebox = async (Fastify) => {
                 status: 'erro',
                 mensagem: 'senha incorreta'
             });
+        }
+
+        const projetos = await Fastify.prisma.projeto.findMany({
+            where: { userId: id },
+            select: {
+                audio_guia: true,
+                camadas: {
+                    select: {
+                        audio_url: true,
+                        versions: { select: { audio_url: true } }
+                    }
+                }
+            }
+        });
+
+        for (const projeto of projetos) {
+            if (projeto.audio_guia) {
+                const path = extractPathFromUrl(projeto.audio_guia);
+                if (path) {
+                    await Fastify.storage.deleteAudio(path);
+                }
+            }
+
+            for (const camada of projeto.camadas) {
+                if (camada.versions) {
+                    for (const version of camada.versions) {
+                        const path = extractPathFromUrl(version.audio_url);
+                        if (path) {
+                            await Fastify.storage.deleteAudio(path);
+                        }
+                    }
+                }
+
+                if (camada.audio_url) {
+                    const path = extractPathFromUrl(camada.audio_url);
+                    if (path) {
+                        await Fastify.storage.deleteAudio(path);
+                    }
+                }
+            }
         }
 
         await Fastify.prisma.user.delete({ where: { id } });

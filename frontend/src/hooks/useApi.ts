@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { URL_API_TESTE } from '../utility/url_apis';
+import { refreshAccessToken } from '../utility/refreshToken';
 
 interface UseApiOptions extends Omit<RequestInit, 'signal'> {
     immediate?: boolean
@@ -12,21 +13,6 @@ interface UseApiResult<T> {
     refetch: () => Promise<void>
 }
 
-let isRefreshing = false;
-let refreshPromise: Promise<boolean> | null = null;
-
-async function tryRefreshToken(): Promise<boolean> {
-    try {
-        const res = await fetch(`${URL_API_TESTE}/usuario/refresh`, {
-            method: 'POST',
-            credentials: 'include',
-        });
-        return res.ok;
-    } catch {
-        return false;
-    }
-}
-
 async function fetchWithRefresh(urlPath: string, fetchOptions: RequestInit): Promise<Response> {
     let response = await fetch(`${URL_API_TESTE}${urlPath}`, {
         ...fetchOptions,
@@ -34,14 +20,7 @@ async function fetchWithRefresh(urlPath: string, fetchOptions: RequestInit): Pro
     });
 
     if (response.status === 401) {
-        if (!isRefreshing) {
-            isRefreshing = true;
-            refreshPromise = tryRefreshToken();
-        }
-
-        const refreshed = await refreshPromise;
-        isRefreshing = false;
-        refreshPromise = null;
+        const refreshed = await refreshAccessToken();
 
         if (refreshed) {
             response = await fetch(`${URL_API_TESTE}${urlPath}`, {

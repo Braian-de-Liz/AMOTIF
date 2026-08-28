@@ -1,5 +1,5 @@
 import fastify from 'fastify';
-import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
+import { Flatten, type TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import cors from "@fastify/cors";
 import cookie from '@fastify/cookie';
 import fastifyJwt from "@fastify/jwt";
@@ -13,7 +13,8 @@ import { Upload_Service } from './lib/upload.js';
 import { globalErrorHandler } from './lib/global_Error.js';
 import { Plugin_Routes } from './routers/plugin_routes.js';
 import { health_route } from './routers/health/health.js';
-import { Dados_route } from './routers/dados.js';
+import { Dados_route } from './routers/health/dados.js';
+import { COOKIE_SECRET, dev } from './lib/config.enviriment.js';
 
 if (!Bun.env.JWT_PASSWORD) {
     console.error("ERRO FATAL: A variável de ambiente JWT_PASSWORD não foi definida.");
@@ -21,14 +22,8 @@ if (!Bun.env.JWT_PASSWORD) {
 }
 
 const JWT_SECRET: string = Bun.env.JWT_PASSWORD;
-const dev = (Bun.env.STATE_APP === "DEV") ? false : true
-const COOKIE_SECRET: string = Bun.env.COOKIE_SECRET || JWT_SECRET;
 
-if (COOKIE_SECRET === JWT_SECRET && !Bun.env.COOKIE_SECRET) {
-    console.warn("AVISO: COOKIE_SECRET não definido. Usando JWT_PASSWORD como fallback. Defina COOKIE_SECRET em produção.");
-}
-
-const Fastify = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
+const Fastify = fastify(/* { logger: true } */).withTypeProvider<TypeBoxTypeProvider>();
 
 
 Fastify.get('/', async () => {
@@ -36,7 +31,7 @@ Fastify.get('/', async () => {
 });
 
 await Fastify.register(cors, {
-    origin: ["http://localhost:5173", "https://amotif-music.onrender.com"],
+    origin: ["http://localhost:5173", "https://amotif-music.onrender.com/"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     credentials: true
 });
@@ -68,7 +63,9 @@ await Fastify.register(multipart, {
     }
 });
 
-// await Fastify.register(rate_limite, { max: 100, timeWindow: '1 minute' }); //só ativar em produção
+if (dev === true) {
+    await Fastify.register(rate_limite, { max: 100, timeWindow: '1 minute' }); //só ativar em produção
+}
 
 Fastify.register(health_route);
 await Fastify.register(prisma_plugin);

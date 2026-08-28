@@ -1,28 +1,5 @@
 import { URL_API_TESTE } from './url_apis';
-
-let isRefreshing = false;
-let refreshPromise: Promise<boolean> | null = null;
-
-async function refreshAccessToken(): Promise<boolean> {
-    if (refreshPromise) return refreshPromise;
-
-    refreshPromise = (async () => {
-        try {
-            const res = await fetch(`${URL_API_TESTE}/usuario/refresh`, {
-                method: 'POST',
-                credentials: 'include',
-            });
-            if (!res.ok) return false;
-            return true;
-        } catch {
-            return false;
-        } finally {
-            refreshPromise = null;
-        }
-    })();
-
-    return refreshPromise;
-}
+import { refreshAccessToken } from './refreshToken';
 
 export async function apiClient<T>(
     endpoint: string,

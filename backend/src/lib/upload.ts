@@ -1,5 +1,6 @@
 import fp from "fastify-plugin";
 import type { FastifyPluginAsync } from "fastify";
+import { autenticarJWT } from "../hooks/JWT_verific.js";
 import type { MultipartFile } from "@fastify/multipart";
 
 const ALLOWED_CONTENT_TYPES: Record<string, boolean> = {
@@ -44,6 +45,7 @@ class UploadError extends Error {
 }
 
 const Upload_Service: FastifyPluginAsync = fp(async (Fastify) => {
+
     const supabaseUrl = Bun.env.SUPABASE_URL;
     const supabaseKey = Bun.env.SUPABASE_KEY;
     const bucket = Bun.env.SUPABASE_BUCKET || "audios-projetos";

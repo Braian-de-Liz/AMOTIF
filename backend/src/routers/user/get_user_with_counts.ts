@@ -42,9 +42,7 @@ const Get_user_with_counts: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
-        const isFollowing = usuarioLogadoId !== id
-            ? (check_user.seguindo?.length ?? 0) > 0
-            : false;
+        const isFollowing = usuarioLogadoId !== id ? (check_user.seguindo?.length ?? 0) > 0 : false;
 
         const { seguindo: _, ...userData } = check_user;
 

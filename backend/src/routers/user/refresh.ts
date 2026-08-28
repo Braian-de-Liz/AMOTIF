@@ -1,9 +1,10 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { schema_refresh } from '../../schemas/user_schema/schema_refresh.js';
 import { rotateRefreshToken } from '../../services/refreshToken.js';
+import { dev } from '../../lib/config.enviriment.js';
 
 const COOKIE_OPTIONS = {
-    secure: false,
+    secure: dev,
     httpOnly: true,
     sameSite: 'lax' as const,
     path: '/',

@@ -29,7 +29,7 @@ function Cadastro() {
             return
         }
 
-        const { cpf: cpfLimpo } = result.data
+        const { cpf: cpfLimpo } = result.data;
         const usuario = { nome_completo: nomeCompleto, email, senha, cpf: cpfLimpo };
 
         setLoading(true);
