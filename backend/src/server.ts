@@ -23,7 +23,7 @@ if (!Bun.env.JWT_PASSWORD) {
 
 const JWT_SECRET: string = Bun.env.JWT_PASSWORD;
 
-const Fastify = fastify(/* { logger: true } */).withTypeProvider<TypeBoxTypeProvider>();
+const Fastify = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
 
 
 Fastify.get('/', async () => {
