@@ -16,7 +16,7 @@ const originalFetch = globalThis.fetch;
 let uploadCallCount = 0;
 
 function mockSupabaseFetch() {
-    globalThis.fetch = async (url: string | URL | Request, init?: RequestInit): Promise<Response> => {
+    globalThis.fetch = Object.assign(async (url: string | URL | Request, init?: RequestInit): Promise<Response> => {
         const urlStr = typeof url === "string" ? url : url.toString();
 
         if (urlStr.includes("/storage/v1/object/")) {
@@ -33,7 +33,7 @@ function mockSupabaseFetch() {
         }
 
         return originalFetch(url, init);
-    };
+    }, { preconnect: async () => {} }) as unknown as typeof globalThis.fetch;
 }
 
 const mockPrisma = {

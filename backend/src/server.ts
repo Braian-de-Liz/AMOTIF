@@ -1,96 +1,12 @@
 import fastify from 'fastify';
 import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
-import cors from "@fastify/cors";
-import cookie from '@fastify/cookie';
-import fastifyJwt from "@fastify/jwt";
-import swagger from '@fastify/swagger';
-import swaggerUi from '@fastify/swagger-ui';
-import multipart from '@fastify/multipart';
-import rate_limite from '@fastify/rate-limit';
-
 import { prisma_plugin } from './lib/prisma.js';
-import { Upload_Service } from './lib/upload.js';
-import { globalErrorHandler } from './lib/global_Error.js';
-import { Plugin_Routes } from './routers/plugin_routes.js';
-import { health_route } from './routers/health/health.js';
-import { Dados_route } from './routers/health/dados.js';
-import { COOKIE_SECRET, dev } from './lib/config.enviriment.js';
-
-if (!Bun.env.JWT_PASSWORD) {
-    console.error("ERRO FATAL: A variável de ambiente JWT_PASSWORD não foi definida.");
-    process.exit(1);
-}
-
-const JWT_SECRET: string = Bun.env.JWT_PASSWORD;
+import { InfraPlugin } from './lib/infra_plugins.js';
 
 const Fastify = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
 
-
-Fastify.get('/', async () => {
-    return { status: "online", app: "AMOTIF API", docs: "/docs" };
-});
-
-await Fastify.register(cors, {
-    origin: ["http://localhost:5173", "https://amotif-music.onrender.com", "https://amotif.onrender.com"],
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    credentials: true
-});
-
-await Fastify.register(swagger, {
-    openapi: {
-        info: {
-            title: 'AMOTIF API',
-            description: "Documentação da plataforma de colaboração musical AMOTIF",
-            version: '1.0.0',
-        },
-        components: {
-            securitySchemes: {
-                bearerAuth: {
-                    type: 'http',
-                    scheme: 'bearer',
-                    bearerFormat: 'JWT',
-                },
-            },
-        },
-    }
-});
-
-await Fastify.register(swaggerUi, { routePrefix: '/docs' });
-
-await Fastify.register(multipart, {
-    limits: {
-        fileSize: 40 * 1024 * 1024
-    }
-});
-
-if (dev === false) {
-    await Fastify.register(rate_limite, { max: 60, timeWindow: '1 minute' }); //só ativar em produção
-}
-
-Fastify.register(health_route);
 await Fastify.register(prisma_plugin);
-
-Fastify.setErrorHandler(globalErrorHandler);
-await Fastify.register(Upload_Service);
-await Fastify.register(Dados_route);
-
-
-await Fastify.register(cookie, {
-    secret: COOKIE_SECRET,
-    parseOptions: {
-        sameSite: "none",
-        secure: dev
-    }
-});
-
-await Fastify.register(fastifyJwt, {
-    secret: JWT_SECRET,
-    sign: { expiresIn: '4h', iss: 'amotif-api', aud: 'amotif-client' }
-});
-
-
-Fastify.register(Plugin_Routes, { prefix: "/api" });
-
+Fastify.register(InfraPlugin);
 
 const start = async () => {
 
