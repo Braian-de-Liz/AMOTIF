@@ -7,6 +7,9 @@
     "dev": "vite --host",
     "build": "vite build",
     "lint": "eslint .",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "build:desktop": "powershell -ExecutionPolicy Bypass -File build-desktop.ps1",
     "preview": "vite preview"
   },
@@ -24,6 +27,9 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.7",
     "@types/deno": "^2.7.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
@@ -35,8 +41,11 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
     "globals": "^16.5.0",
+    "jsdom": "^29.1.1",
+    "msw": "^2.15.0",
     "typescript": "^6.0.3",
     "vite": "^7.3.1",
-    "vite-plugin-sitemap": "^0.8.2"
+    "vite-plugin-sitemap": "^0.8.2",
+    "vitest": "^5.0.0"
   }
 }
