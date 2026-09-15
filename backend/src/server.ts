@@ -3,7 +3,7 @@ import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { prisma_plugin } from './lib/prisma.js';
 import { InfraPlugin } from './lib/infra_plugins.js';
 
-const Fastify = fastify({ logger: true }).withTypeProvider<TypeBoxTypeProvider>();
+const Fastify = fastify(/* { logger: true } */).withTypeProvider<TypeBoxTypeProvider>();
 
 await Fastify.register(prisma_plugin);
 Fastify.register(InfraPlugin);
