@@ -2,6 +2,7 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_convite } from "../../schemas/colaboration/schema_convite.js";
 import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
+import { enviarConviteEmail } from "../../services/emailService.js";
 
 const convite_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -30,6 +31,23 @@ const convite_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                 mensagem: 'erro ao criar projeto'
             });
         }
+
+        const projeto = await Fastify.prisma.projeto.findUnique({
+            where: { id },
+            select: { titulo: true }
+        });
+
+        enviarConviteEmail({
+            emailDestinatario: email_destinatario,
+            nomeRemetente: request.user.nome,
+            tituloProjeto: projeto?.titulo || 'Projeto',
+            cargo: cargo,
+            mensagem: mensagem,
+            tokenConvite: novoConvite.token_convite,
+            projetoId: id
+        }).catch((err) => {
+            Fastify.log.error("Erro ao enviar email de convite: " + err);
+        });
 
         return reply.status(201).send({
             status: "sucesso",

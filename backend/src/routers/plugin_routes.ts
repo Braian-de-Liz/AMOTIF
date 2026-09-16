@@ -39,6 +39,7 @@ import { update_layer } from "./layers/update_layers.js";
 import { follow_user } from "./follows/follow_user.js";
 import { Unfollow_route } from "./follows/unfollow_user.js";
 import { list_followers } from "./follows/list_followers.js";
+import { list_following } from "./follows/list_following.js";
 import { Create_like } from "./likes/like_create.js";
 
 import { search_user_by_instruments } from "./search/search_by_instrument.js";
@@ -60,6 +61,8 @@ import { atualizar_sugestao } from "./sugestoes/atualizar_sugestao.js";
 import { deletar_sugestao } from "./sugestoes/deletar_sugestao.js";
 
 import { upload_audio } from "./upload/upload_point.js";
+
+import { cleanup_route } from "./cleanup/cleanup.js";
 
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
@@ -104,6 +107,7 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(follow_user);
     Fastify.register(Unfollow_route);
     Fastify.register(list_followers);
+    Fastify.register(list_following);
     Fastify.register(Create_like);
 
     Fastify.register(get_notifications);
@@ -121,6 +125,8 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(deletar_sugestao);
 
     await Fastify.register(upload_audio);
+
+    Fastify.register(cleanup_route);
 }
 
 
