@@ -24,7 +24,10 @@
     "tables": "bun x prisma db push",
     "db:migrate": "bunx prisma migrate dev",
     "db:generate": "bunx prisma generate",
-    "db:studio": "bunx prisma studio"
+    "db:studio": "bunx prisma studio",
+    "cpf:reencrypt": "bun run scripts/reencrypt_cpf.ts",
+    "cpf:reencrypt:dry": "bun run scripts/reencrypt_cpf.ts --dry-run",
+    "cpf:export": "bun run scripts/export_cpf.ts"
   },
   "keywords": [],
   "author": "Braian de Liz da Silva",

@@ -1,31 +1,43 @@
-import { createCipheriv, createDecipheriv, scryptSync } from 'crypto';
+import { createCipheriv, createDecipheriv, createHmac, randomBytes, scryptSync } from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';
 const IV_LENGTH = 12;
-const SALT = 'amotif-cpf-salt';
+const AUTH_TAG_LENGTH = 16;
 
 let cachedKey: Buffer | null = null;
+let cachedIndexKey: Buffer | null = null;
 
 function deriveKey(): Buffer {
     if (cachedKey) return cachedKey;
+
     const secret = Bun.env.JWT_PASSWORD;
     if (!secret) throw new Error("JWT_PASSWORD não definido para criptografia de CPF");
-    cachedKey = scryptSync(secret, SALT, 32);
+
+    const salt = Bun.env.CPF_ENCRYPTION_SALT || 'amotif-cpf-salt';
+    cachedKey = scryptSync(secret, salt, 32);
     return cachedKey;
 }
 
-function generateIV(cpf: string): Buffer {
-    const iv = Buffer.alloc(IV_LENGTH);
-    const hash = Buffer.from(cpf);
-    for (let i = 0; i < IV_LENGTH; i++) {
-        iv[i] = hash[i % hash.length] ^ (i * 0x37);
-    }
-    return iv;
+function deriveIndexKey(): Buffer {
+    if (cachedIndexKey) return cachedIndexKey;
+
+    const secret = Bun.env.CPF_INDEX_SECRET || Bun.env.JWT_PASSWORD;
+    if (!secret) throw new Error("CPF_INDEX_SECRET/JWT_PASSWORD não definido para o índice de CPF");
+
+    cachedIndexKey = scryptSync(secret, 'amotif-cpf-index-salt', 32);
+    return cachedIndexKey;
 }
+
+
+export function hashCPF(cpf: string): string {
+    const key = deriveIndexKey();
+    return createHmac('sha256', key).update(cpf).digest('hex');
+}
+
 
 export function encryptCPF(cpf: string): string {
     const key = deriveKey();
-    const iv = generateIV(cpf);
+    const iv = randomBytes(IV_LENGTH);
 
     const cipher = createCipheriv(ALGORITHM, key, iv);
     const encrypted = Buffer.concat([cipher.update(cpf, 'utf8'), cipher.final()]);
@@ -40,8 +52,8 @@ export function decryptCPF(encryptedCPF: string): string {
     const combined = Buffer.from(encryptedCPF, 'base64');
 
     const iv = combined.subarray(0, IV_LENGTH);
-    const authTag = combined.subarray(IV_LENGTH, IV_LENGTH + 16);
-    const data = combined.subarray(IV_LENGTH + 16);
+    const authTag = combined.subarray(IV_LENGTH, IV_LENGTH + AUTH_TAG_LENGTH);
+    const data = combined.subarray(IV_LENGTH + AUTH_TAG_LENGTH);
 
     const decipher = createDecipheriv(ALGORITHM, key, iv);
     decipher.setAuthTag(authTag);

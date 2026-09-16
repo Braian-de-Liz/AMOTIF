@@ -12,7 +12,8 @@ model User {
   nome_completo String
   email         String    @unique
   senha         String
-  cpf           String    @unique
+  cpf           String
+  cpf_hash      String    @unique
   bio           String?
   instrumentos  String[]
   avatar_url    String?
