@@ -13,7 +13,7 @@ model User {
   email         String    @unique
   senha         String
   cpf           String
-  cpf_hash      String    @unique
+  cpf_hash      String?   @unique
   bio           String?
   instrumentos  String[]
   avatar_url    String?
