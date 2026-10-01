@@ -1,11 +1,12 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { List_invite_schema } from "../../schemas/colaboration/list_invite.js";
-import { verificar_permissao } from "../../hooks/verificar_permissao.js";
+import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 
 const list_invite: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
-    Fastify.addHook("preHandler", verificar_permissao);
+    // `:id` é o ID do projeto: somente o dono lista os convites pendentes.
+    Fastify.addHook("preHandler", verificar_dono_projeto('id'));
 
     Fastify.get("/colaboration/:id/invite", List_invite_schema, async (request, reply) => {
 

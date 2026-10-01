@@ -93,6 +93,16 @@ async function rollbackToVersion(prisma: PrismaClient, camadaId: string, version
         throw new Error("Versão não encontrada nesta camada");
     }
 
+    const camadaAtual = await prisma.camada.findUnique({
+        where: { id: camadaId },
+        select: { audio_url: true, esta_aprovada: true }
+    });
+
+    if (!camadaAtual) throw new Error("Camada não encontrada");
+
+    // Voltar para um áudio diferente numa camada aprovada exige nova aprovação do dono do projeto.
+    const resetAprovacao = camadaAtual.esta_aprovada && camadaAtual.audio_url !== targetVersion.audio_url;
+
     const nextVersion = await getNextVersionNumber(prisma, camadaId);
 
     const rollbackVersion = await prisma.layerVersion.create({
@@ -117,7 +127,8 @@ async function rollbackToVersion(prisma: PrismaClient, camadaId: string, version
             nome_trilha: targetVersion.nome_trilha,
             instrumento_tag: targetVersion.instrumento_tag,
             delay_offset: targetVersion.delay_offset,
-            volume_padrao: targetVersion.volume_padrao
+            volume_padrao: targetVersion.volume_padrao,
+            ...(resetAprovacao ? { esta_aprovada: false } : {})
         }
     });
 

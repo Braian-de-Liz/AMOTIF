@@ -85,6 +85,14 @@ O trafego de audio segue um caminho otimizado:
 
 Detalhes: [documents/Architecture.md](./documents/Architecture.md)
 
+### Manutencao (`POST /api/cleanup`)
+
+Remove convites expirados e notificacoes lidas com mais de 7 dias. A rota nao usa JWT de usuario: e destinada a um cron e exige o header `x-cleanup-secret` igual a variavel de ambiente `CLEANUP_SECRET`. Sem `CLEANUP_SECRET` definido, a rota responde `503` (desativada).
+
+```bash
+curl -X POST -H "x-cleanup-secret: $CLEANUP_SECRET" https://<host>/api/cleanup
+```
+
 ---
 
 ## Stack Tecnologica

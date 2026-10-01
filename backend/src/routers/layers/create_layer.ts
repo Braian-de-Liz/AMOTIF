@@ -2,6 +2,7 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_layer } from "../../schemas/layers/create_schema_lyr.js";
 import { createInitialVersion } from "../../services/versionService.js";
+import { isOwnedAudioUrl } from "../../lib/storage_path.js";
 
 const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -15,16 +16,25 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
             where: { id: projetoId },
             select: {
                 userId: true,
-                titulo: true
+                titulo: true,
+                deletedAt: true
             }
         });
 
-        if (!check_project) {
+        if (!check_project || check_project.deletedAt) {
             Fastify.log.error("projeto não existente");
 
             return reply.status(404).send({
                 status: "erro",
                 mensagem: "projeto não existente"
+            });
+        }
+
+        // O áudio precisa ter sido enviado pelo próprio usuário (diretório `${userId}/` no Storage).
+        if (!isOwnedAudioUrl(audio_url, userId)) {
+            return reply.status(400).send({
+                status: "erro",
+                mensagem: "audio_url inválida: envie o arquivo pelo endpoint de upload."
             });
         }
 
@@ -35,6 +45,8 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
                 instrumento_tag,
                 delay_offset,
                 volume_padrao,
+                // Toda contribuição entra como pendente; só o dono do projeto aprova.
+                esta_aprovada: false,
                 projetoId,
                 userId
             }

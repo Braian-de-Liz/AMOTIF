@@ -14,8 +14,7 @@ const update_layer_schema = {
             audio_url: Type.String({ format: 'uri' }),
             instrumento_tag: Type.String({ minLength: 1 }),
             delay_offset: Type.Optional(Type.Integer()),
-            volume_padrao: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
-            esta_aprovada: Type.Optional(Type.Boolean())
+            volume_padrao: Type.Optional(Type.Number({ minimum: 0, maximum: 1 }))
         }),
         response: {
             200: Type.Object({

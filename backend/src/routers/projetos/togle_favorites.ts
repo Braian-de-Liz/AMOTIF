@@ -27,10 +27,11 @@ const Toggle_favorite: FastifyPluginAsyncTypebox = async (Fastify) => {
 
 
         const projeto = await Fastify.prisma.projeto.findUnique({
-            where: { id: projetoId }
+            where: { id: projetoId },
+            select: { id: true, deletedAt: true }
         });
 
-        if (!projeto) {
+        if (!projeto || projeto.deletedAt) {
             Fastify.log.error("projeto não encontrado, 404");
 
             return reply.status(404).send({

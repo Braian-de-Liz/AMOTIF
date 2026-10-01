@@ -29,12 +29,22 @@ const mockVersion = {
 const mockPrisma = {
   camada: {
     findUnique: async (args: any) => {
-      if (args.where?.id === VALID_UUID) return { id: VALID_UUID };
+      if (args.where?.id === VALID_UUID) {
+        return {
+          id: VALID_UUID,
+          userId: VALID_UUID,
+          deletedAt: null,
+          audio_url: "https://example.com/audio-v1.mp3",
+          esta_aprovada: false,
+          projeto: { userId: VALID_UUID, deletedAt: null },
+        };
+      }
       return null;
     },
     update: async (args: any) => ({ id: args.where.id, ...args.data }),
   },
   layerVersion: {
+    findUnique: async (args: any) => (args.where?.id === VALID_UUID ? { ...mockVersion } : null),
     findFirst: async (args: any) => {
       if (args.where?.id === VALID_UUID) return { ...mockVersion };
       return null;

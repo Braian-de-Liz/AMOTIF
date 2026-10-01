@@ -10,6 +10,18 @@ const Create_like: FastifyPluginAsyncTypebox = async (Fastify) => {
         const { projetoId } = request.params;
         const userId = request.user.id;
 
+        const projetoAlvo = await Fastify.prisma.projeto.findUnique({
+            where: { id: projetoId },
+            select: { deletedAt: true }
+        });
+
+        if (!projetoAlvo || projetoAlvo.deletedAt) {
+            return reply.status(404).send({
+                status: "erro",
+                mensagem: "Projeto não encontrado."
+            });
+        }
+
         const result = await Fastify.prisma.$transaction(async (ctx) => {
 
             const existingLike = await ctx.like.findUnique({

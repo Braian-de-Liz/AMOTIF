@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from "bun:test";
+import { audioUrlFor } from "./helpers/storage_env.js";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import fastifyJwt from "@fastify/jwt";
@@ -22,7 +23,7 @@ const mockPrisma = {
           userId: "test-user-id",
           projetoId: VALID_UUID,
           esta_aprovada: false,
-          audio_url: "https://example.com/audio.mp3",
+          audio_url: audioUrlFor("test-user-id"),
           versions: [],
           projeto: { userId: "test-user-id", id: VALID_UUID },
         };
@@ -105,7 +106,7 @@ describe("Layers Routes - POST /api/layer/:projetoId", () => {
       url: "/api/layer/nao-e-uuid",
       payload: {
         nome_trilha: "Guitarra Solo",
-        audio_url: "https://example.com/audio.mp3",
+        audio_url: audioUrlFor("test-user-id"),
         instrumento_tag: "Guitarra",
         delay_offset: 0,
         volume_padrao: 1.0,
@@ -139,7 +140,7 @@ describe("Layers Routes - POST /api/layer/:projetoId", () => {
       headers: { Authorization: `Bearer ${token}` },
       payload: {
         nome_trilha: "Guitarra Solo",
-        audio_url: "https://example.com/audio.mp3",
+        audio_url: audioUrlFor("test-user-id"),
         delay_offset: 0,
         volume_padrao: 1.0,
       },
@@ -288,7 +289,7 @@ describe("Layers Routes - Happy Paths", () => {
       headers: { Authorization: `Bearer ${token}` },
       payload: {
         nome_trilha: "Guitarra Solo",
-        audio_url: "https://example.com/audio.mp3",
+        audio_url: audioUrlFor("test-user-id"),
         instrumento_tag: "Guitarra",
         delay_offset: 0,
         volume_padrao: 1.0,

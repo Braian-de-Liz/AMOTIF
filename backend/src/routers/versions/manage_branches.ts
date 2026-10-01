@@ -1,12 +1,14 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
-import { verificar_colaborador } from '../../hooks/verificar_colaborador.js';
+import { verificar_autor_ou_dono_layer } from '../../hooks/verificar_dono_layer.js';
 import { rollback_schema } from "../../schemas/versions/rollback_schema.js";
 import { rollbackToVersion } from "../../services/versionService.js";
 
 const rollback_route: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
-    Fastify.addHook("preValidation", verificar_colaborador);
+    // `params.id` é o ID da camada: autor da camada ou dono do projeto.
+    // preHandler (após validação) garante que os params já são UUIDs válidos.
+    Fastify.addHook("preHandler", verificar_autor_ou_dono_layer);
 
     Fastify.post("/layer/:id/rollback/:versionId", rollback_schema, async (request, reply) => {
         const { id, versionId } = request.params;

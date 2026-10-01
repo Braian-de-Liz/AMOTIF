@@ -1,12 +1,13 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
-import { verificar_permissao_layer } from "../../hooks/verificar_dono_layer.js";
+import { verificar_autor_ou_dono_layer } from "../../hooks/verificar_dono_layer.js";
 import { delete_lay_schema } from "../../schemas/layers/delete_a_layer.js";
-import { extractPathFromUrl } from "../../lib/upload.js";
+import { deleteOwnedAudios, type AudioRef } from "../../lib/safe_delete.js";
 
 const delete_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
-    Fastify.addHook("preHandler", verificar_permissao_layer);
+    // Autor da camada ou dono do projeto.
+    Fastify.addHook("preHandler", verificar_autor_ou_dono_layer);
 
     Fastify.delete("/layer/:id", delete_lay_schema, async (request, reply) => {
 
@@ -15,25 +16,20 @@ const delete_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
         const layer = await Fastify.prisma.camada.findUnique({
             where: { id },
             select: {
+                userId: true,
                 audio_url: true,
-                versions: { select: { audio_url: true } }
+                versions: { select: { audio_url: true, autorId: true } }
             }
         });
 
-        if (layer?.versions) {
-            for (const version of layer.versions) {
-                const path = extractPathFromUrl(version.audio_url);
-                if (path) {
-                    await Fastify.storage.deleteAudio(path);
-                }
-            }
-        }
+        if (layer) {
+            const refs: AudioRef[] = [
+                ...(layer.versions ?? []).map((v) => ({ url: v.audio_url, ownerId: v.autorId })),
+                { url: layer.audio_url, ownerId: layer.userId }
+            ];
 
-        if (layer?.audio_url) {
-            const path = extractPathFromUrl(layer.audio_url);
-            if (path) {
-                await Fastify.storage.deleteAudio(path);
-            }
+            // Só apaga arquivos dentro do diretório de quem os enviou (bloqueia URLs forjadas/legadas).
+            await deleteOwnedAudios(Fastify, refs);
         }
 
         await Fastify.prisma.camada.delete({ where: { id } });

@@ -5,7 +5,8 @@ import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 
 const Delete_Colab: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
-    Fastify.addHook("preHandler", verificar_dono_projeto);
+    // A rota usa `:projetoId` (não `:id`).
+    Fastify.addHook("preHandler", verificar_dono_projeto('projetoId'));
 
     Fastify.delete("/colaboration/:projetoId/remove/:userId", Deletar_Colab_schema, async (request, reply) => {
 

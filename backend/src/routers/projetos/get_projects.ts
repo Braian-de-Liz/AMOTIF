@@ -15,6 +15,7 @@ const Get_projects_user: FastifyPluginAsyncTypebox = async (Fastify) => {
         const projetos = await Fastify.prisma.projeto.findMany({
             where: {
                 userId: id,
+                deletedAt: null,
                 ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {})
             },
             orderBy: {

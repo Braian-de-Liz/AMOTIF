@@ -46,7 +46,7 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                 }
             }
         });
-        if (!projeto) {
+        if (!projeto || projeto.deletedAt) {
             Fastify.log.error("projeto inexistente");
 
             return reply.status(404).send({

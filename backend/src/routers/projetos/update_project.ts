@@ -5,7 +5,7 @@ import { update_project_schema } from "../../schemas/projetos/update_project_sch
 
 const Update_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
-    Fastify.addHook("preHandler", verificar_dono_projeto);
+    Fastify.addHook("preHandler", verificar_dono_projeto());
 
     Fastify.patch("/projetos/:id", update_project_schema, async (request, reply) => {
         const { id } = request.params;

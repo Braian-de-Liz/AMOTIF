@@ -11,10 +11,11 @@ const criar_sugestao: FastifyPluginAsyncTypebox = async (Fastify) => {
         const { titulo, descricao } = request.body;
 
         const projeto = await Fastify.prisma.projeto.findUnique({
-            where: { id: projetoId }
+            where: { id: projetoId },
+            select: { id: true, deletedAt: true }
         });
 
-        if (!projeto) {
+        if (!projeto || projeto.deletedAt) {
             return reply.status(404).send({
                 status: "error",
                 mensagem: "Projeto não encontrado"

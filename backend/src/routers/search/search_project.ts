@@ -12,6 +12,8 @@ const search_project: FastifyPluginAsyncTypebox = async (Fastify) => {
         const projetosRaw = await Fastify.prisma.projeto.findMany({
             where: {
                 AND: [
+                    { deletedAt: null },
+
                     query ? {
                         OR: [
                             { titulo: { contains: query, mode: 'insensitive' } },

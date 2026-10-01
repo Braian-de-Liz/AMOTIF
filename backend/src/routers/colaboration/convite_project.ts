@@ -6,7 +6,7 @@ import { enviarConviteEmail } from "../../services/emailService.js";
 
 const convite_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
-    Fastify.addHook("preHandler", verificar_dono_projeto);
+    Fastify.addHook("preHandler", verificar_dono_projeto());
 
     Fastify.post("/colaboration/:id/invite", schema_convite, async (request, reply) => {
         const { id } = request.params;

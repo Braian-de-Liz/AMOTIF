@@ -44,12 +44,14 @@ const Get_user_with_counts: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         const isFollowing = usuarioLogadoId !== id ? (check_user.seguindo?.length ?? 0) > 0 : false;
 
-        const { seguindo: _, ...userData } = check_user;
+        const { seguindo: _, email, ...userData } = check_user;
 
         return reply.status(200).send({
             status: 'sucesso',
             usuario: {
                 ...userData,
+                // E-mail é dado pessoal: só é retornado para o próprio usuário.
+                ...(usuarioLogadoId === id ? { email } : {}),
                 createdAt: check_user.createdAt.toISOString(),
                 isFollowing
             } as any

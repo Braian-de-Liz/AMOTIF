@@ -11,10 +11,11 @@ const listar_sugestoes: FastifyPluginAsyncTypebox = async (Fastify) => {
         const limit = Math.min(Math.max(parseInt(rawLimit || '20', 10) || 20, 1), 100);
 
         const projeto = await Fastify.prisma.projeto.findUnique({
-            where: { id: projetoId }
+            where: { id: projetoId },
+            select: { id: true, deletedAt: true }
         });
 
-        if (!projeto) {
+        if (!projeto || projeto.deletedAt) {
             return reply.status(404).send({
                 status: "error",
                 mensagem: "Projeto não encontrado"

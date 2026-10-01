@@ -1,6 +1,7 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_post_project } from "../../schemas/projetos/creat_project_schema.js";
+import { isOwnedAudioUrl } from "../../lib/storage_path.js";
 
 const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -8,6 +9,14 @@ const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.post("/projetos", schema_post_project, async (request, reply) => {
         const userId = request.user.id;
         const { titulo, genero, bpm, audio_guia, descricao, escala, audio_metadata } = request.body;
+
+        // O áudio guia precisa ter sido enviado pelo próprio usuário (diretório `${userId}/` no Storage).
+        if (!isOwnedAudioUrl(audio_guia, userId)) {
+            return reply.status(400).send({
+                status: "erro",
+                mensagem: "audio_guia inválido: envie o arquivo pelo endpoint de upload."
+            });
+        }
 
         const novo_projeto = await Fastify.prisma.projeto.create({
             data: {

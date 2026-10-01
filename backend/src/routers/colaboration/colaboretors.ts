@@ -8,10 +8,13 @@ const colaborators: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.get("/colaboration/:id", schema_colaboretors, async (request, reply) => {
 
         const { id } = request.params;
+        const usuarioLogadoId = request.user.id;
 
         const cooll = await Fastify.prisma.projeto.findUnique({
             where: { id },
             select: {
+                userId: true,
+                deletedAt: true,
                 colaboradores: {
                     select: {
                         cargo: true,
@@ -31,7 +34,7 @@ const colaborators: FastifyPluginAsyncTypebox = async (Fastify) => {
         });
 
 
-        if (!cooll) {
+        if (!cooll || cooll.deletedAt) {
             Fastify.log.warn("Projeto não encontrado");
 
             return reply.status(404).send({
@@ -40,13 +43,16 @@ const colaborators: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
+        // E-mails dos colaboradores só são expostos ao dono do projeto.
+        const eDono = cooll.userId === usuarioLogadoId;
+
         const colaboradores = cooll.colaboradores.map(c => ({
             cargo: c.cargo,
             joinedAt: c.joinedAt.toISOString(),
             usuario: {
                 id: c.usuario.id,
                 nome_completo: c.usuario.nome_completo,
-                email: c.usuario.email,
+                ...(eDono || c.usuario.id === usuarioLogadoId ? { email: c.usuario.email } : {}),
                 instrumentos: c.usuario.instrumentos,
                 avatar_url: c.usuario.avatar_url
             }

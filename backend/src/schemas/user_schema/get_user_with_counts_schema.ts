@@ -15,7 +15,7 @@ const get_user_with_counts_schema = {
                 usuario: Type.Object({
                     id: Type.String({ format: 'uuid' }),
                     nome_completo: Type.String(),
-                    email: Type.String({ format: 'email' }),
+                    email: Type.Optional(Type.String({ format: 'email' })),
                     bio: Type.Union([Type.String(), Type.Null()]),
                     instrumentos: Type.Array(Type.String()),
                     avatar_url: Type.Union([Type.String(), Type.Null()]),
