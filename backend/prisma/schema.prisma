@@ -91,6 +91,8 @@ model Projeto {
   @@index([createdAt, genero])
   @@index([genero])
   @@index([userId, deletedAt])
+  @@index([deletedAt, createdAt(sort: Desc), id(sort: Desc)])
+  @@index([deletedAt, genero, createdAt(sort: Desc), id(sort: Desc)])
 }
 
 model Sugestao {

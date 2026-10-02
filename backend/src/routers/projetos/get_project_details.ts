@@ -11,7 +11,15 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         const projeto = await Fastify.prisma.projeto.findUnique({
             where: { id },
-            include: {
+            select: {
+                id: true,
+                titulo: true,
+                bpm: true,
+                audio_guia: true,
+                descricao: true,
+                escala: true,
+                createdAt: true,
+                deletedAt: true,
                 autor: {
                     select: {
                         id: true,
@@ -20,7 +28,16 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                     }
                 },
                 camadas: {
-                    include: {
+                    where: { deletedAt: null },
+                    select: {
+                        id: true,
+                        nome_trilha: true,
+                        audio_url: true,
+                        instrumento_tag: true,
+                        volume_padrao: true,
+                        delay_offset: true,
+                        esta_aprovada: true,
+                        createdAt: true,
                         autor: {
                             select: {
                                 nome_completo: true

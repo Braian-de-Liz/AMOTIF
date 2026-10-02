@@ -13,7 +13,15 @@ const get_notifications: FastifyPluginAsyncTypebox = async (Fastify) => {
             where: { userId, lida: false },
             orderBy: { createdAt: 'desc' },
             take: 50,
-            include: {
+            select: {
+                id: true,
+                tipo: true,
+                mensagem: true,
+                lida: true,
+                createdAt: true,
+                userId: true,
+                actorId: true,
+                projetoId: true,
                 origem: {
                     select: { nome_completo: true, avatar_url: true }
                 }

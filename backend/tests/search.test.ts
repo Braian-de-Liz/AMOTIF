@@ -18,6 +18,12 @@ const mockPrisma = {
   projeto: {
     findMany: async () => [],
   },
+  like: {
+    findMany: async () => [],
+  },
+  favorite: {
+    findMany: async () => [],
+  },
   follows: {
     findMany: async () => [],
   },
