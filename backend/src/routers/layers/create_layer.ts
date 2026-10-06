@@ -2,6 +2,7 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_layer } from "../../schemas/layers/create_schema_lyr.js";
 import { createInitialVersion } from "../../services/versionService.js";
+import { createMainBranchIfNotExists } from "../../services/branchService.js";
 import { isOwnedAudioUrl } from "../../lib/storage_path.js";
 
 const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
@@ -52,17 +53,17 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         })
 
-        try {
-            await createInitialVersion(Fastify.prisma, nova_camada.id, userId, {
-                audio_url,
-                nome_trilha,
-                instrumento_tag,
-                delay_offset: delay_offset ?? 0,
-                volume_padrao: volume_padrao ?? 1.0
-            }, tag);
-        } catch (err) {
-            Fastify.log.error("Erro ao criar versão inicial: " + err);
-        }
+        // Cria a versão inicial (lança erro se falhar)
+        await createInitialVersion(Fastify.prisma, nova_camada.id, userId, {
+            audio_url,
+            nome_trilha,
+            instrumento_tag,
+            delay_offset: delay_offset ?? 0,
+            volume_padrao: volume_padrao ?? 1.0
+        }, tag);
+
+        // Cria a branch main automaticamente
+        await createMainBranchIfNotExists(Fastify.prisma, nova_camada.id, userId);
 
         if (userId !== check_project.userId) {
 

@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { Modal } from './Modal';
-import { RotateCcw, Undo2, Loader2, Volume2, VolumeX } from 'lucide-react';
+import { RotateCcw, Undo2, Loader2, Volume2, VolumeX, Tag, Save, X } from 'lucide-react';
 import { URL_API_TESTE } from '../utility/url_apis';
+import { updateVersionTag } from '../utility/branchApi';
 
 interface VersionAutor {
     id: string
@@ -31,9 +32,10 @@ interface VersionDetailModalProps {
     layerId: string
     onRollback?: () => void
     onRestoreInPlace?: () => void
+    onTagUpdate?: () => void
 }
 
-function VersionDetailModal({ version, isOpen, onClose, layerId, onRollback, onRestoreInPlace }: VersionDetailModalProps) {
+function VersionDetailModal({ version, isOpen, onClose, layerId, onRollback, onRestoreInPlace, onTagUpdate }: VersionDetailModalProps) {
     const waveformRef = useRef<HTMLDivElement | null>(null);
     const [wavesurfer, setWavesurfer] = useState<any>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -44,6 +46,9 @@ function VersionDetailModal({ version, isOpen, onClose, layerId, onRollback, onR
     const [loadingWaveform, setLoadingWaveform] = useState(true);
     const [rollbacking, setRollbacking] = useState(false);
     const [restoringInPlace, setRestoringInPlace] = useState(false);
+    const [editingTag, setEditingTag] = useState(false);
+    const [tagInput, setTagInput] = useState('');
+    const [savingTag, setSavingTag] = useState(false);
 
     useEffect(() => {
         if (!isOpen || !version || !waveformRef.current || !version.audio_url) return;
@@ -184,6 +189,31 @@ function VersionDetailModal({ version, isOpen, onClose, layerId, onRollback, onR
         }
     };
 
+    const startEditTag = () => {
+        setTagInput(version?.tag || '');
+        setEditingTag(true);
+    };
+
+    const cancelEditTag = () => {
+        setEditingTag(false);
+        setTagInput('');
+    };
+
+    const saveTag = async () => {
+        if (!version) return;
+        setSavingTag(true);
+        try {
+            await updateVersionTag(layerId, version.id, tagInput.trim() || null);
+            onTagUpdate?.();
+            setEditingTag(false);
+            setTagInput('');
+        } catch (err) {
+            alert(err instanceof Error ? err.message : 'Erro ao atualizar tag');
+        } finally {
+            setSavingTag(false);
+        }
+    };
+
     if (!isOpen || !version) return null;
 
     return (
@@ -223,7 +253,44 @@ function VersionDetailModal({ version, isOpen, onClose, layerId, onRollback, onR
                 <div className="version-detail-meta">
                     <div><strong>Autor:</strong> {version.autor.nome_completo}</div>
                     <div><strong>Data:</strong> {formatDate(version.createdAt)}</div>
-                    <div><strong>Tag:</strong> {version.tag || '\u2014'}</div>
+                    <div className="version-tag-row">
+                        <strong>Tag:</strong>
+                        {editingTag ? (
+                            <div className="tag-edit-inline">
+                                <input
+                                    type="text"
+                                    value={tagInput}
+                                    onChange={(e) => setTagInput(e.target.value)}
+                                    onKeyDown={(e) => e.key === 'Enter' && saveTag()}
+                                    onBlur={saveTag}
+                                    placeholder="Ex: v1.0-mix, pré-master"
+                                    maxLength={50}
+                                    autoFocus
+                                    className="tag-input"
+                                />
+                                <button className="btn-icon" onClick={saveTag} disabled={savingTag} title="Salvar">
+                                    {savingTag ? <Loader2 size={14} className="spin" /> : <Save size={14} />}
+                                </button>
+                                <button className="btn-icon" onClick={cancelEditTag} title="Cancelar">
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        ) : (
+                            <>
+                                <span className={`version-tag-display ${version.tag ? 'has-tag' : ''}`}>
+                                    {version.tag || '—'}
+                                </span>
+                                <button
+                                    className="btn-icon btn-edit-tag"
+                                    onClick={startEditTag}
+                                    title="Editar tag"
+                                    disabled={savingTag}
+                                >
+                                    <Tag size={14} />
+                                </button>
+                            </>
+                        )}
+                    </div>
                     <div><strong>Mensagem:</strong> {version.mensagem || '\u2014'}</div>
                     <div><strong>Delay:</strong> {version.delay_offset}ms</div>
                     <div><strong>Volume:</strong> {Math.round(version.volume_padrao * 100)}%</div>

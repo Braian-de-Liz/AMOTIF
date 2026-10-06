@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, memo } from 'react';
-import { Play, Pause, Volume2, VolumeX, Save, Loader2, Trash2, History, Pencil } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Save, Loader2, Trash2, History, Pencil, Bookmark } from 'lucide-react';
 import { LayerVersionPanel } from './LayerVersionPanel';
 import { VersionDetailModal } from './VersionDetailModal';
 import { BranchSelector } from './BranchSelector';
+import { createManualVersion } from '../utility/branchApi';
 
 const COLORS = [
     '#22c55e',
@@ -55,7 +56,7 @@ interface WaveformTrackProps {
     isCollaborator?: boolean
     isLayerAuthor?: boolean
     totalVersoes?: number
-    versaoAtual?: { numero: number } | null
+    versaoAtual?: { id?: string; numero: number } | null
     onSave?: (layerId: string, changes: LayerChanges) => void
     onRegister?: (layerId: string, ws: any) => void
     onAuthorize?: (layerId: string, aprovada: boolean) => void
@@ -209,6 +210,23 @@ function WaveformTrackInner({
         setHasChanges(false);
     };
 
+    const [savingVersion, setSavingVersion] = useState(false);
+
+    const handleSaveVersion = async () => {
+        setSavingVersion(true);
+        try {
+            await createManualVersion(layerId, {
+                mensagem: `Commit manual - ${new Date().toLocaleString('pt-BR')}`,
+                tag: undefined
+            });
+            onVersionChange?.();
+        } catch (err) {
+            alert(err instanceof Error ? err.message : 'Erro ao criar versão');
+        } finally {
+            setSavingVersion(false);
+        }
+    };
+
     return (
         <div className="waveform-track">
             <div className="track-header">
@@ -273,6 +291,16 @@ function WaveformTrackInner({
                             >
                                 <History size={14} />
                                 v{versaoAtual?.numero || 1}
+                            </button>
+                        )}
+                        {(isOwner || isCollaborator) && (
+                            <button
+                                className="btn-save-version"
+                                onClick={handleSaveVersion}
+                                disabled={savingVersion}
+                                title="Salvar versão atual (commit manual)"
+                            >
+                                {savingVersion ? <Loader2 size={14} className="spin" /> : <Bookmark size={14} />}
                             </button>
                         )}
                         {(isOwner || isCollaborator) && (
@@ -345,6 +373,7 @@ function WaveformTrackInner({
                         layerId={layerId}
                         onRollback={onVersionChange}
                         onRestoreInPlace={onVersionChange}
+                        onTagUpdate={onVersionChange}
                     />
                 </>
             )}

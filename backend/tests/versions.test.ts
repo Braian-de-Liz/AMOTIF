@@ -22,6 +22,7 @@ const mockVersion = {
   volume_padrao: 1.0,
   versionNumber: 1,
   mensagem: "Versão inicial",
+  tag: null,
   createdAt: new Date("2026-08-01T10:00:00Z"),
   autor: { id: VALID_UUID, nome_completo: "Test User", avatar_url: null },
 };
@@ -44,16 +45,25 @@ const mockPrisma = {
     update: async (args: any) => ({ id: args.where.id, ...args.data }),
   },
   layerVersion: {
-    findUnique: async (args: any) => (args.where?.id === VALID_UUID ? { ...mockVersion } : null),
-    findFirst: async (args: any) => {
-      if (args.where?.id === VALID_UUID) return { ...mockVersion };
+    findUnique: async (args: any) => {
+      if (args.where?.id === VALID_UUID) {
+        return { ...mockVersion };
+      }
       return null;
     },
-    findMany: async () => [mockVersion],
+    findFirst: async (args: any) => {
+      if (args.where?.id === VALID_UUID && args.where?.camadaId === VALID_UUID) return { ...mockVersion };
+      return null;
+    },
+    findMany: async (args: any) => {
+      if (args.where?.camadaId === VALID_UUID) return [{ ...mockVersion }];
+      return [];
+    },
     create: async (args: any) => ({
       id: OTHER_UUID,
       ...args.data,
       createdAt: new Date(),
+      autor: { id: VALID_UUID, nome_completo: "Test User", avatar_url: null }
     }),
   },
   projeto: {

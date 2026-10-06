@@ -25,12 +25,13 @@ const mockPrisma = {
           esta_aprovada: false,
           audio_url: audioUrlFor("test-user-id"),
           versions: [],
+          currentVersionId: "version-id",
           projeto: { userId: "test-user-id", id: VALID_UUID },
         };
       }
       return null;
     },
-    create: async (data: any) => ({ id: VALID_UUID, ...data.data, createdAt: new Date(), esta_aprovada: false }),
+    create: async (data: any) => ({ id: VALID_UUID, ...data.data, createdAt: new Date(), esta_aprovada: false, currentVersionId: "version-id" }),
     update: async (data: any) => ({ id: VALID_UUID, ...data.data }),
     delete: async () => ({ id: VALID_UUID }),
   },
@@ -40,6 +41,13 @@ const mockPrisma = {
   layerVersion: {
     findFirst: async () => null,
     create: async (data: any) => ({ id: "version-id", ...data.data, createdAt: new Date() }),
+    findUnique: async () => ({ id: "version-id", versionNumber: 1, camadaId: VALID_UUID, createdAt: new Date() }),
+  },
+  layerBranch: {
+    findFirst: async () => null,
+    count: async () => 0,
+    create: async (data: any) => ({ id: "branch-id", ...data.data, createdAt: new Date(), updatedAt: new Date(), baseVersion: { id: "version-id", versionNumber: 1, createdAt: new Date() }, headVersion: { id: "version-id", versionNumber: 1, createdAt: new Date() }, createdBy: { id: "test-user-id", nome_completo: "Test User", avatar_url: null } }),
+    findMany: async () => [],
   },
   notification: {
     create: async () => ({}),

@@ -95,11 +95,11 @@ const mockPrisma: any = {
     camada: {
         findUnique: async ({ where }: any) => {
             if (where.id !== CAMADA) return null;
-            return { ...camada, projeto: { userId: projetos[camada.projetoId].userId, deletedAt: projetos[camada.projetoId].deletedAt, id: camada.projetoId } };
+            return { ...camada, projeto: { userId: projetos[camada.projetoId].userId, deletedAt: projetos[camada.projetoId].deletedAt, id: camada.projetoId }, currentVersionId: VERSAO };
         },
         create: async ({ data }: any) => {
             camadaCreates.push(data);
-            return { id: CAMADA, ...data, createdAt: new Date() };
+            return { id: CAMADA, ...data, createdAt: new Date(), currentVersionId: "55555555-5555-4555-8555-555555555555" };
         },
         update: async ({ where, data }: any) => {
             camadaUpdates.push(data);
@@ -110,10 +110,16 @@ const mockPrisma: any = {
     },
     layerVersion: {
         findUnique: async ({ where }: any) => where.id === VERSAO
-            ? { id: VERSAO, camadaId: CAMADA, audio_url: AUDIO_AUTOR_2, nome_trilha: "Baixo", instrumento_tag: "Baixo", delay_offset: 0, volume_padrao: 1, versionNumber: 1 }
+            ? { id: VERSAO, camadaId: CAMADA, audio_url: AUDIO_AUTOR_2, nome_trilha: "Baixo", instrumento_tag: "Baixo", delay_offset: 0, volume_padrao: 1, versionNumber: 1, autorId: AUTOR, createdAt: new Date() }
             : null,
         findFirst: async () => ({ versionNumber: 2 }),
-        create: async ({ data }: any) => ({ id: "55555555-5555-4555-8555-555555555555", ...data, createdAt: new Date() }),
+        create: async ({ data }: any) => ({ id: "55555555-5555-4555-8555-555555555555", ...data, createdAt: new Date(), autor: { id: AUTOR, nome_completo: "Autor", avatar_url: null } }),
+    },
+    layerBranch: {
+        findFirst: async () => null,
+        count: async () => 0,
+        create: async ({ data }: any) => ({ id: "branch-id", ...data, createdAt: new Date(), updatedAt: new Date(), baseVersion: { id: "55555555-5555-4555-8555-555555555555", versionNumber: 1, createdAt: new Date() }, headVersion: { id: "55555555-5555-4555-8555-555555555555", versionNumber: 1, createdAt: new Date() }, createdBy: { id: AUTOR, nome_completo: "Autor", avatar_url: null } }),
+        findMany: async () => [],
     },
     projeto: {
         findUnique: async ({ where }: any) => projetoComCamadas(where.id),

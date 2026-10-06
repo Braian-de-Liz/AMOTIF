@@ -52,6 +52,7 @@ const get_versions: FastifyPluginAsyncTypebox = async (Fastify) => {
                 volume_padrao: v.volume_padrao,
                 versionNumber: v.versionNumber,
                 mensagem: v.mensagem,
+                tag: v.tag,
                 createdAt: v.createdAt.toISOString(),
                 autor: v.autor
             })),
@@ -90,6 +91,7 @@ const get_versions: FastifyPluginAsyncTypebox = async (Fastify) => {
                 volume_padrao: versao.volume_padrao,
                 versionNumber: versao.versionNumber,
                 mensagem: versao.mensagem,
+                tag: versao.tag,
                 createdAt: versao.createdAt.toISOString(),
                 autor: versao.autor
             }

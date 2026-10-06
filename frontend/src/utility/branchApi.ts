@@ -59,3 +59,49 @@ export async function deleteBranch(layerId: string, branchId: string): Promise<v
         throw new Error(data.mensagem || 'Erro ao excluir branch');
     }
 }
+
+// Novas funções para versionamento manual
+export interface VersionCommitData {
+    mensagem?: string;
+    tag?: string;
+}
+
+export interface VersionCommitResponse {
+    status: string;
+    mensagem: string;
+    versao: {
+        id: string;
+        versionNumber: number;
+        mensagem: string | null;
+        tag: string | null;
+        createdAt: string;
+    };
+}
+
+export async function createManualVersion(layerId: string, data: VersionCommitData): Promise<VersionCommitResponse> {
+    const res = await fetch(`${URL_API_TESTE}/layer/${layerId}/versions`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(data)
+    });
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({ mensagem: 'Erro ao criar versão' }));
+        throw new Error(error.mensagem || 'Erro ao criar versão');
+    }
+    return res.json();
+}
+
+export async function updateVersionTag(layerId: string, versionId: string, tag: string | null): Promise<{ status: string; mensagem: string; versao: { id: string; versionNumber: number; tag: string | null } }> {
+    const res = await fetch(`${URL_API_TESTE}/layer/${layerId}/versions/${versionId}/tag`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ tag })
+    });
+    if (!res.ok) {
+        const error = await res.json().catch(() => ({ mensagem: 'Erro ao atualizar tag' }));
+        throw new Error(error.mensagem || 'Erro ao atualizar tag');
+    }
+    return res.json();
+}

@@ -8,6 +8,11 @@ interface VersionData {
     volume_padrao: number;
 }
 
+interface CreateVersionData extends VersionData {
+    mensagem?: string;
+    tag?: string;
+}
+
 async function getNextVersionNumber(prisma: PrismaClient, camadaId: string): Promise<number> {
     const lastVersion = await prisma.layerVersion.findFirst({
         where: { camadaId },
@@ -17,12 +22,12 @@ async function getNextVersionNumber(prisma: PrismaClient, camadaId: string): Pro
     return (lastVersion?.versionNumber ?? 0) + 1;
 }
 
-async function createInitialVersion(
+async function createVersion(
     prisma: PrismaClient,
     camadaId: string,
     userId: string,
-    data: VersionData,
-    tag?: string
+    data: CreateVersionData,
+    versionNumber: number
 ) {
     const version = await prisma.layerVersion.create({
         data: {
@@ -32,10 +37,10 @@ async function createInitialVersion(
             instrumento_tag: data.instrumento_tag,
             delay_offset: data.delay_offset,
             volume_padrao: data.volume_padrao,
-            versionNumber: 1,
-            mensagem: "Versão inicial",
-            autorId: userId,
-            tag
+            versionNumber,
+            mensagem: data.mensagem || `Versão ${versionNumber}`,
+            tag: data.tag,
+            autorId: userId
         }
     });
 
@@ -47,6 +52,17 @@ async function createInitialVersion(
     return version;
 }
 
+async function createInitialVersion(
+    prisma: PrismaClient,
+    camadaId: string,
+    userId: string,
+    data: VersionData,
+    tag?: string
+) {
+    const version = await createVersion(prisma, camadaId, userId, { ...data, tag }, 1);
+    return version;
+}
+
 async function createNewVersion(
     prisma: PrismaClient,
     camadaId: string,
@@ -55,34 +71,9 @@ async function createNewVersion(
     mensagem?: string,
     tag?: string
 ) {
-    const camada = await prisma.camada.findUnique({
-        where: { id: camadaId },
-        select: { currentVersionId: true }
-    });
-
-    if (!camada) throw new Error("Camada não encontrada");
-
     const nextVersion = await getNextVersionNumber(prisma, camadaId);
 
-    const version = await prisma.layerVersion.create({
-        data: {
-            camadaId,
-            audio_url: data.audio_url,
-            nome_trilha: data.nome_trilha,
-            instrumento_tag: data.instrumento_tag,
-            delay_offset: data.delay_offset,
-            volume_padrao: data.volume_padrao,
-            versionNumber: nextVersion,
-            mensagem: mensagem || `Versão ${nextVersion}`,
-            autorId: userId,
-            tag
-        }
-    });
-
-    await prisma.camada.update({
-        where: { id: camadaId },
-        data: { currentVersionId: version.id }
-    });
+    const version = await createVersion(prisma, camadaId, userId, { ...data, mensagem, tag }, nextVersion);
 
     return version;
 }
@@ -179,10 +170,69 @@ async function rollbackToVersion(prisma: PrismaClient, camadaId: string, version
     return rollbackVersion;
 }
 
+async function createManualVersion(
+    prisma: PrismaClient,
+    camadaId: string,
+    userId: string,
+    data: { mensagem?: string; tag?: string }
+) {
+    const camada = await prisma.camada.findUnique({
+        where: { id: camadaId },
+        select: { 
+            audio_url: true, 
+            nome_trilha: true, 
+            instrumento_tag: true, 
+            delay_offset: true, 
+            volume_padrao: true,
+            currentVersionId: true
+        }
+    });
+
+    if (!camada) throw new Error("Camada não encontrada");
+
+    const nextVersion = await getNextVersionNumber(prisma, camadaId);
+
+    const version = await createVersion(prisma, camadaId, userId, {
+        audio_url: camada.audio_url,
+        nome_trilha: camada.nome_trilha,
+        instrumento_tag: camada.instrumento_tag,
+        delay_offset: camada.delay_offset,
+        volume_padrao: camada.volume_padrao,
+        mensagem: data.mensagem,
+        tag: data.tag
+    }, nextVersion);
+
+    return version;
+}
+
+async function updateVersionTag(
+    prisma: PrismaClient,
+    camadaId: string,
+    versionId: string,
+    tag: string | null
+) {
+    const version = await prisma.layerVersion.findUnique({
+        where: { id: versionId }
+    });
+
+    if (!version || version.camadaId !== camadaId) {
+        throw new Error("Versão não encontrada nesta camada");
+    }
+
+    const updated = await prisma.layerVersion.update({
+        where: { id: versionId },
+        data: { tag }
+    });
+
+    return updated;
+}
+
 export {
     createInitialVersion,
     createNewVersion,
     rollbackToVersion,
     restoreVersionInPlace,
-    getNextVersionNumber
+    getNextVersionNumber,
+    createManualVersion,
+    updateVersionTag
 };

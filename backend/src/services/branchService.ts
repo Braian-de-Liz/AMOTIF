@@ -79,6 +79,47 @@ async function createBranch(
     return branch;
 }
 
+async function createMainBranchIfNotExists(
+    prisma: PrismaClient,
+    camadaId: string,
+    userId: string
+) {
+    const existingMain = await prisma.layerBranch.findFirst({
+        where: { camadaId, isMain: true }
+    });
+
+    if (existingMain) return existingMain;
+
+    const camada = await prisma.camada.findUnique({
+        where: { id: camadaId },
+        select: { currentVersionId: true }
+    });
+
+    if (!camada || !camada.currentVersionId) {
+        throw new Error("Camada não possui versão atual para criar branch main");
+    }
+
+    const branch = await prisma.layerBranch.create({
+        data: {
+            nome: "main",
+            camadaId,
+            baseVersionId: camada.currentVersionId,
+            headVersionId: camada.currentVersionId,
+            isMain: true,
+            createdById: userId
+        },
+        include: {
+            baseVersion: true,
+            headVersion: true,
+            createdBy: {
+                select: { id: true, nome_completo: true, avatar_url: true }
+            }
+        }
+    });
+
+    return branch;
+}
+
 async function listBranches(
     prisma: PrismaClient,
     camadaId: string
@@ -295,5 +336,6 @@ export {
     switchBranch,
     mergeBranch,
     deleteBranch,
-    getBranch
+    getBranch,
+    createMainBranchIfNotExists
 };

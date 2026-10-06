@@ -2182,3 +2182,111 @@ audio::-webkit-media-controls-panel {
     color: var(--verde-musgo);
     border-bottom-color: var(--verde-musgo);
 }
+
+/* Save Version Button */
+.btn-save-version {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: var(--fundo-secundario);
+    border: 1px solid rgba(92, 122, 68, 0.08);
+    border-radius: var(--radius-sm);
+    color: var(--verde-musgo);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-save-version:hover:not(:disabled) {
+    background: var(--verde-pastel);
+    border-color: rgba(92, 122, 68, 0.18);
+    transform: scale(1.05);
+}
+
+.btn-save-version:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+/* Version Detail Modal - Tag Editing */
+.version-tag-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    flex-wrap: wrap;
+}
+
+.version-tag-display {
+    padding: 2px 8px;
+    background: var(--verde-pastel);
+    color: var(--verde-musgo);
+    border-radius: var(--radius-xs);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.version-tag-display.has-tag {
+    background: var(--accent-latao-bg, #fef3c7);
+    color: var(--accent-latao, #b45309);
+}
+
+.btn-edit-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: transparent;
+    border: 1px solid rgba(92, 122, 68, 0.08);
+    border-radius: var(--radius-xs);
+    color: var(--verde-musgo);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.btn-edit-tag:hover:not(:disabled) {
+    background: var(--verde-pastel);
+    border-color: rgba(92, 122, 68, 0.18);
+}
+
+.btn-edit-tag:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.tag-edit-inline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2xs);
+}
+
+.tag-input {
+    padding: 4px 8px;
+    border: 1px solid var(--borda);
+    border-radius: var(--radius-sm);
+    font-size: var(--text-xs);
+    background: var(--fundo);
+    color: var(--texto);
+    min-width: 120px;
+    max-width: 200px;
+}
+
+.tag-input:focus {
+    outline: none;
+    border-color: var(--verde-medio);
+    box-shadow: 0 0 0 2px rgba(92, 122, 68, 0.1);
+}
+
+/* Version Tag in list */
+.version-tag {
+    display: inline-block;
+    padding: 1px 6px;
+    background: var(--verde-pastel);
+    color: var(--verde-musgo);
+    border-radius: var(--radius-xs);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    margin-left: var(--space-xs);
+}
