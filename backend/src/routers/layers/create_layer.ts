@@ -10,7 +10,7 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.post("/layer/:projetoId", schema_layer, async (request, reply) => {
         const userId = request.user.id;
         const { projetoId } = request.params;
-        const { nome_trilha, audio_url, instrumento_tag, delay_offset, volume_padrao } = request.body;
+        const { nome_trilha, audio_url, instrumento_tag, delay_offset, volume_padrao, tag } = request.body;
 
         const check_project = await Fastify.prisma.projeto.findUnique({
             where: { id: projetoId },
@@ -59,7 +59,7 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
                 instrumento_tag,
                 delay_offset: delay_offset ?? 0,
                 volume_padrao: volume_padrao ?? 1.0
-            });
+            }, tag);
         } catch (err) {
             Fastify.log.error("Erro ao criar versão inicial: " + err);
         }

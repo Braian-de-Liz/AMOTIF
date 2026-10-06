@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, memo } from 'react';
 import { Play, Pause, Volume2, VolumeX, Save, Loader2, Trash2, History, Pencil } from 'lucide-react';
 import { LayerVersionPanel } from './LayerVersionPanel';
+import { VersionDetailModal } from './VersionDetailModal';
+import { BranchSelector } from './BranchSelector';
 
 const COLORS = [
     '#22c55e',
@@ -12,6 +14,27 @@ const COLORS = [
     '#ef4444',
     '#84cc16'
 ];
+
+interface VersionAutor {
+    id: string
+    nome_completo: string
+    avatar_url?: string | null
+}
+
+interface Version {
+    id: string
+    camadaId: string
+    audio_url: string
+    nome_trilha: string
+    instrumento_tag: string
+    delay_offset: number
+    volume_padrao: number
+    versionNumber: number
+    mensagem?: string | null
+    tag?: string | null
+    createdAt: string
+    autor: VersionAutor
+}
 
 interface LayerChanges {
     volume_padrao: number
@@ -74,6 +97,7 @@ function WaveformTrackInner({
     const [localDelay, setLocalDelay] = useState(delayOffset);
     const [hasChanges, setHasChanges] = useState(false);
     const [versionPanelOpen, setVersionPanelOpen] = useState(false);
+    const [detailVersion, setDetailVersion] = useState<Version | null>(null);
 
     const color = COLORS[colorIndex % COLORS.length];
 
@@ -260,6 +284,14 @@ function WaveformTrackInner({
                                 <Pencil size={14} />
                             </button>
                         )}
+                        {!isGuia && (isOwner || isCollaborator) && (
+                            <BranchSelector
+                                layerId={layerId}
+                                currentVersionId={versaoAtual?.id || undefined}
+                                onSwitch={onVersionChange}
+                                disabled={!isOwner && !isCollaborator}
+                            />
+                        )}
                         {isOwner && (
                             <>
                                 {!estaAprovada && (
@@ -297,12 +329,24 @@ function WaveformTrackInner({
             </div>
 
             {!isGuia && (
-                <LayerVersionPanel
-                    layerId={layerId}
-                    isOpen={versionPanelOpen}
-                    onClose={() => setVersionPanelOpen(false)}
-                    onRollback={onVersionChange}
-                />
+                <>
+                    <LayerVersionPanel
+                        layerId={layerId}
+                        isOpen={versionPanelOpen}
+                        onClose={() => setVersionPanelOpen(false)}
+                        onRollback={onVersionChange}
+                        onRestoreInPlace={onVersionChange}
+                        onOpenDetail={setDetailVersion}
+                    />
+                    <VersionDetailModal
+                        version={detailVersion}
+                        isOpen={!!detailVersion}
+                        onClose={() => setDetailVersion(null)}
+                        layerId={layerId}
+                        onRollback={onVersionChange}
+                        onRestoreInPlace={onVersionChange}
+                    />
+                </>
             )}
         </div>
     );

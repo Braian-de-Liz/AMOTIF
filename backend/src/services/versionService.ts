@@ -21,7 +21,8 @@ async function createInitialVersion(
     prisma: PrismaClient,
     camadaId: string,
     userId: string,
-    data: VersionData
+    data: VersionData,
+    tag?: string
 ) {
     const version = await prisma.layerVersion.create({
         data: {
@@ -33,7 +34,8 @@ async function createInitialVersion(
             volume_padrao: data.volume_padrao,
             versionNumber: 1,
             mensagem: "Versão inicial",
-            autorId: userId
+            autorId: userId,
+            tag
         }
     });
 
@@ -50,7 +52,8 @@ async function createNewVersion(
     camadaId: string,
     userId: string,
     data: VersionData,
-    mensagem?: string
+    mensagem?: string,
+    tag?: string
 ) {
     const camada = await prisma.camada.findUnique({
         where: { id: camadaId },
@@ -71,7 +74,8 @@ async function createNewVersion(
             volume_padrao: data.volume_padrao,
             versionNumber: nextVersion,
             mensagem: mensagem || `Versão ${nextVersion}`,
-            autorId: userId
+            autorId: userId,
+            tag
         }
     });
 
@@ -81,6 +85,46 @@ async function createNewVersion(
     });
 
     return version;
+}
+
+async function restoreVersionInPlace(
+    prisma: PrismaClient,
+    camadaId: string,
+    versionId: string,
+    userId: string
+) {
+    const targetVersion = await prisma.layerVersion.findUnique({
+        where: { id: versionId }
+    });
+
+    if (!targetVersion || targetVersion.camadaId !== camadaId) {
+        throw new Error("Versão não encontrada nesta camada");
+    }
+
+    const camadaAtual = await prisma.camada.findUnique({
+        where: { id: camadaId },
+        select: { audio_url: true, esta_aprovada: true }
+    });
+
+    if (!camadaAtual) throw new Error("Camada não encontrada");
+
+    const resetAprovacao = camadaAtual.esta_aprovada &&
+        camadaAtual.audio_url !== targetVersion.audio_url;
+
+    await prisma.camada.update({
+        where: { id: camadaId },
+        data: {
+            currentVersionId: targetVersion.id,
+            audio_url: targetVersion.audio_url,
+            nome_trilha: targetVersion.nome_trilha,
+            instrumento_tag: targetVersion.instrumento_tag,
+            delay_offset: targetVersion.delay_offset,
+            volume_padrao: targetVersion.volume_padrao,
+            ...(resetAprovacao ? { esta_aprovada: false } : {})
+        }
+    });
+
+    return targetVersion;
 }
 
 async function rollbackToVersion(prisma: PrismaClient, camadaId: string, versionId: string, userId: string) {
@@ -139,5 +183,6 @@ export {
     createInitialVersion,
     createNewVersion,
     rollbackToVersion,
+    restoreVersionInPlace,
     getNextVersionNumber
 };

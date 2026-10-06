@@ -35,6 +35,7 @@ model User {
   likes_dados        Like[]         @relation("UserLikes")
   favorites          Favorite[]     @relation("UserFavorites")
   authoredVersions   LayerVersion[] @relation("AuthoredVersions")
+  createdBranches    LayerBranch[]  @relation("BranchCreatedBy")
   refreshTokens      RefreshToken[]
 }
 
@@ -208,6 +209,7 @@ model Camada {
   currentVersionId String?        @unique @db.Uuid
   currentVersion   LayerVersion?  @relation("CurrentVersion", fields: [currentVersionId], references: [id])
   versions         LayerVersion[]
+  branches         LayerBranch[]
 
   createdAt DateTime @default(now())
 
@@ -228,16 +230,39 @@ model LayerVersion {
   volume_padrao   Float    @default(1.0)
   versionNumber   Int
   mensagem        String?
+  tag             String?  // Tag semântica opcional (ex: "v1.0-mix", "pré-master", "take-3")
   createdAt       DateTime @default(now())
 
   autorId String @db.Uuid
   autor   User   @relation("AuthoredVersions", fields: [autorId], references: [id], onDelete: Cascade)
 
   currentVersionOf Camada? @relation("CurrentVersion")
+  baseBranches     LayerBranch[] @relation("BranchBaseVersion")
+  headBranches     LayerBranch[] @relation("BranchHeadVersion")
 
   @@index([camadaId, versionNumber])
   @@index([camadaId, createdAt])
   @@index([autorId])
+}
+
+model LayerBranch {
+  id              String      @id @default(uuid()) @db.Uuid
+  nome            String      // Nome da branch (ex: "experiment-arranjo", "mix-v2")
+  camadaId        String      @db.Uuid
+  camada          Camada      @relation(fields: [camadaId], references: [id], onDelete: Cascade)
+  baseVersionId   String      @db.Uuid
+  baseVersion     LayerVersion @relation("BranchBaseVersion", fields: [baseVersionId], references: [id], onDelete: Restrict)
+  headVersionId   String      @db.Uuid
+  headVersion     LayerVersion @relation("BranchHeadVersion", fields: [headVersionId], references: [id], onDelete: Restrict)
+  isMain          Boolean     @default(false)  // Branch principal (main/master)
+  createdById     String      @db.Uuid
+  createdBy       User        @relation("BranchCreatedBy", fields: [createdById], references: [id], onDelete: Cascade)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  @@unique([camadaId, nome])
+  @@index([camadaId])
+  @@index([createdById])
 }
 
 model Like {

@@ -12,7 +12,7 @@ const update_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.put("/layer/:id", update_layer_schema, async (request, reply) => {
         const { id } = request.params;
 
-        const { nome_trilha, audio_url, instrumento_tag, delay_offset, volume_padrao } = request.body;
+        const { nome_trilha, audio_url, instrumento_tag, delay_offset, volume_padrao, tag } = request.body;
         const userId = request.user.id;
 
         const camadaAtual = await Fastify.prisma.camada.findUnique({
@@ -58,7 +58,7 @@ const update_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
                     instrumento_tag,
                     delay_offset: delay_offset ?? 0,
                     volume_padrao: volume_padrao ?? 1.0
-                }, `Atualização manual`);
+                }, `Atualização manual`, tag);
             } catch (err) {
                 Fastify.log.error("Erro ao criar versão: " + err);
             }

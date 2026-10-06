@@ -14,7 +14,8 @@ const schema_layer = {
             audio_url: Type.String({ format: 'uri' }),
             instrumento_tag: Type.String({ minLength: 2 }),
             delay_offset: Type.Optional(Type.Integer({ default: 0 })),
-            volume_padrao: Type.Optional(Type.Number({ minimum: 0, maximum: 1.5, default: 1.0 }))
+            volume_padrao: Type.Optional(Type.Number({ minimum: 0, maximum: 1.5, default: 1.0 })),
+            tag: Type.Optional(Type.String({ maxLength: 50 }))
         }),
         response: {
             201: Type.Object({

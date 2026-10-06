@@ -56,3 +56,27 @@ export interface Genre {
   label: string
   value: string
 }
+
+export interface BranchVersion {
+  id: string
+  versionNumber: number
+  createdAt: string
+}
+
+export interface BranchAuthor {
+  id: string
+  nome_completo: string
+  avatar_url?: string | null
+}
+
+export interface LayerBranch {
+  id: string
+  nome: string
+  camadaId: string
+  isMain: boolean
+  baseVersion: BranchVersion
+  headVersion: BranchVersion
+  createdBy: BranchAuthor
+  createdAt: string
+  updatedAt: string
+}

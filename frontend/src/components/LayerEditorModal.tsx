@@ -17,10 +17,12 @@ function LayerEditorModal({ layerId, audioUrl, nomeTrilha, isOpen, onClose, onVe
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [editedBlob, setEditedBlob] = useState<Blob | null>(null);
+    const [tag, setTag] = useState('');
 
     function handleClose() {
         setEditedBlob(null);
         setError(null);
+        setTag('');
         onClose();
     }
 
@@ -64,6 +66,7 @@ function LayerEditorModal({ layerId, audioUrl, nomeTrilha, isOpen, onClose, onVe
                 body: JSON.stringify({
                     audio_url: fileUrl,
                     nome_trilha: nomeTrilha,
+                    tag: tag || undefined,
                 })
             });
 
@@ -90,6 +93,23 @@ function LayerEditorModal({ layerId, audioUrl, nomeTrilha, isOpen, onClose, onVe
                 audioDuration={0}
                 onEdited={handleEdited}
             />
+
+            <div className="form-group" style={{ marginTop: '1rem' }}>
+                <label htmlFor="version-tag" style={{ display: 'block', marginBottom: '0.35rem', fontSize: 'var(--text-xs)', fontWeight: 600, color: 'var(--texto-secundario)' }}>
+                    Tag da versão (opcional)
+                </label>
+                <input
+                    id="version-tag"
+                    type="text"
+                    value={tag}
+                    onChange={(e) => setTag(e.target.value)}
+                    placeholder="ex: v1.0-mix, pré-master, take-3"
+                    className="form-input"
+                    maxLength={50}
+                    style={{ width: '100%', padding: '0.55rem 0.85rem', border: '1px solid var(--borda)', borderRadius: 'var(--radius-base)', background: 'var(--fundo)', color: 'var(--texto)', fontSize: 'var(--text-sm)', fontFamily: 'inherit' }}
+                />
+                <small style={{ display: 'block', marginTop: '0.25rem', fontSize: 'var(--text-xs)', color: 'var(--placeholder)' }}>Identificador semântico para fácil localização</small>
+            </div>
 
             <div className="modal-actions" style={{ marginTop: '1rem' }}>
                 <button type="button" className="btn-cancel" onClick={handleClose} disabled={loading}>

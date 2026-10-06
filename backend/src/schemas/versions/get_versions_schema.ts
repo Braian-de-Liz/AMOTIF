@@ -11,6 +11,7 @@ const VersionResponse = Type.Object({
     volume_padrao: Type.Number(),
     versionNumber: Type.Number(),
     mensagem: Type.Union([Type.String(), Type.Null()]),
+    tag: Type.Union([Type.String(), Type.Null()]),
     createdAt: Type.String({ format: 'date-time' }),
     autor: Type.Object({
         id: Type.String({ format: 'uuid' }),

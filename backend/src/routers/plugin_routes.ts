@@ -54,6 +54,8 @@ import { Favorites_plugin } from "./projetos/list_favorites.js";
 
 import { get_versions } from "./versions/get_versions.js";
 import { rollback_route } from "./versions/manage_branches.js";
+import { restore_route } from "./versions/restore_version.js";
+import { branch_route } from "./versions/branches.js";
 
 import { criar_sugestao } from "./sugestoes/criar_sugestao.js";
 import { listar_sugestoes } from "./sugestoes/listar_sugestoes.js";
@@ -118,6 +120,8 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
 
     Fastify.register(get_versions);
     Fastify.register(rollback_route);
+    Fastify.register(restore_route);
+    Fastify.register(branch_route);
 
     Fastify.register(criar_sugestao);
     Fastify.register(listar_sugestoes);

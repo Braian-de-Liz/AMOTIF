@@ -15,6 +15,7 @@ function CreateLayerModal({ projetoId, isOpen, onClose, onLayerCreated }: Create
     const [file, setFile] = useState<File | null>(null);
     const [nomeTrilha, setNomeTrilha] = useState('');
     const [instrumentoTag, setInstrumentoTag] = useState('');
+    const [tag, setTag] = useState('');
     const [loading, setLoading] = useState(false);
     const [audioAnalyzing, setAudioAnalyzing] = useState(false);
     const [audioMeta, setAudioMeta] = useState<{ nome: string; duracao: number } | null>(null);
@@ -25,6 +26,7 @@ function CreateLayerModal({ projetoId, isOpen, onClose, onLayerCreated }: Create
         setFile(null);
         setNomeTrilha('');
         setInstrumentoTag('');
+        setTag('');
         setAudioMeta(null);
         setAudioError(null);
         setSubmitError(null);
@@ -111,6 +113,7 @@ function CreateLayerModal({ projetoId, isOpen, onClose, onLayerCreated }: Create
                     nome_trilha: nomeTrilha,
                     audio_url: fileUrl,
                     instrumento_tag: instrumentoTag,
+                    tag: tag || undefined,
                 })
             });
 
@@ -156,6 +159,19 @@ function CreateLayerModal({ projetoId, isOpen, onClose, onLayerCreated }: Create
                         placeholder="Ex: Baixo, Guitarra, Bateria..."
                         required
                     />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="layer-tag">Tag da versão (opcional)</label>
+                    <input
+                        id="layer-tag"
+                        type="text"
+                        value={tag}
+                        onChange={e => setTag(e.target.value)}
+                        placeholder="Ex: v1.0-mix, pré-master, take-3"
+                        maxLength={50}
+                    />
+                    <small style={{ fontSize: 'var(--text-xs)', color: 'var(--placeholder)' }}>Identificador semântico para fácil localização</small>
                 </div>
 
                 <div className="upload-group">
