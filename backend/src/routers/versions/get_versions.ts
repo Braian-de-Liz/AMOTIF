@@ -1,5 +1,6 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
+import { audioSigner } from "../../lib/signed_urls.js";
 import { get_versions_schema, get_version_detail_schema } from "../../schemas/versions/get_versions_schema.js";
 
 const get_versions: FastifyPluginAsyncTypebox = async (Fastify) => {
@@ -40,12 +41,14 @@ const get_versions: FastifyPluginAsyncTypebox = async (Fastify) => {
         const items = hasMore ? versoes.slice(0, limit) : versoes;
         const nextCursor = hasMore ? items[items.length - 1].versionNumber.toString() : null;
 
+        const sign = await audioSigner(Fastify.storage, items.map(v => v.audio_url));
+
         return reply.status(200).send({
             status: "sucesso",
             versoes: items.map(v => ({
                 id: v.id,
                 camadaId: v.camadaId,
-                audio_url: v.audio_url,
+                audio_url: sign(v.audio_url),
                 nome_trilha: v.nome_trilha,
                 instrumento_tag: v.instrumento_tag,
                 delay_offset: v.delay_offset,
@@ -79,12 +82,14 @@ const get_versions: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
+        const sign = await audioSigner(Fastify.storage, [versao.audio_url]);
+
         return reply.status(200).send({
             status: "sucesso",
             versao: {
                 id: versao.id,
                 camadaId: versao.camadaId,
-                audio_url: versao.audio_url,
+                audio_url: sign(versao.audio_url),
                 nome_trilha: versao.nome_trilha,
                 instrumento_tag: versao.instrumento_tag,
                 delay_offset: versao.delay_offset,

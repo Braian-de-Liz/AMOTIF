@@ -5,15 +5,16 @@ import { VersionDetailModal } from './VersionDetailModal';
 import { BranchSelector } from './BranchSelector';
 import { createManualVersion } from '../utility/branchApi';
 
+// Tons da paleta (verdes e latão) legíveis sobre o fundo claro da waveform.
 const COLORS = [
-    '#22c55e',
-    '#3b82f6',
-    '#f59e0b',
-    '#ec4899',
-    '#8b5cf6',
-    '#06b6d4',
-    '#ef4444',
-    '#84cc16'
+    '#5c7a44',
+    '#b8912f',
+    '#7a9f6a',
+    '#8c6d1f',
+    '#3f5a2c',
+    '#9a8a4a',
+    '#4d6b5a',
+    '#a3782b'
 ];
 
 interface VersionAutor {
@@ -89,6 +90,7 @@ function WaveformTrackInner({
     saving = false
 }: WaveformTrackProps) {
     const containerRef = useRef<HTMLDivElement | null>(null);
+    const [audioErro, setAudioErro] = useState(false);
     const wavesurferRef = useRef<any>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -114,8 +116,8 @@ function WaveformTrackInner({
             const wavesurfer = WaveSurferModule.create({
                 container: containerRef.current,
                 waveColor: color,
-                progressColor: '#1f2937',
-                cursorColor: '#fff',
+                progressColor: '#1f2b1a',
+                cursorColor: '#1f2b1a',
                 barWidth: 2,
                 barGap: 1,
                 barRadius: 3,
@@ -126,8 +128,14 @@ function WaveformTrackInner({
 
             wavesurfer.load(audioUrl!);
 
+            // Link de áudio expirado ou indisponível: recarregar a página busca um novo acesso.
+            wavesurfer.on('error', () => {
+                if (!cancelled) setAudioErro(true);
+            });
+
             wavesurfer.on('ready', () => {
                 if (!cancelled) {
+                    setAudioErro(false);
                     setDuration(wavesurfer.getDuration());
                     wavesurfer.setVolume(localVolume);
                 }
@@ -299,15 +307,17 @@ function WaveformTrackInner({
                                 onClick={handleSaveVersion}
                                 disabled={savingVersion}
                                 title="Salvar versão atual (commit manual)"
+                                aria-label="Salvar versão atual"
                             >
                                 {savingVersion ? <Loader2 size={14} className="spin" /> : <Bookmark size={14} />}
                             </button>
                         )}
                         {(isOwner || isCollaborator) && (
                             <button
-                                className="btn-auth approve"
+                                className="btn-save-version"
                                 onClick={() => onEdit?.(layerId)}
                                 title="Editar áudio"
+                                aria-label="Editar áudio"
                             >
                                 <Pencil size={14} />
                             </button>
@@ -334,7 +344,7 @@ function WaveformTrackInner({
                                 <button
                                     className="btn-auth reject"
                                     onClick={() => onAuthorize?.(layerId, false)}
-                                    title={estaAprovada ? 'Rejeitar camada' : 'Rejeitar camada'}
+                                    title="Rejeitar camada"
                                 >
                                     Rejeitar
                                 </button>
@@ -342,6 +352,7 @@ function WaveformTrackInner({
                                     className="btn-auth reject"
                                     onClick={() => onDelete?.(layerId, nome || 'Track')}
                                     title="Excluir camada"
+                                    aria-label="Excluir camada"
                                 >
                                     <Trash2 size={14} />
                                 </button>
@@ -351,6 +362,9 @@ function WaveformTrackInner({
                 )}
             </div>
             <div className="waveform-container" ref={containerRef}></div>
+            {audioErro && (
+                <p className="error-msg">Não foi possível carregar o áudio. Recarregue a página para atualizar o acesso.</p>
+            )}
             <div className="track-time">
                 <span>{formatTime(currentTime)}</span>
                 <span>{formatTime(duration)}</span>

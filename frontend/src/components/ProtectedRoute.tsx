@@ -1,10 +1,11 @@
 import { ReactNode } from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useUserData } from '../contexts/UserDataContext';
 
 function ProtectedRoute({ children }: { children: ReactNode }) {
     const { usuario, loading } = useUserData();
     const navigate = useNavigate();
+    const location = useLocation();
 
     if (loading) {
         return (
@@ -23,7 +24,7 @@ function ProtectedRoute({ children }: { children: ReactNode }) {
     }
 
     if (!usuario) {
-        return <Navigate to="/" replace />;
+        return <Navigate to="/" replace state={{ from: location.pathname }} />;
     }
 
     return children;

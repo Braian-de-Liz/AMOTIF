@@ -1,14 +1,17 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_post_project } from "../../schemas/projetos/creat_project_schema.js";
-import { isOwnedAudioUrl } from "../../lib/storage_path.js";
+import { isOwnedAudioUrl, normalizeAudioUrl } from "../../lib/storage_path.js";
+import { audioSigner } from "../../lib/signed_urls.js";
 
 const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
 
     Fastify.post("/projetos", schema_post_project, async (request, reply) => {
         const userId = request.user.id;
-        const { titulo, genero, bpm, audio_guia, descricao, escala, audio_metadata } = request.body;
+        const { titulo, genero, bpm, descricao, escala, audio_metadata } = request.body;
+        // Aceita também uma URL assinada devolvida pela API; no banco fica sempre a forma canônica.
+        const audio_guia = normalizeAudioUrl(request.body.audio_guia);
 
         // O áudio guia precisa ter sido enviado pelo próprio usuário (diretório `${userId}/` no Storage).
         if (!isOwnedAudioUrl(audio_guia, userId)) {
@@ -56,6 +59,8 @@ const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         })();
 
+        const sign = await audioSigner(Fastify.storage, [novo_projeto.audio_guia]);
+
         return reply.status(201).send({
             status: "sucesso",
             mensagem: "Projeto criado com sucesso!",
@@ -66,7 +71,7 @@ const post_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                 bpm: novo_projeto.bpm,
                 escala: novo_projeto.escala,
                 descricao: novo_projeto.descricao,
-                audio_guia: novo_projeto.audio_guia,
+                audio_guia: sign(novo_projeto.audio_guia),
                 userId: novo_projeto.userId,
                 createdAt: novo_projeto.createdAt.toISOString(),
                 updatedAt: novo_projeto.updatedAt.toISOString()

@@ -92,7 +92,7 @@ function ProjectCardInner({ proj }: ProjectCardProps) {
 
                 <div className="stat-item">
                     <Music size={18} />
-                    <span>{proj._count.camadas} camadas</span>
+                    <span>{proj._count.camadas} {proj._count.camadas === 1 ? 'camada' : 'camadas'}</span>
                 </div>
             </div>
 

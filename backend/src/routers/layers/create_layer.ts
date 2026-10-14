@@ -3,7 +3,8 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_layer } from "../../schemas/layers/create_schema_lyr.js";
 import { createInitialVersion } from "../../services/versionService.js";
 import { createMainBranchIfNotExists } from "../../services/branchService.js";
-import { isOwnedAudioUrl } from "../../lib/storage_path.js";
+import { audioSigner } from "../../lib/signed_urls.js";
+import { isOwnedAudioUrl, normalizeAudioUrl } from "../../lib/storage_path.js";
 
 const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -11,7 +12,9 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.post("/layer/:projetoId", schema_layer, async (request, reply) => {
         const userId = request.user.id;
         const { projetoId } = request.params;
-        const { nome_trilha, audio_url, instrumento_tag, delay_offset, volume_padrao, tag } = request.body;
+        const { nome_trilha, instrumento_tag, delay_offset, volume_padrao, tag } = request.body;
+        // Aceita também uma URL assinada devolvida pela API; no banco fica sempre a forma canônica.
+        const audio_url = normalizeAudioUrl(request.body.audio_url);
 
         const check_project = await Fastify.prisma.projeto.findUnique({
             where: { id: projetoId },
@@ -86,13 +89,15 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         }
 
+        const sign = await audioSigner(Fastify.storage, [nova_camada.audio_url]);
+
         return reply.status(201).send({
             status: "sucesso",
             mensagem: "Colaboração enviada com sucesso!",
             camada: {
                 id: nova_camada.id,
                 nome_trilha: nova_camada.nome_trilha,
-                audio_url: nova_camada.audio_url,
+                audio_url: sign(nova_camada.audio_url),
                 instrumento_tag: nova_camada.instrumento_tag,
                 delay_offset: nova_camada.delay_offset,
                 volume_padrao: nova_camada.volume_padrao,

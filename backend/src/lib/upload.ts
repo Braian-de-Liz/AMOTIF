@@ -3,6 +3,7 @@ import type { FastifyPluginAsync } from "fastify";
 import { autenticarJWT } from "../hooks/JWT_verific.js";
 import type { MultipartFile } from "@fastify/multipart";
 import { safeExtractPath, isSafePath } from "./storage_path.js";
+import { createUrlSigner, type UrlSigner } from "./signed_urls.js";
 
 const ALLOWED_CONTENT_TYPES: Record<string, boolean> = {
     "audio/mpeg": true,
@@ -49,6 +50,7 @@ interface UploadResult {
 interface SupabaseStorage {
     uploadAudio: (userId: string, file: MultipartFile) => Promise<UploadResult>;
     deleteAudio: (path: string) => Promise<void>;
+    signUrls: UrlSigner;
 }
 
 /** Extrai o path de uma URL pública do Storage; null se host/bucket não conferem ou houver traversal. */
@@ -80,7 +82,16 @@ const Upload_Service: FastifyPluginAsync = fp(async (Fastify) => {
         throw new Error("Variáveis de ambiente do Supabase não configuradas");
     }
 
+    const ttl = Number(Bun.env.AUDIO_URL_TTL_SECONDS);
+
     const storage: SupabaseStorage = {
+        signUrls: createUrlSigner({
+            supabaseUrl,
+            supabaseKey,
+            bucket,
+            expiresIn: Number.isFinite(ttl) && ttl > 0 ? ttl : undefined,
+        }),
+
         async uploadAudio(userId: string, file: MultipartFile): Promise<UploadResult> {
             const contentType = file.mimetype;
 

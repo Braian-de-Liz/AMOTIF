@@ -61,6 +61,26 @@ function safeExtractPath(url: string, cfg?: Partial<StorageConfig>): string | nu
     return isSafePath(path) ? path : null;
 }
 
+/**
+ * Converte uma URL assinada do nosso bucket (`/object/sign/<bucket>/<path>?token=...`) de volta
+ * para o formato canônico gravado no banco. Qualquer outra URL é devolvida sem alteração,
+ * então a validação seguinte (`isOwnedAudioUrl`) continua decidindo se ela é aceita.
+ */
+function normalizeAudioUrl(url: string, cfg?: Partial<StorageConfig>): string {
+    if (typeof url !== "string") return url;
+
+    const config = getStorageConfig(cfg);
+    const publicBase = getPublicBase(cfg);
+    if (!config || !publicBase) return url;
+
+    const signBase = `${config.supabaseUrl}/storage/v1/object/sign/${config.bucket}/`;
+    if (!url.startsWith(signBase)) return url;
+
+    const path = url.slice(signBase.length).split(/[?#]/)[0];
+
+    return isSafePath(path) ? `${publicBase}${path}` : url;
+}
+
 function isPathOwnedBy(path: string | null | undefined, userId: string): boolean {
     if (!path || !userId || !SAFE_SEGMENT.test(userId)) return false;
     return isSafePath(path) && path.startsWith(`${userId}/`) && path.length > userId.length + 1;
@@ -73,6 +93,7 @@ function isOwnedAudioUrl(url: string, userId: string, cfg?: Partial<StorageConfi
 export {
     getUserPublicPrefix,
     isOwnedAudioUrl,
+    normalizeAudioUrl,
     safeExtractPath,
     isPathOwnedBy,
     isSafePath,

@@ -10,7 +10,8 @@ import { CreateLayerModal } from "../components/CreateLayerModal";
 import { DeleteLayerModal } from "../components/DeleteLayerModal";
 import { LayerEditorModal } from "../components/LayerEditorModal";
 import { URL_API_TESTE } from "../utility/url_apis";
-import { Play, Pause, Mic, Music, Users, MessageSquare, Lightbulb, Pencil, Trash2 } from "lucide-react";
+import { Play, Pause, Mic, Music, Users, MessageSquare, Lightbulb, Pencil, Trash2, Download } from "lucide-react";
+import { mixdownToWav, downloadBlob } from "../utility/mixdown";
 import type { Project, Camada } from "../types";
 import { useUserData } from "../contexts/UserDataContext";
 import '../styles/Studio.css';
@@ -25,6 +26,7 @@ function Studio() {
     const [saving, setSaving] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('tracks');
     const [saveErro, setSaveErro] = useState<string | null>(null);
+    const [exporting, setExporting] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [createLayerModalOpen, setCreateLayerModalOpen] = useState(false);
@@ -127,6 +129,31 @@ function Studio() {
             setIsPlayingAll(true);
         }
     }, [projeto, isPlayingAll]);
+
+    // Exporta o guia + camadas aprovadas, com o volume e o delay de cada uma.
+    const handleExport = useCallback(async () => {
+        if (!projeto) return;
+        const aprovadas = (projeto.camadas || []).filter(c => c.esta_aprovada);
+        if (aprovadas.length === 0) {
+            setSaveErro("Aprove ao menos uma camada para exportar o mix.");
+            return;
+        }
+
+        setExporting(true);
+        setSaveErro(null);
+        try {
+            const wav = await mixdownToWav([
+                ...(projeto.audio_guia ? [{ url: projeto.audio_guia, delayMs: 0, volume: 1 }] : []),
+                ...aprovadas.map(c => ({ url: c.audio_url, delayMs: c.delay_offset, volume: c.volume_padrao })),
+            ]);
+            downloadBlob(wav, `${projeto.titulo.normalize('NFD').replace(/\p{M}/gu, '').replace(/[^\w-]+/g, '_').replace(/^_+|_+$/g, '') || 'mix'}.wav`);
+        } catch (err) {
+            console.error(err);
+            setSaveErro("Não foi possível gerar o mix. Tente novamente.");
+        } finally {
+            setExporting(false);
+        }
+    }, [projeto]);
 
     const handleStopAll = useCallback(() => {
         const allWavesurfers = wavesurferRefs.current;
@@ -284,6 +311,9 @@ function Studio() {
                             Stop
                         </button>
                     )}
+                    <button className="btn-small" onClick={handleExport} disabled={exporting}>
+                        <Download size={18} /> {exporting ? 'Gerando...' : 'Exportar WAV'}
+                    </button>
                     <button className="btn-small btn-gravar" onClick={() => setCreateLayerModalOpen(true)}>
                         <Mic size={18} /> Gravar
                     </button>

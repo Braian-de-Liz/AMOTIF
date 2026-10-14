@@ -53,3 +53,7 @@ ehthumbs.db
 *.tmp
 *.temp
 *.bak
+
+# Visual Studio / local Claude settings
+.vs/
+.claude/settings.local.json

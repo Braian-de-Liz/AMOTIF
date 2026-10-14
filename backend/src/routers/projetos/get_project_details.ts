@@ -1,6 +1,7 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_details_project } from "../../schemas/projetos/get_one_project.js";
+import { audioSigner } from "../../lib/signed_urls.js";
 
 const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -72,6 +73,11 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
+        const sign = await audioSigner(Fastify.storage, [
+            projeto.audio_guia,
+            ...projeto.camadas.map(c => c.audio_url)
+        ]);
+
         return reply.status(200).send({
             status: 'sucesso',
             mensagem: 'projeto carregado',
@@ -79,7 +85,7 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                 id: projeto.id,
                 titulo: projeto.titulo,
                 bpm: projeto.bpm,
-                audio_guia: projeto.audio_guia,
+                audio_guia: sign(projeto.audio_guia),
                 descricao: projeto.descricao,
                 escala: projeto.escala,
                 createdAt: projeto.createdAt.toISOString(),
@@ -87,7 +93,7 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                 camadas: projeto.camadas.map(({ id, nome_trilha, audio_url, instrumento_tag, volume_padrao, delay_offset, esta_aprovada, createdAt, autor, currentVersion, _count }) => ({
                     id,
                     nome_trilha,
-                    audio_url,
+                    audio_url: sign(audio_url),
                     instrumento_tag,
                     volume_padrao,
                     delay_offset,

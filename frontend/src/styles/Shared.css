@@ -977,3 +977,49 @@
     cursor: not-allowed;
     transform: none;
 }
+
+.feed-cta {
+    margin-top: 2rem;
+    padding: 1.5rem 1.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    background: var(--verde-pastel);
+    border: 1px solid var(--borda);
+    border-radius: var(--radius-lg);
+}
+
+.feed-cta h3 {
+    margin: 0 0 0.25rem;
+    font-family: 'Bitter', Georgia, serif;
+    font-size: 1.15rem;
+    color: var(--verde-tinta);
+}
+
+.feed-cta p {
+    margin: 0;
+    color: var(--texto-secundario);
+    font-size: var(--text-sm);
+    max-width: 46ch;
+}
+
+.feed-cta-button {
+    padding: 0.7rem 1.25rem;
+    border: none;
+    border-radius: var(--radius-base);
+    background: var(--verde-musgo);
+    color: var(--branco);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.feed-cta-button:hover {
+    background: var(--verde-tinta);
+}
+
+.feed-cta-button:focus-visible {
+    outline: 3px solid var(--verde-claro);
+    outline-offset: 2px;
+}

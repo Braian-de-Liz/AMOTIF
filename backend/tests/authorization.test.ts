@@ -155,6 +155,7 @@ const mockPrisma: any = {
     favorite: { findUnique: async () => null, findMany: async () => [], create: async () => ({}) },
     follows: { findMany: async () => [] },
     notification: { create: async () => ({}), createMany: async () => ({}), deleteMany: async () => ({ count: 0 }) },
+    $queryRaw: async () => [],
     $transaction: async (arg: any) => (typeof arg === "function" ? arg(mockPrisma) : Promise.all(arg)),
 };
 
