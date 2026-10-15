@@ -16,6 +16,10 @@ export interface Camada {
   audio_url: string
   delay_offset: number
   volume_padrao: number
+  /** BPM em que a camada foi gravada; null/ausente = mesmo BPM do projeto. */
+  bpm_original?: number | null
+  /** Transposição aplicada na reprodução, em semitons (-12 a 12). */
+  transposicao_semitons?: number
   esta_aprovada: boolean
   autor?: { nome_completo: string }
   versaoAtual?: {

@@ -12,7 +12,7 @@ const update_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.put("/layer/:id", update_layer_schema, async (request, reply) => {
         const { id } = request.params;
 
-        const { nome_trilha, audio_url, instrumento_tag, delay_offset, volume_padrao, tag } = request.body;
+        const { nome_trilha, audio_url, instrumento_tag, delay_offset, volume_padrao, bpm_original, transposicao_semitons, mensagem, tag } = request.body;
         const userId = request.user.id;
 
         const camadaAtual = await Fastify.prisma.camada.findUnique({
@@ -23,6 +23,8 @@ const update_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
                 instrumento_tag: true,
                 delay_offset: true,
                 volume_padrao: true,
+                bpm_original: true,
+                transposicao_semitons: true,
                 esta_aprovada: true
             }
         });
@@ -43,12 +45,22 @@ const update_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
+        // Campos opcionais ausentes mantêm o valor atual.
+        const novo = {
+            delay_offset: delay_offset ?? camadaAtual.delay_offset,
+            volume_padrao: volume_padrao ?? camadaAtual.volume_padrao,
+            bpm_original: bpm_original === undefined ? (camadaAtual.bpm_original ?? null) : bpm_original,
+            transposicao_semitons: transposicao_semitons ?? camadaAtual.transposicao_semitons ?? 0
+        };
+
         const dadosMudaram =
             audioMudou ||
             camadaAtual.nome_trilha !== nome_trilha ||
             camadaAtual.instrumento_tag !== instrumento_tag ||
-            camadaAtual.delay_offset !== delay_offset ||
-            camadaAtual.volume_padrao !== volume_padrao;
+            camadaAtual.delay_offset !== novo.delay_offset ||
+            camadaAtual.volume_padrao !== novo.volume_padrao ||
+            (camadaAtual.bpm_original ?? null) !== novo.bpm_original ||
+            (camadaAtual.transposicao_semitons ?? 0) !== novo.transposicao_semitons;
 
         if (dadosMudaram) {
             try {
@@ -56,9 +68,8 @@ const update_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
                     audio_url,
                     nome_trilha,
                     instrumento_tag,
-                    delay_offset: delay_offset ?? 0,
-                    volume_padrao: volume_padrao ?? 1.0
-                }, `Atualização manual`, tag);
+                    ...novo
+                }, mensagem || `Atualização manual`, tag);
             } catch (err) {
                 Fastify.log.error("Erro ao criar versão: " + err);
             }
@@ -70,9 +81,9 @@ const update_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
                 nome_trilha,
                 audio_url,
                 instrumento_tag,
-                delay_offset,
-                volume_padrao,
+                ...novo,
                 // Trocar o áudio de uma camada aprovada exige nova aprovação do dono do projeto.
+                // Mudar só BPM/tom não altera o arquivo, então a aprovação é mantida.
                 ...(audioMudou && camadaAtual.esta_aprovada ? { esta_aprovada: false } : {})
             }
         });

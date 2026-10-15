@@ -20,6 +20,8 @@ const mockVersion = {
   instrumento_tag: "Guitarra",
   delay_offset: 0,
   volume_padrao: 1.0,
+  bpm_original: null,
+  transposicao_semitons: 0,
   versionNumber: 1,
   mensagem: "Versão inicial",
   tag: null,

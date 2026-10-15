@@ -36,6 +36,8 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                         instrumento_tag: true,
                         volume_padrao: true,
                         delay_offset: true,
+                        bpm_original: true,
+                        transposicao_semitons: true,
                         esta_aprovada: true,
                         createdAt: true,
                         autor: {
@@ -84,13 +86,15 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                 escala: projeto.escala,
                 createdAt: projeto.createdAt.toISOString(),
                 autor: projeto.autor,
-                camadas: projeto.camadas.map(({ id, nome_trilha, audio_url, instrumento_tag, volume_padrao, delay_offset, esta_aprovada, createdAt, autor, currentVersion, _count }) => ({
+                camadas: projeto.camadas.map(({ id, nome_trilha, audio_url, instrumento_tag, volume_padrao, delay_offset, bpm_original, transposicao_semitons, esta_aprovada, createdAt, autor, currentVersion, _count }) => ({
                     id,
                     nome_trilha,
                     audio_url,
                     instrumento_tag,
                     volume_padrao,
                     delay_offset,
+                    bpm_original,
+                    transposicao_semitons,
                     esta_aprovada,
                     createdAt: createdAt.toISOString(),
                     autor,

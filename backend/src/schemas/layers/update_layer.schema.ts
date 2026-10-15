@@ -1,5 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
+import { BpmOriginal, TransposicaoSemitons } from './tempo_fields.js';
 
 const update_layer_schema = {
     schema: {
@@ -15,6 +16,10 @@ const update_layer_schema = {
             instrumento_tag: Type.String({ minLength: 1 }),
             delay_offset: Type.Optional(Type.Integer()),
             volume_padrao: Type.Optional(Type.Number({ minimum: 0, maximum: 1 })),
+            // Ausente = mantém o valor atual; bpm_original null = volta a usar o BPM do projeto.
+            bpm_original: Type.Optional(BpmOriginal),
+            transposicao_semitons: Type.Optional(TransposicaoSemitons),
+            mensagem: Type.Optional(Type.String({ maxLength: 500 })),
             tag: Type.Optional(Type.String({ maxLength: 50 }))
         }),
         response: {

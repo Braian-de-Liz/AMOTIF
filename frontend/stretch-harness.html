@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>stretch harness (temporário)</title></head>
+<body>
+<script type="module">
+import { renderStretched } from '/src/utility/stretchRender.ts';
+import { encodeMp3InWorker } from '/src/utility/mp3Encoder.ts';
+import { measureDelaySamples } from '/src/utility/audioAlignment.ts';
+
+const SR = 48000;
+
+function makeBuffer(channels) {
+  const b = new AudioBuffer({ numberOfChannels: channels.length, length: channels[0].length, sampleRate: SR });
+  channels.forEach((d, c) => b.copyToChannel(d, c));
+  return b;
+}
+
+// Cliques curtos (ruído com decaimento) a cada batida.
+function clickTrack(seconds, bpm, firstAt) {
+  const x = new Float32Array(Math.round(seconds * SR));
+  const beat = 60 / bpm;
+  let s = 7;
+  for (let t = firstAt; t < seconds - 0.05; t += beat) {
+    const i0 = Math.round(t * SR);
+    for (let i = 0; i < 0.03 * SR; i++) {
+      s = (s * 1103515245 + 12345) & 0x7fffffff;
+      x[i0 + i] = ((s / 0x7fffffff) * 2 - 1) * 0.8 * Math.exp(-i / (0.005 * SR));
+    }
+  }
+  return x;
+}
+
+function sine(seconds, f) {
+  const x = new Float32Array(Math.round(seconds * SR));
+  for (let i = 0; i < x.length; i++) x[i] = 0.5 * Math.sin(2 * Math.PI * f * i / SR);
+  return x;
+}
+
+function onsets(x, threshold, minGapS) {
+  const out = [];
+  let last = -Infinity;
+  for (let i = 0; i < x.length; i++) {
+    if (Math.abs(x[i]) > threshold && (i - last) / SR > minGapS) { out.push(i / SR); last = i; }
+  }
+  return out;
+}
+
+// Frequência por cruzamentos de zero no trecho central (evita bordas).
+function freq(x) {
+  const a = Math.floor(x.length * 0.3), b = Math.floor(x.length * 0.7);
+  let crossings = 0;
+  for (let i = a + 1; i < b; i++) if (x[i - 1] < 0 && x[i] >= 0) crossings++;
+  return crossings / ((b - a) / SR);
+}
+
+window.runChecks = async () => {
+  const results = {};
+
+  // 1) Alinhamento e duração: 100 BPM -> 110 BPM
+  const rate = 1.1;
+  const src = clickTrack(6, 100, 0.3);
+  const t0 = performance.now();
+  const out = await renderStretched(makeBuffer([src, src]), rate, 0);
+  results.renderMs = Math.round(performance.now() - t0);
+  results.durationIn = 6;
+  results.durationOut = out.duration;
+  results.durationExpected = 6 / rate;
+  const expected = onsets(src, 0.3, 0.2).map(t => t / rate);
+  const got = onsets(out.getChannelData(0), 0.15, 0.2);
+  results.onsetsExpected = expected.map(t => +t.toFixed(4));
+  results.onsetsGot = got.map(t => +t.toFixed(4));
+  const n = Math.min(expected.length, got.length);
+  results.onsetErrorsMs = Array.from({ length: n }, (_, i) => +((got[i] - expected[i]) * 1000).toFixed(2));
+
+  // 2) Tom preservado no ajuste de tempo; transposição de +2 semitons
+  const tone = makeBuffer([sine(3, 440)]);
+  results.freqTempoOnly = freq((await renderStretched(tone, 1.1, 0)).getChannelData(0));
+  results.freqPlus2 = freq((await renderStretched(tone, 1, 2)).getChannelData(0));
+  results.freqPlus2Expected = 440 * Math.pow(2, 2 / 12);
+
+  // 3) Atraso do MP3 após decodificar neste navegador
+  const mp3 = await encodeMp3InWorker(out);
+  results.mp3Bytes = mp3.size;
+  const ctx = new AudioContext({ sampleRate: SR });
+  const decoded = await ctx.decodeAudioData(await mp3.arrayBuffer());
+  await ctx.close();
+  const ref = [out.getChannelData(0), out.getChannelData(1)];
+  const dec = [decoded.getChannelData(0), decoded.getChannelData(1)];
+  results.mp3DelaySamples = measureDelaySamples(ref, dec, SR);
+  results.mp3DelayMs = +(results.mp3DelaySamples / SR * 1000).toFixed(2);
+  results.decodedDuration = decoded.duration;
+
+  return results;
+};
+window.harnessReady = true;
+</script>
+</body>
+</html>

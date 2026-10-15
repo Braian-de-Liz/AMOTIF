@@ -6,6 +6,9 @@ interface VersionData {
     instrumento_tag: string;
     delay_offset: number;
     volume_padrao: number;
+    /** null = mesmo BPM do projeto. */
+    bpm_original?: number | null;
+    transposicao_semitons?: number;
 }
 
 interface CreateVersionData extends VersionData {
@@ -37,6 +40,8 @@ async function createVersion(
             instrumento_tag: data.instrumento_tag,
             delay_offset: data.delay_offset,
             volume_padrao: data.volume_padrao,
+            bpm_original: data.bpm_original ?? null,
+            transposicao_semitons: data.transposicao_semitons ?? 0,
             versionNumber,
             mensagem: data.mensagem || `Versão ${versionNumber}`,
             tag: data.tag,
@@ -111,6 +116,8 @@ async function restoreVersionInPlace(
             instrumento_tag: targetVersion.instrumento_tag,
             delay_offset: targetVersion.delay_offset,
             volume_padrao: targetVersion.volume_padrao,
+            bpm_original: targetVersion.bpm_original,
+            transposicao_semitons: targetVersion.transposicao_semitons,
             ...(resetAprovacao ? { esta_aprovada: false } : {})
         }
     });
@@ -148,6 +155,8 @@ async function rollbackToVersion(prisma: PrismaClient, camadaId: string, version
             instrumento_tag: targetVersion.instrumento_tag,
             delay_offset: targetVersion.delay_offset,
             volume_padrao: targetVersion.volume_padrao,
+            bpm_original: targetVersion.bpm_original,
+            transposicao_semitons: targetVersion.transposicao_semitons,
             versionNumber: nextVersion,
             mensagem: `Rollback para versão ${targetVersion.versionNumber}`,
             autorId: userId
@@ -163,6 +172,8 @@ async function rollbackToVersion(prisma: PrismaClient, camadaId: string, version
             instrumento_tag: targetVersion.instrumento_tag,
             delay_offset: targetVersion.delay_offset,
             volume_padrao: targetVersion.volume_padrao,
+            bpm_original: targetVersion.bpm_original,
+            transposicao_semitons: targetVersion.transposicao_semitons,
             ...(resetAprovacao ? { esta_aprovada: false } : {})
         }
     });
@@ -184,6 +195,8 @@ async function createManualVersion(
             instrumento_tag: true, 
             delay_offset: true, 
             volume_padrao: true,
+            bpm_original: true,
+            transposicao_semitons: true,
             currentVersionId: true
         }
     });
@@ -198,6 +211,8 @@ async function createManualVersion(
         instrumento_tag: camada.instrumento_tag,
         delay_offset: camada.delay_offset,
         volume_padrao: camada.volume_padrao,
+        bpm_original: camada.bpm_original,
+        transposicao_semitons: camada.transposicao_semitons,
         mensagem: data.mensagem,
         tag: data.tag
     }, nextVersion);

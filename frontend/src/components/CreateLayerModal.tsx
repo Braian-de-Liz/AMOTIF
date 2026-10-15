@@ -3,6 +3,7 @@ import { URL_API_TESTE } from '../utility/url_apis';
 import { createLayerSchema } from '../schemas/createLayerSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
 import { Modal } from './Modal';
+import { checkUploadSize, uploadAudioFile } from '../utility/uploadAudio';
 
 interface CreateLayerModalProps {
     projetoId: string
@@ -39,6 +40,15 @@ function CreateLayerModal({ projetoId, isOpen, onClose, onLayerCreated }: Create
         setAudioAnalyzing(true);
         setAudioError(null);
         setAudioMeta(null);
+
+        const erroTamanho = checkUploadSize(arquivo);
+        if (erroTamanho) {
+            setAudioError(erroTamanho);
+            setFile(null);
+            setAudioAnalyzing(false);
+            return;
+        }
+
         setFile(arquivo);
 
         try {
@@ -87,21 +97,7 @@ function CreateLayerModal({ projetoId, isOpen, onClose, onLayerCreated }: Create
                 .replace(/\s+/g, '_');
             const sanitizedFile = new File([file], sanitizedFileName, { type: file.type });
 
-            const uploadData = new FormData();
-            uploadData.append('audio', sanitizedFile);
-
-            const uploadRes = await fetch(`${URL_API_TESTE}/upload`, {
-                method: 'POST',
-                credentials: 'include',
-                body: uploadData,
-            });
-
-            if (!uploadRes.ok) {
-                const errBody = await uploadRes.json().catch(() => ({}));
-                throw new Error(errBody.mensagem || "Falha ao enviar áudio.");
-            }
-
-            const { fileUrl } = await uploadRes.json();
+            const fileUrl = await uploadAudioFile(sanitizedFile);
 
             const response = await fetch(`${URL_API_TESTE}/layer/${projetoId}`, {
                 method: 'POST',

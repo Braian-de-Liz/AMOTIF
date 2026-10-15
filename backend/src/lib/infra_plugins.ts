@@ -11,7 +11,7 @@ import { COOKIE_SECRET, dev, secure_state, sameSite_state } from './config.envir
 import { health_route } from '../routers/health/health.js';
 import { Dados_route } from '../routers/health/dados.js';
 import { prisma_plugin, prisma, notiType } from './prisma.js';
-import { Upload_Service } from './upload.js';
+import { Upload_Service, MAX_FILE_SIZE } from './upload.js';
 import { globalErrorHandler } from './global_Error.js';
 import { Plugin_Routes } from "../routers/plugin_routes.js";
 
@@ -71,7 +71,7 @@ const InfraPlugin: FastifyPluginAsync = async (Fastify) => {
 
     await Fastify.register(multipart, {
         limits: {
-            fileSize: 40 * 1024 * 1024
+            fileSize: MAX_FILE_SIZE
         }
     });
 

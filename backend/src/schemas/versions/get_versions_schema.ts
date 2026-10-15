@@ -9,6 +9,8 @@ const VersionResponse = Type.Object({
     instrumento_tag: Type.String(),
     delay_offset: Type.Number(),
     volume_padrao: Type.Number(),
+    bpm_original: Type.Union([Type.Number(), Type.Null()]),
+    transposicao_semitons: Type.Number(),
     versionNumber: Type.Number(),
     mensagem: Type.Union([Type.String(), Type.Null()]),
     tag: Type.Union([Type.String(), Type.Null()]),

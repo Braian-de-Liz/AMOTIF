@@ -33,11 +33,23 @@ const schema_details_project = {
                         instrumento_tag: Type.String(),
                         volume_padrao: Type.Number(),
                         delay_offset: Type.Number(),
+                        bpm_original: Type.Union([Type.Number(), Type.Null()]),
+                        transposicao_semitons: Type.Number(),
                         esta_aprovada: Type.Boolean(),
                         createdAt: Type.String({ format: 'date-time' }),
                         autor: Type.Object({
                             nome_completo: Type.String()
-                        })
+                        }),
+                        versaoAtual: Type.Union([
+                            Type.Object({
+                                id: Type.String(),
+                                numero: Type.Number(),
+                                mensagem: Type.Union([Type.String(), Type.Null()]),
+                                criadaEm: Type.String({ format: 'date-time' })
+                            }),
+                            Type.Null()
+                        ]),
+                        totalVersoes: Type.Number()
                     }))
                 })
             }),

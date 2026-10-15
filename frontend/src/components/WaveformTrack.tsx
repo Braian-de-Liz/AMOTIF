@@ -30,6 +30,8 @@ interface Version {
     instrumento_tag: string
     delay_offset: number
     volume_padrao: number
+    bpm_original?: number | null
+    transposicao_semitons?: number
     versionNumber: number
     mensagem?: string | null
     tag?: string | null

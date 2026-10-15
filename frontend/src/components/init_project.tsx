@@ -3,6 +3,7 @@ import { URL_API_TESTE } from '../utility/url_apis';
 import { projectSchema, generos } from '../schemas/projectSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
 import { Modal } from './Modal';
+import { checkUploadSize, uploadAudioFile } from '../utility/uploadAudio';
 import type { AudioMeta } from '../types';
 import '../styles/User.css';
 
@@ -36,6 +37,15 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
         setAudioAnalyzing(true);
         setAudioError(null);
         setAudioMeta(null);
+
+        const erroTamanho = checkUploadSize(arquivo);
+        if (erroTamanho) {
+            setAudioError(erroTamanho);
+            setFile(null);
+            setAudioAnalyzing(false);
+            return;
+        }
+
         setFile(arquivo);
 
         try {
@@ -106,21 +116,7 @@ function CreateProjectModal({ isOpen, onClose, onProjectCreated }: CreateProject
                 .replace(/\s+/g, '_');
             const sanitizedFile = new File([file], sanitizedFileName, { type: file.type });
 
-            const uploadData = new FormData();
-            uploadData.append('audio', sanitizedFile);
-
-            const uploadRes = await fetch(`${URL_API_TESTE}/upload`, {
-                method: 'POST',
-                credentials: 'include',
-                body: uploadData,
-            });
-
-            if (!uploadRes.ok) {
-                const errBody = await uploadRes.json().catch(() => ({}));
-                throw new Error(errBody.mensagem || "Falha ao enviar áudio.");
-            }
-
-            const { fileUrl } = await uploadRes.json();
+            const fileUrl = await uploadAudioFile(sanitizedFile);
 
             const response = await fetch(`${URL_API_TESTE}/projetos`, {
                 method: 'POST',

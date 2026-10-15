@@ -17,6 +17,21 @@ const ALLOWED_CONTENT_TYPES: Record<string, boolean> = {
 
 const MAX_FILE_SIZE = 40 * 1024 * 1024;
 
+// Folga para boundary e cabeçalhos do multipart ao comparar com o Content-Length da requisição.
+const MULTIPART_OVERHEAD = 64 * 1024;
+
+const MENSAGEM_LIMITE = `Arquivo muito grande. O máximo é ${MAX_FILE_SIZE / (1024 * 1024)}MB.`;
+
+/** Erro emitido pelo @fastify/multipart quando o arquivo passa de limits.fileSize (pode vir encapsulado pelo fetch). */
+function isFileTooLargeError(err: unknown): boolean {
+    let atual: any = err;
+    for (let i = 0; atual && i < 5; i++) {
+        if (atual.code === "FST_REQ_FILE_TOO_LARGE" || atual.statusCode === 413) return true;
+        atual = atual.cause;
+    }
+    return false;
+}
+
 // Extensões permitidas no path gravado no Storage. Nunca usar o filename do cliente diretamente.
 const ALLOWED_EXTENSIONS = new Set([".mp3", ".wav", ".ogg", ".flac", ".aac", ".m4a"]);
 
@@ -88,26 +103,46 @@ const Upload_Service: FastifyPluginAsync = fp(async (Fastify) => {
                 throw new UploadError(415, "Tipo de arquivo não permitido. Use: MP3, WAV, OGG, FLAC, AAC");
             }
 
-            if (file.file.truncated) {
-                throw new UploadError(413, "Arquivo muito grande. Máximo 40MB");
-            }
-
             const ext = resolveSafeExtension(file.filename, contentType);
 
             const fileId = crypto.randomUUID();
             const path = `${userId}/${fileId}${ext}`;
 
-            const uploadResponse = await fetch(`${supabaseUrl}/storage/v1/object/${bucket}/${path}`, {
-                method: "POST",
-                headers: {
-                    "Authorization": `Bearer ${supabaseKey}`,
-                    "apikey": supabaseKey,
-                    "Content-Type": contentType,
-                    "duplex": "half",
-                    "x-upsert": "true",
-                },
-                body: file.file as unknown as ReadableStream,
-            });
+            // O tamanho só é conhecido enquanto o stream é lido. Se o limite estourar no meio do envio,
+            // o multipart aborta o stream; nesse caso removemos qualquer objeto parcial do bucket.
+            const descartarParcial = async () => {
+                try {
+                    await storage.deleteAudio(path);
+                } catch (err) {
+                    Fastify.log.error(`Falha ao remover upload parcial (${path}): ${err}`);
+                }
+            };
+
+            let uploadResponse: Response;
+            try {
+                uploadResponse = await fetch(`${supabaseUrl}/storage/v1/object/${bucket}/${path}`, {
+                    method: "POST",
+                    headers: {
+                        "Authorization": `Bearer ${supabaseKey}`,
+                        "apikey": supabaseKey,
+                        "Content-Type": contentType,
+                        "duplex": "half",
+                        "x-upsert": "true",
+                    },
+                    body: file.file as unknown as ReadableStream,
+                });
+            } catch (err) {
+                if (file.file.truncated || isFileTooLargeError(err)) {
+                    await descartarParcial();
+                    throw new UploadError(413, MENSAGEM_LIMITE);
+                }
+                throw err;
+            }
+
+            if (file.file.truncated) {
+                await descartarParcial();
+                throw new UploadError(413, MENSAGEM_LIMITE);
+            }
 
             if (!uploadResponse.ok) {
                 const errBody = await uploadResponse.text();
@@ -146,4 +181,4 @@ const Upload_Service: FastifyPluginAsync = fp(async (Fastify) => {
     Fastify.decorate("storage", storage);
 });
 
-export { Upload_Service, UploadError, ALLOWED_CONTENT_TYPES, MAX_FILE_SIZE, extractPathFromUrl, resolveSafeExtension };
+export { Upload_Service, UploadError, ALLOWED_CONTENT_TYPES, MAX_FILE_SIZE, MULTIPART_OVERHEAD, MENSAGEM_LIMITE, extractPathFromUrl, resolveSafeExtension };

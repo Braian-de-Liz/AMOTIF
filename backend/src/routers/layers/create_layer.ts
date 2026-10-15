@@ -11,7 +11,7 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.post("/layer/:projetoId", schema_layer, async (request, reply) => {
         const userId = request.user.id;
         const { projetoId } = request.params;
-        const { nome_trilha, audio_url, instrumento_tag, delay_offset, volume_padrao, tag } = request.body;
+        const { nome_trilha, audio_url, instrumento_tag, delay_offset, volume_padrao, bpm_original, transposicao_semitons, tag } = request.body;
 
         const check_project = await Fastify.prisma.projeto.findUnique({
             where: { id: projetoId },
@@ -46,6 +46,8 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
                 instrumento_tag,
                 delay_offset,
                 volume_padrao,
+                bpm_original: bpm_original ?? null,
+                transposicao_semitons: transposicao_semitons ?? 0,
                 // Toda contribuição entra como pendente; só o dono do projeto aprova.
                 esta_aprovada: false,
                 projetoId,
@@ -59,7 +61,9 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
             nome_trilha,
             instrumento_tag,
             delay_offset: delay_offset ?? 0,
-            volume_padrao: volume_padrao ?? 1.0
+            volume_padrao: volume_padrao ?? 1.0,
+            bpm_original: nova_camada.bpm_original,
+            transposicao_semitons: nova_camada.transposicao_semitons
         }, tag);
 
         // Cria a branch main automaticamente
@@ -96,6 +100,8 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
                 instrumento_tag: nova_camada.instrumento_tag,
                 delay_offset: nova_camada.delay_offset,
                 volume_padrao: nova_camada.volume_padrao,
+                bpm_original: nova_camada.bpm_original ?? null,
+                transposicao_semitons: nova_camada.transposicao_semitons ?? 0,
                 esta_aprovada: nova_camada.esta_aprovada,
                 projetoId: nova_camada.projetoId,
                 userId: nova_camada.userId,

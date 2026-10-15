@@ -1,5 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
+import { BpmOriginal, TransposicaoSemitons } from './tempo_fields.js';
 
 const schema_layer = {
     schema: {
@@ -15,6 +16,8 @@ const schema_layer = {
             instrumento_tag: Type.String({ minLength: 2 }),
             delay_offset: Type.Optional(Type.Integer({ default: 0 })),
             volume_padrao: Type.Optional(Type.Number({ minimum: 0, maximum: 1.5, default: 1.0 })),
+            bpm_original: Type.Optional(BpmOriginal),
+            transposicao_semitons: Type.Optional(TransposicaoSemitons),
             tag: Type.Optional(Type.String({ maxLength: 50 }))
         }),
         response: {
@@ -28,6 +31,8 @@ const schema_layer = {
                     instrumento_tag: Type.String(),
                     delay_offset: Type.Number(),
                     volume_padrao: Type.Number(),
+                    bpm_original: Type.Union([Type.Number(), Type.Null()]),
+                    transposicao_semitons: Type.Number(),
                     esta_aprovada: Type.Boolean(),
                     projetoId: Type.String(),
                     userId: Type.String(),

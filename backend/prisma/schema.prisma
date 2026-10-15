@@ -200,6 +200,9 @@ model Camada {
   esta_aprovada   Boolean   @default(false)
   duracao_ms      Int?
   formato_audio   String    @default("mp3")
+  // Ajuste de tempo/tom na reprodução: bpm_original null = mesmo BPM do projeto.
+  bpm_original          Int?
+  transposicao_semitons Int       @default(0)
   projetoId       String    @db.Uuid
   projeto         Projeto   @relation(fields: [projetoId], references: [id], onDelete: Cascade)
   userId          String    @db.Uuid
@@ -228,6 +231,8 @@ model LayerVersion {
   instrumento_tag String
   delay_offset    Int      @default(0)
   volume_padrao   Float    @default(1.0)
+  bpm_original          Int?
+  transposicao_semitons Int      @default(0)
   versionNumber   Int
   mensagem        String?
   tag             String?  // Tag semântica opcional (ex: "v1.0-mix", "pré-master", "take-3")

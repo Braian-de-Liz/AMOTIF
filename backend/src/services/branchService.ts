@@ -189,6 +189,8 @@ async function switchBranch(
             instrumento_tag: headVersion.instrumento_tag,
             delay_offset: headVersion.delay_offset,
             volume_padrao: headVersion.volume_padrao,
+            bpm_original: headVersion.bpm_original,
+            transposicao_semitons: headVersion.transposicao_semitons,
             ...(resetAprovacao ? { esta_aprovada: false } : {})
         }
     });
@@ -240,6 +242,8 @@ async function mergeBranch(
             instrumento_tag: headVersion.instrumento_tag,
             delay_offset: headVersion.delay_offset,
             volume_padrao: headVersion.volume_padrao,
+            bpm_original: headVersion.bpm_original,
+            transposicao_semitons: headVersion.transposicao_semitons,
             versionNumber: nextVersionNumber,
             mensagem: mensagem || `Merge de '${branch.nome}' para main`,
             autorId: userId
@@ -270,6 +274,8 @@ async function mergeBranch(
             instrumento_tag: headVersion.instrumento_tag,
             delay_offset: headVersion.delay_offset,
             volume_padrao: headVersion.volume_padrao,
+            bpm_original: headVersion.bpm_original,
+            transposicao_semitons: headVersion.transposicao_semitons,
             ...(resetAprovacao ? { esta_aprovada: false } : {})
         }
     });

@@ -4,6 +4,7 @@ import { Mic, Scissors, Send, Check, Music, Loader2 } from 'lucide-react';
 import { AudioRecorder } from '../components/AudioRecorder';
 import { AudioEditor } from '../components/AudioEditor';
 import { URL_API_TESTE } from '../utility/url_apis';
+import { uploadAudioFile } from '../utility/uploadAudio';
 import { projectSchema, generos } from '../schemas/projectSchema';
 import { formatZodErrors } from '../utility/validationHelpers';
 import { SEOHead } from '../components/SEOHead';
@@ -96,21 +97,7 @@ function NovoStudio() {
             const fileName = `gravacao_${Date.now()}${ext}`;
             const file = new File([editedBlob], fileName, { type: editedBlob.type });
 
-            const uploadData = new FormData();
-            uploadData.append('audio', file);
-
-            const uploadRes = await fetch(`${URL_API_TESTE}/upload`, {
-                method: 'POST',
-                credentials: 'include',
-                body: uploadData,
-            });
-
-            if (!uploadRes.ok) {
-                const errBody = await uploadRes.json().catch(() => ({}));
-                throw new Error(errBody.mensagem || 'Falha ao enviar áudio.');
-            }
-
-            const { fileUrl } = await uploadRes.json();
+            const fileUrl = await uploadAudioFile(file);
 
             const audioMeta = {
                 nome: fileName,

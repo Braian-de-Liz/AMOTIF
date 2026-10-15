@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { AudioEditor } from './AudioEditor';
 import { Modal } from './Modal';
 import { URL_API_TESTE } from '../utility/url_apis';
+import { uploadAudioFile } from '../utility/uploadAudio';
 import { Loader2, Check } from 'lucide-react';
 
 interface LayerEditorModalProps {
@@ -41,21 +42,7 @@ function LayerEditorModal({ layerId, audioUrl, nomeTrilha, isOpen, onClose, onVe
             const fileName = `camada_${Date.now()}${ext}`;
             const file = new File([editedBlob], fileName, { type: editedBlob.type });
 
-            const uploadData = new FormData();
-            uploadData.append('audio', file);
-
-            const uploadRes = await fetch(`${URL_API_TESTE}/upload`, {
-                method: 'POST',
-                credentials: 'include',
-                body: uploadData,
-            });
-
-            if (!uploadRes.ok) {
-                const errBody = await uploadRes.json().catch(() => ({}));
-                throw new Error(errBody.mensagem || 'Falha ao enviar áudio editado.');
-            }
-
-            const { fileUrl } = await uploadRes.json();
+            const fileUrl = await uploadAudioFile(file);
 
             const response = await fetch(`${URL_API_TESTE}/layer/${layerId}`, {
                 method: 'PUT',
