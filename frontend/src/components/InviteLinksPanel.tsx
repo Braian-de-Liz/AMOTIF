@@ -1,11 +1,13 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Link2, Copy, Check, Trash2 } from 'lucide-react';
 import { api } from '../utility/apiClient';
+import { PAPEIS, rotuloPapel, type PapelColaborador } from '../utility/papeis';
 
 interface InviteLink {
     id: string;
     token: string;
     cargo: string;
+    papel?: PapelColaborador;
     max_usos: number;
     usos: number;
     expira_em: string;
@@ -24,6 +26,7 @@ function InviteLinksPanel({ projetoId }: InviteLinksPanelProps) {
     const [creating, setCreating] = useState(false);
     const [erro, setErro] = useState<string | null>(null);
     const [copiedId, setCopiedId] = useState<string | null>(null);
+    const [papel, setPapel] = useState<PapelColaborador>('MUSICO');
 
     const loadLinks = useCallback(async () => {
         try {
@@ -42,7 +45,7 @@ function InviteLinksPanel({ projetoId }: InviteLinksPanelProps) {
         setCreating(true);
         setErro(null);
         try {
-            await api.post(`/colaboration/${projetoId}/invite-link`, {});
+            await api.post(`/colaboration/${projetoId}/invite-link`, { papel });
             await loadLinks();
         } catch (err) {
             setErro(err instanceof Error ? err.message : 'Erro ao criar link');
@@ -78,6 +81,14 @@ function InviteLinksPanel({ projetoId }: InviteLinksPanelProps) {
                     <h4>Links de convite</h4>
                     <p className="invite-links-hint">Cada link vale por 7 dias e até 10 pessoas.</p>
                 </div>
+                <select
+                    className="invite-link-papel"
+                    aria-label="Papel de quem entrar pelo link"
+                    value={papel}
+                    onChange={e => setPapel(e.target.value as PapelColaborador)}
+                >
+                    {PAPEIS.map(p => <option key={p.value} value={p.value}>{p.label}</option>)}
+                </select>
                 <button className="btn-invite" onClick={handleCreate} disabled={creating}>
                     <Link2 size={16} />
                     {creating ? 'Gerando...' : 'Gerar link'}
@@ -90,6 +101,7 @@ function InviteLinksPanel({ projetoId }: InviteLinksPanelProps) {
                         <li key={link.id} className="invite-link-item">
                             <div className="invite-link-info">
                                 <span className="invite-link-role">{link.cargo}</span>
+                                {link.papel && <span className={`papel-badge papel-${link.papel.toLowerCase()}`}>{rotuloPapel(link.papel)}</span>}
                                 <span className="invite-link-meta">
                                     {link.usos}/{link.max_usos} usos · expira em {new Date(link.expira_em).toLocaleDateString()}
                                 </span>

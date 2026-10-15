@@ -1,3 +1,5 @@
+import type { StatusProjeto, PapelEfetivo } from '../utility/papeis'
+
 export interface ProjectCount {
   likes: number
   camadas: number
@@ -12,6 +14,7 @@ export interface ProjectAuthor {
 export interface Camada {
   id: string
   nome?: string
+  nome_trilha?: string
   instrumento_tag?: string
   audio_url: string
   delay_offset: number
@@ -21,7 +24,7 @@ export interface Camada {
   /** Transposição aplicada na reprodução, em semitons (-12 a 12). */
   transposicao_semitons?: number
   esta_aprovada: boolean
-  autor?: { nome_completo: string }
+  autor?: { id?: string; nome_completo: string }
   versaoAtual?: {
     id: string
     numero: number
@@ -39,6 +42,9 @@ export interface Project {
   bpm: number
   escala?: string | null
   descricao?: string | null
+  status?: StatusProjeto
+  /** Papel de quem está vendo o projeto; null se não participa. */
+  meu_papel?: PapelEfetivo | null
   audio_guia?: string
   audio_metadata?: Record<string, unknown>
   autor?: ProjectAuthor

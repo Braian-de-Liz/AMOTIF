@@ -21,4 +21,19 @@ describe('inviteSchema', () => {
     const result = inviteSchema.safeParse({ email_destinatario: '' })
     expect(result.success).toBe(false)
   })
+
+  it('usa "membro" e papel MUSICO quando função e papel não são informados', () => {
+    const result = inviteSchema.safeParse({ email_destinatario: 'amigo@email.com' })
+    expect(result.success && result.data).toEqual({ email_destinatario: 'amigo@email.com', cargo: 'membro', papel: 'MUSICO' })
+  })
+
+  it('mantém função e papel informados', () => {
+    const result = inviteSchema.safeParse({ email_destinatario: 'amigo@email.com', cargo: ' baixista ', papel: 'PRODUTOR' })
+    expect(result.success && result.data).toEqual({ email_destinatario: 'amigo@email.com', cargo: 'baixista', papel: 'PRODUTOR' })
+  })
+
+  it('rejeita papel inválido e função curta demais', () => {
+    expect(inviteSchema.safeParse({ email_destinatario: 'a@b.com', papel: 'DONO' }).success).toBe(false)
+    expect(inviteSchema.safeParse({ email_destinatario: 'a@b.com', cargo: 'x' }).success).toBe(false)
+  })
 })

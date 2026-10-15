@@ -6,6 +6,7 @@ import { Modal } from './Modal';
 import { Pencil } from 'lucide-react';
 import { useUserData } from '../contexts/UserDataContext';
 import type { Project } from '../types';
+import { STATUS_PROJETO, type StatusProjeto } from '../utility/papeis';
 
 interface EditProjectModalProps {
     projeto: Project
@@ -20,6 +21,7 @@ function EditProjectModal({ projeto, isOpen, onClose, onUpdated }: EditProjectMo
 
     const [titulo, setTitulo] = useState(projeto.titulo);
     const [genero, setGenero] = useState(projeto.genero);
+    const [status, setStatus] = useState<StatusProjeto>(projeto.status ?? 'IDEIA');
     const [bpm, setBpm] = useState(projeto.bpm);
     const [escala, setEscala] = useState(projeto.escala ?? '');
     const [descricao, setDescricao] = useState(projeto.descricao ?? '');
@@ -30,6 +32,7 @@ function EditProjectModal({ projeto, isOpen, onClose, onUpdated }: EditProjectMo
         if (isOpen) {
             setTitulo(projeto.titulo);
             setGenero(projeto.genero);
+            setStatus(projeto.status ?? 'IDEIA');
             setBpm(projeto.bpm);
             setEscala(projeto.escala ?? '');
             setDescricao(projeto.descricao ?? '');
@@ -60,6 +63,7 @@ function EditProjectModal({ projeto, isOpen, onClose, onUpdated }: EditProjectMo
                 body: JSON.stringify({
                     titulo,
                     genero,
+                    status,
                     bpm,
                     escala: escala || null,
                     descricao: descricao || null
@@ -111,6 +115,20 @@ function EditProjectModal({ projeto, isOpen, onClose, onUpdated }: EditProjectMo
                                 <option key={g} value={g}>
                                     {g.replace('_', ' ')}
                                 </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="form-group flex-1">
+                        <label htmlFor="edit-status">Etapa</label>
+                        <select
+                            id="edit-status"
+                            className="custom-select"
+                            value={status}
+                            onChange={(e) => setStatus(e.target.value as StatusProjeto)}
+                        >
+                            {STATUS_PROJETO.map(s => (
+                                <option key={s.value} value={s.value}>{s.label}</option>
                             ))}
                         </select>
                     </div>

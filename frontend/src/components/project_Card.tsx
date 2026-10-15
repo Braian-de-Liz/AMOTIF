@@ -4,6 +4,7 @@ import '../styles/Shared.css';
 import { URL_API_TESTE } from "../utility/url_apis";
 import { Heart, Music, Bookmark } from "lucide-react";
 import type { Project } from "../types";
+import { rotuloStatus } from '../utility/papeis';
 
 interface ProjectCardProps {
     proj: Project
@@ -67,6 +68,9 @@ function ProjectCardInner({ proj }: ProjectCardProps) {
                 <h3>{proj.titulo}</h3>
                 <span className="badge-bpm">{proj.bpm} BPM</span>
             </div>
+            {proj.status && (
+                <span className={`status-projeto status-${proj.status.toLowerCase()}`}>{rotuloStatus(proj.status)}</span>
+            )}
 
             <p className="feed-card-desc">{proj.descricao || "Sem descrição."}</p>
 

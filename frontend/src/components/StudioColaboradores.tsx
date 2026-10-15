@@ -7,6 +7,7 @@ import { formatZodErrors } from '../utility/validationHelpers'
 import { DeleteColabModal } from './DeleteColabModal';
 import { InviteLinksPanel } from './InviteLinksPanel';
 import type { Convite, Colaborador } from '../types';
+import { PAPEIS, rotuloPapel, type PapelColaborador } from '../utility/papeis';
 
 interface StudioColaboradoresProps {
     projetoId: string | undefined
@@ -19,6 +20,8 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
     const [loading, setLoading] = useState(true);
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [inviteEmail, setInviteEmail] = useState('');
+    const [inviteCargo, setInviteCargo] = useState('');
+    const [invitePapel, setInvitePapel] = useState<PapelColaborador>('MUSICO');
     const [inviting, setInviting] = useState(false);
     const [inviteErro, setInviteErro] = useState<string | null>(null);
     const [inviteSucesso, setInviteSucesso] = useState<string | null>(null);
@@ -56,7 +59,7 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
             const invitesData = await invitesRes.json();
 
             if (colabRes.ok) {
-                setColaboradores(colabData.colaboradores || []);
+                setColaboradores(colabData.colaborators?.colaboradores || []);
             }
             if (invitesRes.ok) {
                 setConvites(invitesData.convites || []);
@@ -73,7 +76,7 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
         setInviteErro(null);
         setInviteSucesso(null);
 
-        const validate = inviteSchema.safeParse({ email_destinatario: inviteEmail })
+        const validate = inviteSchema.safeParse({ email_destinatario: inviteEmail, cargo: inviteCargo, papel: invitePapel })
         if (!validate.success) {
             setInviteErro(formatZodErrors(validate.error))
             return
@@ -87,12 +90,14 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify({ email_destinatario: inviteEmail })
+                body: JSON.stringify(validate.data)
             });
 
             if (response.ok) {
                 setInviteSucesso('Convite enviado!');
                 setInviteEmail('');
+                setInviteCargo('');
+                setInvitePapel('MUSICO');
                 setTimeout(() => {
                     setShowInviteModal(false);
                     setInviteSucesso(null);
@@ -177,6 +182,25 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
                                 className="invite-input"
                                 required
                             />
+                            <input
+                                type="text"
+                                value={inviteCargo}
+                                onChange={(e) => setInviteCargo(e.target.value)}
+                                placeholder="Função no projeto (ex.: baixista)"
+                                className="invite-input"
+                                maxLength={30}
+                            />
+                            <label className="invite-label" htmlFor="invite-papel">Papel</label>
+                            <select
+                                id="invite-papel"
+                                className="invite-input"
+                                value={invitePapel}
+                                onChange={(e) => setInvitePapel(e.target.value as PapelColaborador)}
+                            >
+                                {PAPEIS.map(p => (
+                                    <option key={p.value} value={p.value}>{p.label} — {p.descricao}</option>
+                                ))}
+                            </select>
                             <div className="invite-actions">
                                 <button
                                     type="button"
@@ -206,7 +230,7 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
                             <div key={convite.id} className="invite-item">
                                 <div className="invite-info">
                                     <strong>{convite.remetenteNome || convite.email_destinatario}</strong>
-                                    <span>{convite.cargo}</span>
+                                    <span>{convite.cargo}{convite.papel ? ` · ${rotuloPapel(convite.papel)}` : ''}</span>
                                 </div>
                                 <div className="invite-actions">
                                     <button
@@ -234,10 +258,10 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
                     <div className="colab-grid">
                         {colaboradores.map(colab => (
                             <div
-                                key={colab.id}
+                                key={colab.usuario.id}
                                 className="colab-card"
                             >
-                                <div className="colab-avatar" onClick={() => navigate(`/usuario/${colab.userId}`)}>
+                                <div className="colab-avatar" onClick={() => navigate(`/usuario/${colab.usuario.id}`)}>
                                     {colab.usuario.avatar_url ? (
                                         <img src={colab.usuario.avatar_url} alt={colab.usuario.nome_completo} />
                                     ) : (
@@ -246,16 +270,19 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
                                         </div>
                                     )}
                                 </div>
-                                <div className="colab-info" onClick={() => navigate(`/usuario/${colab.userId}`)}>
+                                <div className="colab-info" onClick={() => navigate(`/usuario/${colab.usuario.id}`)}>
                                     <strong>{colab.usuario.nome_completo}</strong>
-                                    <span className="colab-role">{colab.cargo}</span>
+                                    <span className="colab-role">
+                                        <span className={`papel-badge papel-${colab.papel.toLowerCase()}`}>{rotuloPapel(colab.papel)}</span>
+                                        {colab.cargo && colab.cargo !== 'membro' ? ` ${colab.cargo}` : ''}
+                                    </span>
                                 </div>
                                 {isOwner && (
                                     <button
                                         className="btn-auth reject"
                                         onClick={(e) => {
                                             e.stopPropagation();
-                                            setDeleteColabTarget({ userId: colab.userId, nome: colab.usuario.nome_completo });
+                                            setDeleteColabTarget({ userId: colab.usuario.id, nome: colab.usuario.nome_completo });
                                         }}
                                         title="Remover colaborador"
                                     >

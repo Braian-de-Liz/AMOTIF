@@ -48,7 +48,7 @@ describe('InviteLinksPanel', () => {
     render(<InviteLinksPanel projetoId="p1" />)
     await userEvent.click(screen.getByRole('button', { name: /Gerar link/ }))
     expect(await screen.findByText('GUITARRISTA')).toBeInTheDocument()
-    expect(body).toEqual({})
+    expect(body).toEqual({ papel: 'MUSICO' })
   })
 
   it('mostra erro da API ao criar', async () => {

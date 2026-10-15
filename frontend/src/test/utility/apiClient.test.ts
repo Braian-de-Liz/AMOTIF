@@ -30,14 +30,20 @@ describe('apiClient', () => {
     expect(result).toEqual({ data: 'test' })
   })
 
-  it('deve incluir Content-Type application/json', async () => {
-    await apiClient('/test')
+  it('deve incluir Content-Type application/json quando há corpo', async () => {
+    await apiClient('/test', { method: 'POST', body: JSON.stringify({ a: 1 }) })
     expect(mockFetch).toHaveBeenCalledWith(
       expect.any(String),
       expect.objectContaining({
         headers: expect.objectContaining({ 'Content-Type': 'application/json' }),
       })
     )
+  })
+
+  it('não envia Content-Type JSON sem corpo (o servidor recusaria o DELETE)', async () => {
+    await apiClient('/test', { method: 'DELETE' })
+    const [, init] = mockFetch.mock.calls[0]
+    expect(init.headers).not.toHaveProperty('Content-Type')
   })
 
   it('deve lancar erro em respostas com erro', async () => {

@@ -1,9 +1,15 @@
 import { useEffect, useRef, useState, memo } from 'react';
-import { Play, Pause, Volume2, VolumeX, Save, Loader2, Trash2, History, Pencil, Bookmark } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Save, Loader2, Trash2, History, Pencil, Bookmark, MessageSquare } from 'lucide-react';
 import { LayerVersionPanel } from './LayerVersionPanel';
 import { VersionDetailModal } from './VersionDetailModal';
 import { BranchSelector } from './BranchSelector';
 import { createManualVersion } from '../utility/branchApi';
+import { useComentarios, type Comentario } from '../hooks/useComentarios';
+import { ComentariosCamada, formatarTempo } from './ComentariosCamada';
+import { pode, type PapelEfetivo } from '../utility/papeis';
+import type { PlaybackEngine } from '../utility/playbackEngine';
+import { usePlaybackFrame } from '../hooks/usePlayback';
+import { delaySeconds } from '../utility/playbackMath';
 
 // Tons da paleta (verdes e latão) legíveis sobre o fundo claro da waveform.
 const COLORS = [
@@ -46,6 +52,8 @@ interface LayerChanges {
 }
 
 interface WaveformTrackProps {
+    /** Motor que toca todas as faixas; o wavesurfer aqui só desenha a forma de onda. */
+    engine: PlaybackEngine
     audioUrl?: string
     nome?: string
     autor?: string
@@ -57,11 +65,15 @@ interface WaveformTrackProps {
     estaAprovada?: boolean
     isOwner?: boolean
     isCollaborator?: boolean
+    /** Dono ou produtor: pode aprovar/rejeitar a camada. */
+    canApprove?: boolean
     isLayerAuthor?: boolean
+    /** Papel de quem está vendo o projeto (habilita os comentários). */
+    meuPapel?: PapelEfetivo | null
+    usuarioId?: string
     totalVersoes?: number
     versaoAtual?: { id?: string; numero: number } | null
     onSave?: (layerId: string, changes: LayerChanges) => void
-    onRegister?: (layerId: string, ws: any) => void
     onAuthorize?: (layerId: string, aprovada: boolean) => void
     onDelete?: (layerId: string, layerName: string) => void
     onEdit?: (layerId: string) => void
@@ -70,6 +82,7 @@ interface WaveformTrackProps {
 }
 
 function WaveformTrackInner({
+    engine,
     audioUrl,
     nome,
     autor,
@@ -81,10 +94,13 @@ function WaveformTrackInner({
     estaAprovada = false,
     isOwner = false,
     isCollaborator = false,
+    canApprove = false,
+    isLayerAuthor = false,
+    meuPapel = null,
+    usuarioId,
     totalVersoes = 0,
     versaoAtual = null,
     onSave,
-    onRegister,
     onAuthorize,
     onDelete,
     onEdit,
@@ -94,8 +110,11 @@ function WaveformTrackInner({
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [audioErro, setAudioErro] = useState(false);
     const wavesurferRef = useRef<any>(null);
-    const [isPlaying, setIsPlaying] = useState(false);
+    // Tempo (da camada) só em estado quando o painel de comentários precisa dele; o relógio da faixa vai direto no DOM.
     const [currentTime, setCurrentTime] = useState(0);
+    const timeLabelRef = useRef<HTMLSpanElement | null>(null);
+    const readyRef = useRef(false);
+    const lastCommentClock = useRef(0);
     const [duration, setDuration] = useState(0);
     const [localVolume, setLocalVolume] = useState(volume);
     const [isMuted, setIsMuted] = useState(false);
@@ -103,13 +122,29 @@ function WaveformTrackInner({
     const [hasChanges, setHasChanges] = useState(false);
     const [versionPanelOpen, setVersionPanelOpen] = useState(false);
     const [detailVersion, setDetailVersion] = useState<Version | null>(null);
+    const [comentariosAbertos, setComentariosAbertos] = useState(false);
+    const [destacadoId, setDestacadoId] = useState<string | null>(null);
+
+    const podeComentar = !isGuia && pode(meuPapel, 'comentar');
+    const { comentarios, erro: comentariosErro, criar, alternarResolvido, remover } = useComentarios(layerId, podeComentar);
+    const emAberto = comentarios.filter(c => !c.resolvido);
+    const podeResolver = (c: Comentario) =>
+        c.autor.id === usuarioId || isLayerAuthor || meuPapel === 'DONO' || meuPapel === 'PRODUTOR';
+    const podeRemover = (c: Comentario) => c.autor.id === usuarioId || meuPapel === 'DONO';
 
     const color = COLORS[colorIndex % COLORS.length];
+
+    // Valores mais recentes para registrar a faixa no motor assim que o áudio estiver decodificado.
+    const latest = useRef({ delay: localDelay, volume: localVolume, muted: isMuted });
+    useEffect(() => { latest.current = { delay: localDelay, volume: localVolume, muted: isMuted }; });
+    const durationRef = useRef(0);
+    useEffect(() => { durationRef.current = duration; }, [duration]);
 
     useEffect(() => {
         if (!containerRef.current || !audioUrl) return;
 
         let cancelled = false;
+        readyRef.current = false;
 
         async function initWaveSurfer() {
             const { default: WaveSurferModule } = await import('wavesurfer.js');
@@ -136,56 +171,71 @@ function WaveformTrackInner({
             });
 
             wavesurfer.on('ready', () => {
-                if (!cancelled) {
-                    setAudioErro(false);
-                    setDuration(wavesurfer.getDuration());
-                    wavesurfer.setVolume(localVolume);
+                if (cancelled) return;
+
+                // O motor reaproveita o áudio que o wavesurfer já decodificou (sem baixar de novo).
+                const decoded = wavesurfer.getDecodedData();
+                if (!decoded) {
+                    setAudioErro(true);
+                    return;
                 }
+
+                setAudioErro(false);
+                setDuration(wavesurfer.getDuration());
+                readyRef.current = true;
+                engine.registerTrack(layerId, decoded, {
+                    delayMs: latest.current.delay,
+                    volume: latest.current.volume,
+                    muted: latest.current.muted,
+                });
             });
 
-            wavesurfer.on('audioprocess', () => {
-                if (!cancelled) setCurrentTime(wavesurfer.getCurrentTime());
+            // Clicar na forma de onda leva a reprodução de TODAS as faixas para aquele ponto.
+            wavesurfer.on('interaction', (newTime: number) => {
+                if (!cancelled) engine.seek(newTime + delaySeconds(latest.current.delay));
             });
-
-            wavesurfer.on('seeking', () => {
-                if (!cancelled) setCurrentTime(wavesurfer.getCurrentTime());
-            });
-
-            wavesurfer.on('play', () => { if (!cancelled) setIsPlaying(true); });
-            wavesurfer.on('pause', () => { if (!cancelled) setIsPlaying(false); });
-            wavesurfer.on('finish', () => { if (!cancelled) setIsPlaying(false); });
 
             wavesurferRef.current = wavesurfer;
-
-            if (onRegister) {
-                onRegister(layerId, wavesurfer);
-            }
         }
 
         initWaveSurfer();
 
         return () => {
             cancelled = true;
+            readyRef.current = false;
+            engine.unregisterTrack(layerId);
             if (wavesurferRef.current) {
                 wavesurferRef.current.destroy();
                 wavesurferRef.current = null;
             }
-            if (onRegister) {
-                onRegister(layerId, null);
-            }
         };
-    }, [audioUrl, color, layerId, onRegister]);
+    }, [audioUrl, color, layerId, engine]);
 
+    // Volume, mute e delay valem ao vivo no motor, inclusive antes de salvar.
     useEffect(() => {
-        if (wavesurferRef.current) {
-            wavesurferRef.current.setVolume(isMuted ? 0 : localVolume);
+        engine.updateTrack(layerId, { delayMs: localDelay, volume: localVolume, muted: isMuted });
+    }, [engine, layerId, localDelay, localVolume, isMuted]);
+
+    // Cursor e relógio da faixa seguem a posição global (já descontado o delay desta camada).
+    const playback = usePlaybackFrame(engine, position => {
+        const local = Math.min(Math.max(0, position - delaySeconds(localDelay)), durationRef.current);
+
+        if (readyRef.current) wavesurferRef.current?.setTime(local);
+        if (timeLabelRef.current) timeLabelRef.current.textContent = formatarTempo(local);
+
+        // O painel de comentários precisa do tempo em estado, mas sem re-renderizar a cada quadro.
+        if (comentariosAbertos) {
+            const now = performance.now();
+            if (!engine.getState().playing || now - lastCommentClock.current > 250) {
+                lastCommentClock.current = now;
+                setCurrentTime(local);
+            }
         }
-    }, [localVolume, isMuted]);
+    });
+    const tocandoEstaSozinha = playback.playing && playback.soloId === layerId;
 
     const togglePlay = () => {
-        if (wavesurferRef.current) {
-            wavesurferRef.current.playPause();
-        }
+        engine.playSolo(layerId);
     };
 
     const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,10 +254,18 @@ function WaveformTrackInner({
         setIsMuted(!isMuted);
     };
 
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    const formatTime = formatarTempo;
+
+    // `segundos` é tempo da camada; na linha do tempo global ele vem somado ao delay.
+    const irPara = (segundos: number) => {
+        engine.seek(segundos + delaySeconds(localDelay));
+        setCurrentTime(segundos);
+    };
+
+    const abrirComentario = (c: Comentario) => {
+        irPara(c.segundos);
+        setDestacadoId(c.id);
+        setComentariosAbertos(true);
     };
 
     const handleSave = () => {
@@ -249,9 +307,10 @@ function WaveformTrackInner({
                     <button
                         className="btn-icon"
                         onClick={togglePlay}
-                        title={isPlaying ? 'Pausar' : 'Reproduzir'}
+                        title={tocandoEstaSozinha ? 'Pausar' : 'Ouvir só esta camada'}
+                        aria-label={tocandoEstaSozinha ? 'Pausar' : 'Ouvir só esta camada'}
                     >
-                        {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                        {tocandoEstaSozinha ? <Pause size={18} /> : <Play size={18} />}
                     </button>
                     <button
                         className={`btn-icon ${isMuted ? 'active' : ''}`}
@@ -293,6 +352,17 @@ function WaveformTrackInner({
                         <span className={`status-badge ${estaAprovada ? 'approved' : 'pending'}`}>
                             {estaAprovada ? 'Aprovada' : 'Pendente'}
                         </span>
+                        {podeComentar && (
+                            <button
+                                className={`btn-version-history${comentariosAbertos ? ' active' : ''}`}
+                                onClick={() => setComentariosAbertos(v => !v)}
+                                title={`Comentários (${emAberto.length} em aberto)`}
+                                aria-expanded={comentariosAbertos}
+                            >
+                                <MessageSquare size={14} />
+                                {emAberto.length}
+                            </button>
+                        )}
                         {!isGuia && totalVersoes > 0 && (
                             <button
                                 className="btn-version-history"
@@ -332,7 +402,7 @@ function WaveformTrackInner({
                                 disabled={!isOwner && !isCollaborator}
                             />
                         )}
-                        {isOwner && (
+                        {canApprove && (
                             <>
                                 {!estaAprovada && (
                                     <button
@@ -350,6 +420,10 @@ function WaveformTrackInner({
                                 >
                                     Rejeitar
                                 </button>
+                            </>
+                        )}
+                        {isOwner && (
+                            <>
                                 <button
                                     className="btn-auth reject"
                                     onClick={() => onDelete?.(layerId, nome || 'Track')}
@@ -363,14 +437,43 @@ function WaveformTrackInner({
                     </div>
                 )}
             </div>
-            <div className="waveform-container" ref={containerRef}></div>
+            <div className="waveform-wrap">
+                <div className="waveform-container" ref={containerRef}></div>
+                {podeComentar && duration > 0 && emAberto.map(c => (
+                    <button
+                        key={c.id}
+                        className={`comentario-marker${c.id === destacadoId ? ' destacado' : ''}`}
+                        style={{ left: `${Math.min(100, (c.segundos / duration) * 100)}%` }}
+                        onClick={() => abrirComentario(c)}
+                        title={`${formatarTempo(c.segundos)} · ${c.autor.nome_completo}: ${c.texto}`}
+                        aria-label={`Comentário em ${formatarTempo(c.segundos)}`}
+                    />
+                ))}
+            </div>
             {audioErro && (
                 <p className="error-msg">Não foi possível carregar o áudio. Recarregue a página para atualizar o acesso.</p>
             )}
             <div className="track-time">
-                <span>{formatTime(currentTime)}</span>
+                <span ref={timeLabelRef}>0:00</span>
                 <span>{formatTime(duration)}</span>
             </div>
+
+            {podeComentar && comentariosAbertos && (
+                <ComentariosCamada
+                    comentarios={comentarios}
+                    erro={comentariosErro}
+                    currentTime={currentTime}
+                    versaoAtual={versaoAtual?.numero}
+                    destacadoId={destacadoId}
+                    podeComentar={podeComentar}
+                    podeResolver={podeResolver}
+                    podeRemover={podeRemover}
+                    onSeek={irPara}
+                    onCriar={criar}
+                    onAlternarResolvido={alternarResolvido}
+                    onRemover={remover}
+                />
+            )}
 
             {!isGuia && (
                 <>

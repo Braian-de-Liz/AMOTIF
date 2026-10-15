@@ -6,6 +6,7 @@ import { UserCard } from "./UserCard";
 import '../styles/Shared.css';
 import { ProjectCard } from './project_Card';
 import type { Project, User, SearchResults } from '../types';
+import { STATUS_PROJETO } from "../utility/papeis";
 
 interface UserWithFollowing extends User {
     isFollowing?: boolean
@@ -39,6 +40,7 @@ function Feed() {
     const [erro, setErro] = useState<string | null>(null);
     const [filtroInstrumento, setFiltroInstrumento] = useState("");
     const [filtroGenero, setFiltroGenero] = useState("");
+    const [filtroStatus, setFiltroStatus] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResults | null>(null);
 
     const abortControllerRef = useRef<AbortController | null>(null);
@@ -62,6 +64,9 @@ function Feed() {
             if (filtroGenero) {
                 url.searchParams.append("genero", filtroGenero);
             }
+            if (filtroStatus) {
+                url.searchParams.append("status", filtroStatus);
+            }
 
             const response = await fetch(url, {
                 signal,
@@ -83,7 +88,7 @@ function Feed() {
                 setLoading(false);
             }
         }
-    }, [filtroInstrumento, filtroGenero]);
+    }, [filtroInstrumento, filtroGenero, filtroStatus]);
 
     useEffect(() => {
         carregarFeed();
@@ -170,6 +175,17 @@ function Feed() {
                                     <option key={g.value} value={g.value}>{g.label}</option>
                                 ))}
                             </select>
+
+                            <select
+                                className="filter-select"
+                                aria-label="Etapa do projeto"
+                                onChange={(e) => setFiltroStatus(e.target.value)}
+                            >
+                                <option value="">Todas as etapas</option>
+                                {STATUS_PROJETO.map(s => (
+                                    <option key={s.value} value={s.value}>{s.label}</option>
+                                ))}
+                            </select>
                         </div>
                     </header>
 
@@ -182,7 +198,7 @@ function Feed() {
                             ))}
                         </div>
                     ) : (
-                        <p className="empty-state">Nenhum projeto encontrado{filtroGenero ? ` no gênero selecionado` : ''}{filtroInstrumento ? ` precisando de ${filtroInstrumento}` : ''}.</p>
+                        <p className="empty-state">Nenhum projeto encontrado{filtroGenero ? ` no gênero selecionado` : ''}{filtroStatus ? ` nesta etapa` : ''}{filtroInstrumento ? ` precisando de ${filtroInstrumento}` : ''}.</p>
                     )}
 
                     {projetos.length > 0 && (

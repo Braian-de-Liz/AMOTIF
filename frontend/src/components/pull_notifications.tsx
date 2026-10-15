@@ -165,6 +165,7 @@ export const Notificacoes = () => {
             case 'INVITE_RECEIVED': return '📩';
             case 'NEW_LAYER': return '🎵';
             case 'LAYER_APPROVED': return '✅';
+            case 'NEW_COMMENT': return '💬';
             case 'NEW_FOLLOWER': return '👤';
             case 'NEW_LIKE': return '❤️';
             case 'PROJECT_RELEASED': return '🚀';

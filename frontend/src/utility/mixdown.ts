@@ -5,14 +5,28 @@ export interface MixdownTrack {
     url: string;
     delayMs: number;
     volume: number;
+    /** Nome mostrado na mensagem de erro quando a faixa não pode ser baixada ou decodificada. */
+    label?: string;
 }
 
 const safeDelay = (ms: number) => (Number.isFinite(ms) ? Math.max(0, ms) : 0);
 
-async function decodeTrack(ctx: BaseAudioContext, url: string): Promise<AudioBuffer> {
-    const res = await fetch(url, { mode: 'cors', cache: 'no-cache' });
-    if (!res.ok) throw new Error(`Falha ao baixar áudio (${res.status})`);
-    return ctx.decodeAudioData(await res.arrayBuffer());
+async function decodeTrack(ctx: BaseAudioContext, track: MixdownTrack): Promise<AudioBuffer> {
+    const onde = track.label ? ` da faixa "${track.label}"` : '';
+
+    let res: Response;
+    try {
+        res = await fetch(track.url, { mode: 'cors', cache: 'no-cache' });
+    } catch {
+        throw new Error(`Falha de rede ao baixar áudio${onde}`);
+    }
+    if (!res.ok) throw new Error(`Falha ao baixar áudio (${res.status})${onde}`);
+
+    try {
+        return await ctx.decodeAudioData(await res.arrayBuffer());
+    } catch {
+        throw new Error(`Não foi possível decodificar o áudio${onde}`);
+    }
 }
 
 function encodeWav(buffer: AudioBuffer): Blob {
@@ -66,7 +80,7 @@ export async function mixdownToWav(tracks: MixdownTrack[]): Promise<Blob> {
 
     // O contexto só serve para decodificar; a duração final depende dos buffers.
     const decodeCtx = new OfflineAudioContext(CHANNELS, SAMPLE_RATE, SAMPLE_RATE);
-    const decoded = await Promise.all(tracks.map(t => decodeTrack(decodeCtx, t.url)));
+    const decoded = await Promise.all(tracks.map(t => decodeTrack(decodeCtx, t)));
 
     const totalSeconds = Math.max(
         ...decoded.map((buf, i) => safeDelay(tracks[i].delayMs) / 1000 + buf.duration)

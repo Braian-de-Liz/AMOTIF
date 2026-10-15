@@ -1,3 +1,5 @@
+import type { PapelColaborador } from '../utility/papeis'
+
 export interface ApiResponse<T = unknown> {
   status: string
   mensagem?: string
@@ -38,18 +40,20 @@ export interface Convite {
   email_destinatario: string
   token_convite: string
   cargo: string
+  papel?: PapelColaborador
   remetenteNome?: string
   expira_em: string
 }
 
+// Formato de GET /colaboration/:id (colaborators.colaboradores[]).
 export interface Colaborador {
-  id: string
-  userId: string
-  projetoId: string
-  cargo: string
+  cargo: string | null
+  papel: PapelColaborador
+  joinedAt: string
   usuario: {
     id: string
     nome_completo: string
+    email?: string
     avatar_url?: string | null
   }
 }

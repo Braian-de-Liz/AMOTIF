@@ -376,3 +376,50 @@ button:disabled,
 .waveform-divider .bar:nth-child(5) { height: 18px; animation-delay: 0.32s; }
 .waveform-divider .bar:nth-child(6) { height: 10px; animation-delay: 0.4s; }
 .waveform-divider .bar:nth-child(7) { height: 16px; animation-delay: 0.48s; }
+/* Etapa do projeto (status) e papel do colaborador */
+.status-projeto,
+.papel-badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: var(--radius-sm);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid transparent;
+}
+
+.status-projeto.status-ideia { background: var(--cinza-suave); color: var(--texto-secundario); border-color: var(--borda); }
+.status-projeto.status-em_gravacao { background: var(--info-bg); color: var(--info-texto); border-color: rgba(37, 99, 235, 0.15); }
+.status-projeto.status-em_mixagem { background: var(--aviso-bg); color: var(--aviso-texto); border-color: rgba(217, 119, 6, 0.15); }
+.status-projeto.status-finalizado { background: var(--sucesso-bg); color: var(--sucesso-texto); border-color: rgba(22, 163, 74, 0.15); }
+
+.papel-badge { background: var(--verde-pastel); color: var(--verde-tinta); border-color: var(--borda); }
+.papel-badge.papel-dono { background: var(--verde-musgo); color: var(--branco); }
+.papel-badge.papel-produtor { background: rgba(184, 145, 47, 0.14); color: #6b5317; border-color: rgba(184, 145, 47, 0.3); }
+.papel-badge.papel-ouvinte { background: var(--fundo-secundario); color: var(--texto-secundario); }
+
+.studio-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0.25rem 0 0.75rem;
+}
+
+.feed-card > .status-projeto { align-self: flex-start; margin-bottom: 0.5rem; }
+
+.invite-label {
+  display: block;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  color: var(--texto-secundario);
+  margin-bottom: 0.35rem;
+}
+
+.invite-link-papel {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--borda);
+  border-radius: var(--radius-sm);
+  background: var(--fundo);
+  font-size: var(--text-sm);
+}

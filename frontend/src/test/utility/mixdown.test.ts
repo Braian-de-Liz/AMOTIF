@@ -91,6 +91,20 @@ describe('mixdownToWav', () => {
     await expect(mixdownToWav([track()])).rejects.toThrow('Falha ao baixar áudio (404)')
   })
 
+  it('inclui o nome da faixa na mensagem quando o download falha', async () => {
+    mockFetch.mockResolvedValue({ ok: false, status: 404 })
+    await expect(mixdownToWav([track({ label: 'Baixo base' })])).rejects.toThrow(
+      'Falha ao baixar áudio (404) da faixa "Baixo base"'
+    )
+  })
+
+  it('identifica a faixa quando a rede falha', async () => {
+    mockFetch.mockRejectedValue(new TypeError('Failed to fetch'))
+    await expect(mixdownToWav([track({ label: 'Flauta melodia' })])).rejects.toThrow(
+      'Falha de rede ao baixar áudio da faixa "Flauta melodia"'
+    )
+  })
+
   it('gera cabeçalho WAV válido (RIFF/WAVE/fmt/data, 16 bits, 2 canais)', async () => {
     const blob = await mixdownToWav([track()])
     expect(blob.type).toBe('audio/wav')

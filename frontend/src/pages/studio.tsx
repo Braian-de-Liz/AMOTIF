@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { WaveformTrack } from "../components/WaveformTrack";
 import { StudioMural } from "../components/StudioMural";
@@ -10,19 +10,21 @@ import { CreateLayerModal } from "../components/CreateLayerModal";
 import { DeleteLayerModal } from "../components/DeleteLayerModal";
 import { LayerEditorModal } from "../components/LayerEditorModal";
 import { URL_API_TESTE } from "../utility/url_apis";
-import { Play, Pause, Mic, Music, Users, MessageSquare, Lightbulb, Pencil, Trash2, Download } from "lucide-react";
+import { TransportBar } from "../components/TransportBar";
+import { usePlayback } from "../hooks/usePlayback";
+import { Mic, Music, Users, MessageSquare, Lightbulb, Pencil, Trash2, Download } from "lucide-react";
 import { mixdownToWav, downloadBlob } from "../utility/mixdown";
 import type { Project, Camada } from "../types";
 import { useUserData } from "../contexts/UserDataContext";
 import '../styles/Studio.css';
 import { SEOHead } from '../components/SEOHead';
+import { pode, rotuloPapel, rotuloStatus } from "../utility/papeis";
 
 function Studio() {
     const { id } = useParams<{ id: string }>();
     const [projeto, setProjeto] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
     const [erro, setErro] = useState<string | null>(null);
-    const [isPlayingAll, setIsPlayingAll] = useState(false);
     const [saving, setSaving] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('tracks');
     const [saveErro, setSaveErro] = useState<string | null>(null);
@@ -31,11 +33,11 @@ function Studio() {
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [createLayerModalOpen, setCreateLayerModalOpen] = useState(false);
     const [deleteLayerTarget, setDeleteLayerTarget] = useState<{ id: string; nome: string } | null>(null);
-    const [isCollaborator, setIsCollaborator] = useState(false);
     const [editLayerTarget, setEditLayerTarget] = useState<{ id: string; audioUrl: string; nome: string } | null>(null);
     const { usuario } = useUserData();
 
-    const wavesurferRefs = useRef<Record<string, any>>({});
+    // Um único motor toca todas as faixas (respeitando delay, volume e mute de cada uma).
+    const engine = usePlayback();
 
     useEffect(() => {
         async function carregarProjeto() {
@@ -61,35 +63,6 @@ function Studio() {
         if (id) carregarProjeto();
     }, [id]);
 
-    useEffect(() => {
-        if (!id) return;
-        const usuarioId = usuario?.id || '';
-        if (!usuarioId || !projeto) return;
-
-        if (projeto.autor?.id === usuarioId) {
-            setIsCollaborator(false);
-            return;
-        }
-
-        async function checkCollaborator() {
-            try {
-                const response = await fetch(`${URL_API_TESTE}/colaboration/${id}`, {
-                    credentials: 'include'
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    const collaborators = data.colaboradores || data || [];
-                    const isCollab = Array.isArray(collaborators) &&
-                        collaborators.some((c: { userId: string }) => c.userId === usuarioId);
-                    setIsCollaborator(isCollab);
-                }
-            } catch {
-                // ignore
-            }
-        }
-        checkCollaborator();
-    }, [id, projeto]);
-
     const refetchProjeto = useCallback(async () => {
         if (!id) return;
         try {
@@ -100,35 +73,6 @@ function Studio() {
             console.error(err);
         }
     }, [id]);
-
-    const registerWavesurfer = useCallback((layerId: string, ws: any) => {
-        if (ws) {
-            wavesurferRefs.current[layerId] = ws;
-        } else {
-            delete wavesurferRefs.current[layerId];
-        }
-    }, []);
-
-    const playAll = useCallback(() => {
-        if (!projeto) return;
-
-        const allWavesurfers = wavesurferRefs.current;
-
-        const guideWs = allWavesurfers['__guide__'];
-        const layerWses = (projeto.camadas || []).map(c => allWavesurfers[c.id]).filter(Boolean);
-
-        if (isPlayingAll) {
-            guideWs?.pause();
-            layerWses.forEach(ws => ws?.pause());
-            setIsPlayingAll(false);
-        } else {
-            if (guideWs) {
-                guideWs.play();
-            }
-            layerWses.forEach(ws => ws?.play());
-            setIsPlayingAll(true);
-        }
-    }, [projeto, isPlayingAll]);
 
     // Exporta o guia + camadas aprovadas, com o volume e o delay de cada uma.
     const handleExport = useCallback(async () => {
@@ -143,32 +87,17 @@ function Studio() {
         setSaveErro(null);
         try {
             const wav = await mixdownToWav([
-                ...(projeto.audio_guia ? [{ url: projeto.audio_guia, delayMs: 0, volume: 1 }] : []),
-                ...aprovadas.map(c => ({ url: c.audio_url, delayMs: c.delay_offset, volume: c.volume_padrao })),
+                ...(projeto.audio_guia ? [{ url: projeto.audio_guia, delayMs: 0, volume: 1, label: 'Áudio guia' }] : []),
+                ...aprovadas.map(c => ({ url: c.audio_url, delayMs: c.delay_offset, volume: c.volume_padrao, label: c.nome_trilha })),
             ]);
             downloadBlob(wav, `${projeto.titulo.normalize('NFD').replace(/\p{M}/gu, '').replace(/[^\w-]+/g, '_').replace(/^_+|_+$/g, '') || 'mix'}.wav`);
         } catch (err) {
             console.error(err);
-            setSaveErro("Não foi possível gerar o mix. Tente novamente.");
+            const motivo = err instanceof Error ? err.message : '';
+            setSaveErro(motivo ? `Não foi possível gerar o mix: ${motivo}.` : "Não foi possível gerar o mix. Tente novamente.");
         } finally {
             setExporting(false);
         }
-    }, [projeto]);
-
-    const handleStopAll = useCallback(() => {
-        const allWavesurfers = wavesurferRefs.current;
-
-        const guideWs = allWavesurfers['__guide__'];
-        const layerWses = (projeto?.camadas || []).map(c => allWavesurfers[c.id]).filter(Boolean);
-
-        guideWs?.pause();
-        guideWs?.seekTo(0);
-        layerWses.forEach(ws => {
-            ws?.pause();
-            ws?.seekTo(0);
-        });
-
-        setIsPlayingAll(false);
     }, [projeto]);
 
     const handleSaveLayer = useCallback(async (layerId: string, changes: { volume_padrao: number; delay_offset: number }) => {
@@ -232,7 +161,12 @@ function Studio() {
         }
     }, []);
 
-    const isOwner = useMemo(() => projeto?.autor?.id === usuario?.id, [projeto, usuario]);
+    // O papel vem da API (meu_papel); a comparação com o autor cobre respostas antigas sem o campo.
+    const meuPapel = projeto?.meu_papel ?? null;
+    const isOwner = meuPapel === 'DONO' || (!!usuario?.id && projeto?.autor?.id === usuario.id);
+    const isCollaborator = meuPapel === 'PRODUTOR' || meuPapel === 'MUSICO';
+    const podeEnviar = isOwner || pode(meuPapel, 'enviarCamada');
+    const podeAprovar = isOwner || pode(meuPapel, 'aprovarCamada');
 
     const handleDeleteLayer = useCallback((layerId: string, layerName: string) => {
         setDeleteLayerTarget({ id: layerId, nome: layerName });
@@ -277,6 +211,10 @@ function Studio() {
             <div className="user-header">
                 <h1>Estúdio: {projeto.titulo}</h1>
                 <p>BPM: <strong>{projeto.bpm}</strong> | Gênero: {projeto.genero}</p>
+                <div className="studio-meta">
+                    <span className={`status-projeto status-${(projeto.status ?? 'IDEIA').toLowerCase()}`}>{rotuloStatus(projeto.status)}</span>
+                    {meuPapel && <span className={`papel-badge papel-${meuPapel.toLowerCase()}`}>Você: {rotuloPapel(meuPapel)}</span>}
+                </div>
                 {isOwner && (
                     <div className="project-owner-actions">
                         <button
@@ -296,27 +234,14 @@ function Studio() {
                     </div>
                 )}
                 <div className="studio-controls">
-                    <button
-                        className="btn-create-proj"
-                        onClick={playAll}
-                    >
-                        {isPlayingAll ? <Pause size={18} /> : <Play size={18} />}
-                        {isPlayingAll ? ' Pausar Tudo' : ' Ouvir Tudo'}
-                    </button>
-                    {isPlayingAll && (
-                        <button
-                            className="btn-small btn-stop"
-                            onClick={handleStopAll}
-                        >
-                            Stop
-                        </button>
-                    )}
                     <button className="btn-small" onClick={handleExport} disabled={exporting}>
                         <Download size={18} /> {exporting ? 'Gerando...' : 'Exportar WAV'}
                     </button>
-                    <button className="btn-small btn-gravar" onClick={() => setCreateLayerModalOpen(true)}>
-                        <Mic size={18} /> Gravar
-                    </button>
+                    {podeEnviar && (
+                        <button className="btn-small btn-gravar" onClick={() => setCreateLayerModalOpen(true)}>
+                            <Mic size={18} /> Gravar
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -353,9 +278,10 @@ function Studio() {
 
             <main className="studio-content">
                 {saveErro && <div className="error-msg">{saveErro}</div>}
-                {activeTab === 'tracks' && (
-                    <div className="studio-tracks">
+                {/* As faixas continuam montadas (só escondidas) nas outras abas: a música não para ao trocar de aba. */}
+                <div className="studio-tracks" style={activeTab === 'tracks' ? undefined : { display: 'none' }}>
                         <WaveformTrack
+                            engine={engine}
                             audioUrl={projeto.audio_guia}
                             nome="Áudio Guia"
                             autor={projeto.autor?.nome_completo}
@@ -364,12 +290,12 @@ function Studio() {
                             volume={1.0}
                             colorIndex={0}
                             isGuia={true}
-                            onRegister={registerWavesurfer}
                         />
 
                         {(projeto.camadas || []).map((camada: Camada, index: number) => (
                             <WaveformTrack
                                 key={camada.id}
+                                engine={engine}
                                 audioUrl={camada.audio_url}
                                 nome={camada.instrumento_tag}
                                 autor={camada.autor?.nome_completo}
@@ -381,19 +307,21 @@ function Studio() {
                                 estaAprovada={camada.esta_aprovada}
                                 isOwner={isOwner}
                                 isCollaborator={isCollaborator}
+                                canApprove={podeAprovar}
+                                isLayerAuthor={!!usuario?.id && camada.autor?.id === usuario.id}
+                                meuPapel={isOwner ? 'DONO' : meuPapel}
+                                usuarioId={usuario?.id}
                                 totalVersoes={camada.totalVersoes || 0}
                                 versaoAtual={camada.versaoAtual || null}
                                 saving={saving === camada.id}
                                 onSave={handleSaveLayer}
-                                onRegister={registerWavesurfer}
                                 onAuthorize={handleAuthorizeLayer}
                                 onDelete={handleDeleteLayer}
                                 onEdit={handleEditLayer}
                                 onVersionChange={refetchProjeto}
                             />
                         ))}
-                    </div>
-                )}
+                </div>
 
                 {activeTab === 'mural' && (
                     <StudioMural projetoId={id} isOwner={isOwner} />
@@ -429,6 +357,8 @@ function Studio() {
                 onClose={() => setCreateLayerModalOpen(false)}
                 onLayerCreated={refetchProjeto}
             />
+
+            <TransportBar engine={engine} />
 
             {deleteLayerTarget && (
                 <DeleteLayerModal

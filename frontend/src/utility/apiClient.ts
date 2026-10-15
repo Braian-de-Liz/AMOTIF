@@ -7,7 +7,9 @@ export async function apiClient<T>(endpoint: string, options: RequestInit = {}):
             ...options,
             credentials: 'include',
             headers: {
-                'Content-Type': 'application/json',
+                // Só declara JSON quando há corpo: o Fastify recusa (400) Content-Type JSON com corpo vazio,
+                // o que quebrava DELETE e POST sem corpo.
+                ...(options.body !== undefined && { 'Content-Type': 'application/json' }),
                 ...options.headers,
             },
         });
