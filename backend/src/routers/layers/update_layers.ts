@@ -3,7 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { verificar_autor_layer } from "../../hooks/verificar_dono_layer.js";
 import { update_layer_schema } from "../../schemas/layers/update_layer.schema.js";
 import { createNewVersion } from "../../services/versionService.js";
-import { isOwnedAudioUrl } from "../../lib/storage_path.js";
+import { isOwnedAudioUrl, normalizeAudioUrl } from "../../lib/storage_path.js";
 
 const update_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -12,7 +12,9 @@ const update_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.put("/layer/:id", update_layer_schema, async (request, reply) => {
         const { id } = request.params;
 
-        const { nome_trilha, audio_url, instrumento_tag, delay_offset, volume_padrao, bpm_original, transposicao_semitons, mensagem, tag } = request.body;
+        const { nome_trilha, instrumento_tag, delay_offset, volume_padrao, bpm_original, transposicao_semitons, mensagem, tag } = request.body;
+        // Se o cliente devolver a URL assinada que recebeu, ela vale como a URL canônica do banco.
+        const audio_url = normalizeAudioUrl(request.body.audio_url);
         const userId = request.user.id;
 
         const camadaAtual = await Fastify.prisma.camada.findUnique({
@@ -62,30 +64,29 @@ const update_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
             (camadaAtual.bpm_original ?? null) !== novo.bpm_original ||
             (camadaAtual.transposicao_semitons ?? 0) !== novo.transposicao_semitons;
 
-        if (dadosMudaram) {
-            try {
-                await createNewVersion(Fastify.prisma, id, userId, {
+        // Versão e atualização da camada são gravadas juntas: ou as duas, ou nenhuma.
+        await Fastify.prisma.$transaction(async (tx) => {
+            if (dadosMudaram) {
+                await createNewVersion(tx, id, userId, {
                     audio_url,
                     nome_trilha,
                     instrumento_tag,
                     ...novo
                 }, mensagem || `Atualização manual`, tag);
-            } catch (err) {
-                Fastify.log.error("Erro ao criar versão: " + err);
             }
-        }
 
-        await Fastify.prisma.camada.update({
-            where: { id },
-            data: {
-                nome_trilha,
-                audio_url,
-                instrumento_tag,
-                ...novo,
-                // Trocar o áudio de uma camada aprovada exige nova aprovação do dono do projeto.
-                // Mudar só BPM/tom não altera o arquivo, então a aprovação é mantida.
-                ...(audioMudou && camadaAtual.esta_aprovada ? { esta_aprovada: false } : {})
-            }
+            await tx.camada.update({
+                where: { id },
+                data: {
+                    nome_trilha,
+                    audio_url,
+                    instrumento_tag,
+                    ...novo,
+                    // Trocar o áudio de uma camada aprovada exige nova aprovação do dono do projeto.
+                    // Mudar só BPM/tom não altera o arquivo, então a aprovação é mantida.
+                    ...(audioMudou && camadaAtual.esta_aprovada ? { esta_aprovada: false } : {})
+                }
+            });
         });
 
         return reply.status(200).send({

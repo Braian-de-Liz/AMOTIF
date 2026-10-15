@@ -184,6 +184,18 @@ function Feed() {
                     ) : (
                         <p className="empty-state">Nenhum projeto encontrado{filtroGenero ? ` no gênero selecionado` : ''}{filtroInstrumento ? ` precisando de ${filtroInstrumento}` : ''}.</p>
                     )}
+
+                    {projetos.length > 0 && (
+                        <aside className="feed-cta">
+                            <div>
+                                <h3>Tem uma ideia no ar?</h3>
+                                <p>Comece um projeto com a sua guia e deixe outros músicos tocarem por cima.</p>
+                            </div>
+                            <button className="feed-cta-button" onClick={() => navigate('/novo-studio')}>
+                                Começar um projeto
+                            </button>
+                        </aside>
+                    )}
                 </>
             )}
         </div>

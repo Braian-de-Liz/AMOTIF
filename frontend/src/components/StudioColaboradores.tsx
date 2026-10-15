@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { inviteSchema } from '../schemas/colaborationSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
 import { DeleteColabModal } from './DeleteColabModal';
+import { InviteLinksPanel } from './InviteLinksPanel';
 import type { Convite, Colaborador } from '../types';
 
 interface StudioColaboradoresProps {
@@ -158,6 +159,8 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
                     Convidar Colaborador
                 </button>
             )}
+
+            {isOwner && projetoId && <InviteLinksPanel projetoId={projetoId} />}
 
             {showInviteModal && (
                 <div className="invite-modal-overlay" onClick={() => setShowInviteModal(false)} role="presentation">

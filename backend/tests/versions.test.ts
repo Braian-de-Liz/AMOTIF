@@ -29,7 +29,9 @@ const mockVersion = {
   autor: { id: VALID_UUID, nome_completo: "Test User", avatar_url: null },
 };
 
-const mockPrisma = {
+const mockPrisma: any = {
+  $queryRaw: async () => [],
+  $transaction: async (arg: any) => (typeof arg === "function" ? arg(mockPrisma) : Promise.all(arg)),
   camada: {
     findUnique: async (args: any) => {
       if (args.where?.id === VALID_UUID) {

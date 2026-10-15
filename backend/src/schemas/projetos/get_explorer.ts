@@ -23,7 +23,6 @@ const get_feed_schema = {
                     bpm: Type.Number(),
                     escala: Type.Union([Type.String(), Type.Null()]),
                     descricao: Type.Union([Type.String(), Type.Null()]),
-                    audio_guia: Type.String(),
                     createdAt: Type.String({ format: 'date-time' }),
                     autor: Type.Object({
                         nome_completo: Type.String({ minLength: 6 }),

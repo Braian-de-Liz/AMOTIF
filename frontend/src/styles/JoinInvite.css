@@ -1,0 +1,90 @@
+.join-invite {
+    min-height: calc(100vh - 80px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+}
+
+.join-invite-card {
+    width: 100%;
+    max-width: 440px;
+    background: var(--branco);
+    border: 1px solid var(--borda);
+    border-radius: 16px;
+    padding: 32px 28px;
+    text-align: center;
+}
+
+.join-invite-eyebrow {
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--texto-secundario);
+    margin-bottom: 8px;
+}
+
+.join-invite-card h1 {
+    font-family: 'Bitter', Georgia, serif;
+    font-size: 1.75rem;
+    color: var(--verde-tinta);
+    margin-bottom: 12px;
+}
+
+.join-invite-text {
+    color: var(--texto-secundario);
+    line-height: 1.5;
+    margin-bottom: 24px;
+}
+
+.join-invite-role {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: var(--verde-pastel);
+    color: var(--verde-tinta);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.join-invite-button {
+    width: 100%;
+    padding: 12px 16px;
+    border: none;
+    border-radius: 10px;
+    background: var(--verde-musgo);
+    color: var(--branco);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.join-invite-button:hover:not(:disabled) {
+    background: var(--verde-tinta);
+}
+
+.join-invite-button:focus-visible {
+    outline: 3px solid var(--verde-claro);
+    outline-offset: 2px;
+}
+
+.join-invite-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.join-invite-error {
+    margin-top: 16px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    background: var(--erro-bg);
+    color: var(--erro-texto);
+    font-size: 0.9rem;
+}
+
+.join-invite-back {
+    display: inline-block;
+    margin-top: 20px;
+    color: var(--verde-musgo);
+    font-weight: 500;
+}

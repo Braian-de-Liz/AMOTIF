@@ -15,7 +15,9 @@ import { mural_project } from "../src/routers/projetos/mural_project.js";
 import { get_mural } from "../src/routers/projetos/get_mural.js";
 import { globalErrorHandler } from "../src/lib/global_Error.js";
 
-const mockPrisma = {
+const mockPrisma: any = {
+  $queryRaw: async () => [],
+  $transaction: async (arg: any) => (typeof arg === "function" ? arg(mockPrisma) : Promise.all(arg)),
   projeto: {
     findUnique: async (args: any) => {
       if (args.where?.id === "123e4567-e89b-12d3-a456-426614174000") {

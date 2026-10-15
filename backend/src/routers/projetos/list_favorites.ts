@@ -29,7 +29,6 @@ const Favorites_plugin: FastifyPluginAsyncTypebox = async (Fastify) => {
                         bpm: true,
                         escala: true,
                         descricao: true,
-                        audio_guia: true,
                         createdAt: true,
                         autor: {
                             select: {

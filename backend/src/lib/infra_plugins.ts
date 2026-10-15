@@ -7,7 +7,7 @@ import cors from '@fastify/cors'
 import fastifyJwt from "@fastify/jwt";
 import multipart from '@fastify/multipart';
 import rate_limite from '@fastify/rate-limit';
-import { COOKIE_SECRET, dev, secure_state, sameSite_state } from './config.enviriment.js';
+import { COOKIE_SECRET, isProduction, secure_state, sameSite_state } from './config.enviriment.js';
 import { health_route } from '../routers/health/health.js';
 import { Dados_route } from '../routers/health/dados.js';
 import { prisma_plugin, prisma, notiType } from './prisma.js';
@@ -75,7 +75,7 @@ const InfraPlugin: FastifyPluginAsync = async (Fastify) => {
         }
     });
 
-    if (dev === true) {
+    if (isProduction) {
         await Fastify.register(rate_limite, { max: 60, timeWindow: '1 minute' }); //só ativar em produção
     }
 

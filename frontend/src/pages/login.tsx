@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useUserData } from '../contexts/UserDataContext';
 import '../styles/Login.css';
-import { useNavigate, Link, Navigate } from 'react-router-dom';
+import { useNavigate, useLocation, Link, Navigate } from 'react-router-dom';
 import { URL_API_TESTE } from '../utility/url_apis'
 import { loginSchema } from '../schemas/loginSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
@@ -11,6 +11,9 @@ import { PasswordInput } from '../components/PasswordInput';
 
 function Login() {
     const navigate = useNavigate();
+    const from = (useLocation().state as { from?: string } | null)?.from;
+    // Só retoma links de convite; qualquer outro destino cai na home.
+    const destino = from?.startsWith('/convite/') ? from : '/home';
     const { usuario, refetch } = useUserData();
     const [email, setEmail] = useState('');
     const [senha, setSenha] = useState('');
@@ -18,7 +21,7 @@ function Login() {
     const [loading, setLoading] = useState(false);
 
     if (usuario) {
-        return <Navigate to="/home" replace />;
+        return <Navigate to={destino} replace />;
     }
 
     async function requestLog(e: React.FormEvent) {
@@ -51,7 +54,7 @@ function Login() {
             }
 
             await refetch();
-            navigate("/home");
+            navigate(destino);
         } catch (err) {
             console.error('Erro no login:', err);
             setErro('Erro ao fazer login: ' + (err instanceof Error ? err.message : 'Erro desconhecido'));

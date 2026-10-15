@@ -16,6 +16,7 @@ const Studio = React.lazy(() => import('./pages/studio').then(m => ({ default: m
 const InvitesPage = React.lazy(() => import('./pages/invitesPage').then(m => ({ default: m.InvitesPage })));
 const FavoritesPage = React.lazy(() => import('./pages/favoritesPage').then(m => ({ default: m.FavoritesPage })));
 const NovoStudio = React.lazy(() => import('./pages/novoStudio').then(m => ({ default: m.NovoStudio })));
+const JoinInvite = React.lazy(() => import('./pages/joinInvite'));
 const NotFound = React.lazy(() => import('./pages/notFound'));
 
 function LoadingFallback() {
@@ -54,6 +55,7 @@ function App() {
                             <Route path='/usuario/:id' element={<UserProfile />} />
                             <Route path='/novo-studio' element={<NovoStudio />} />
                             <Route path='/convites' element={<InvitesPage />} />
+                            <Route path='/convite/:token' element={<JoinInvite />} />
                             <Route path='/favoritos' element={<FavoritesPage />} />
                         </Route>
 

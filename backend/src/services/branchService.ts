@@ -234,53 +234,55 @@ async function mergeBranch(
 
     const nextVersionNumber = mainHeadVersion.versionNumber + 1;
 
-    const mergeVersion = await prisma.layerVersion.create({
-        data: {
-            camadaId,
-            audio_url: headVersion.audio_url,
-            nome_trilha: headVersion.nome_trilha,
-            instrumento_tag: headVersion.instrumento_tag,
-            delay_offset: headVersion.delay_offset,
-            volume_padrao: headVersion.volume_padrao,
-            bpm_original: headVersion.bpm_original,
-            transposicao_semitons: headVersion.transposicao_semitons,
-            versionNumber: nextVersionNumber,
-            mensagem: mensagem || `Merge de '${branch.nome}' para main`,
-            autorId: userId
-        }
+    return prisma.$transaction(async (tx) => {
+        const camadaAtual = await tx.camada.findUnique({
+            where: { id: camadaId },
+            select: { audio_url: true, esta_aprovada: true }
+        });
+
+        if (!camadaAtual) throw new Error("Camada não encontrada");
+
+        const resetAprovacao = camadaAtual.esta_aprovada &&
+            camadaAtual.audio_url !== headVersion.audio_url;
+
+        const mergeVersion = await tx.layerVersion.create({
+            data: {
+                camadaId,
+                audio_url: headVersion.audio_url,
+                nome_trilha: headVersion.nome_trilha,
+                instrumento_tag: headVersion.instrumento_tag,
+                delay_offset: headVersion.delay_offset,
+                volume_padrao: headVersion.volume_padrao,
+                bpm_original: headVersion.bpm_original,
+                transposicao_semitons: headVersion.transposicao_semitons,
+                versionNumber: nextVersionNumber,
+                mensagem: mensagem || `Merge de '${branch.nome}' para main`,
+                autorId: userId
+            }
+        });
+
+        await tx.layerBranch.update({
+            where: { id: mainBranch.id },
+            data: { headVersionId: mergeVersion.id }
+        });
+
+        await tx.camada.update({
+            where: { id: camadaId },
+            data: {
+                currentVersionId: mergeVersion.id,
+                audio_url: headVersion.audio_url,
+                nome_trilha: headVersion.nome_trilha,
+                instrumento_tag: headVersion.instrumento_tag,
+                delay_offset: headVersion.delay_offset,
+                volume_padrao: headVersion.volume_padrao,
+                bpm_original: headVersion.bpm_original,
+                transposicao_semitons: headVersion.transposicao_semitons,
+                ...(resetAprovacao ? { esta_aprovada: false } : {})
+            }
+        });
+
+        return mergeVersion;
     });
-
-    await prisma.layerBranch.update({
-        where: { id: mainBranch.id },
-        data: { headVersionId: mergeVersion.id }
-    });
-
-    const camadaAtual = await prisma.camada.findUnique({
-        where: { id: camadaId },
-        select: { audio_url: true, esta_aprovada: true }
-    });
-
-    if (!camadaAtual) throw new Error("Camada não encontrada");
-
-    const resetAprovacao = camadaAtual.esta_aprovada && 
-        camadaAtual.audio_url !== headVersion.audio_url;
-
-    await prisma.camada.update({
-        where: { id: camadaId },
-        data: {
-            currentVersionId: mergeVersion.id,
-            audio_url: headVersion.audio_url,
-            nome_trilha: headVersion.nome_trilha,
-            instrumento_tag: headVersion.instrumento_tag,
-            delay_offset: headVersion.delay_offset,
-            volume_padrao: headVersion.volume_padrao,
-            bpm_original: headVersion.bpm_original,
-            transposicao_semitons: headVersion.transposicao_semitons,
-            ...(resetAprovacao ? { esta_aprovada: false } : {})
-        }
-    });
-
-    return mergeVersion;
 }
 
 async function deleteBranch(

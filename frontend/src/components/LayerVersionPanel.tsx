@@ -171,6 +171,7 @@ function LayerVersionPanel({ layerId, isOpen, onClose, onRollback, onRestoreInPl
                                                 controls
                                                 className="version-preview-audio"
                                                 onClick={e => e.stopPropagation()}
+                                                title="Se o áudio não tocar, recarregue a página para atualizar o acesso"
                                             />
                                             <div className="version-item-footer">
                                                 <span className="version-author">por {v.autor.nome_completo}</span>

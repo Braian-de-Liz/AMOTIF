@@ -30,6 +30,7 @@ model User {
   mural_posts        MuralPost[]    @relation("AutorDoPost")
   sugestoes_criadas  Sugestao[]     @relation("AutorDaSugestao")
   convites_enviados  Convite[]      @relation("ConviteRemetente")
+  convite_links      ConviteLink[]  @relation("ConviteLinkCriador")
   notifications      Notification[] @relation("UserNotifications")
   notifications_sent Notification[] @relation("NotificationActor")
   likes_dados        Like[]         @relation("UserLikes")
@@ -81,6 +82,7 @@ model Projeto {
   camadas        Camada[]
   colaboradores  Colaborador[]
   convites       Convite[]
+  convite_links  ConviteLink[]
   mural          MuralPost[]
   sugestoes      Sugestao[]
   createdAt      DateTime      @default(now())
@@ -173,6 +175,25 @@ model Convite {
   @@index([projetoId])
   @@index([remetenteId])
   @@index([email_destinatario])
+}
+
+// Link de convite reutilizável: qualquer usuário logado entra até atingir max_usos ou expirar.
+model ConviteLink {
+  id          String    @id @default(uuid()) @db.Uuid
+  projetoId   String    @db.Uuid
+  projeto     Projeto   @relation(fields: [projetoId], references: [id], onDelete: Cascade)
+  criadoPorId String    @db.Uuid
+  criadoPor   User      @relation("ConviteLinkCriador", fields: [criadoPorId], references: [id], onDelete: Cascade)
+  token       String    @unique
+  cargo       String    @default("membro")
+  max_usos    Int
+  usos        Int       @default(0)
+  expira_em   DateTime
+  revogadoEm  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([projetoId])
+  @@index([criadoPorId])
 }
 
 model Colaborador {
