@@ -2,6 +2,7 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_details_project } from "../../schemas/projetos/get_one_project.js";
 import { audioSigner } from "../../lib/signed_urls.js";
+import { papelNoProjeto } from "../../lib/permissoes.js";
 
 const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -19,6 +20,7 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                 audio_guia: true,
                 descricao: true,
                 escala: true,
+                status: true,
                 createdAt: true,
                 deletedAt: true,
                 autor: {
@@ -43,6 +45,7 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                         createdAt: true,
                         autor: {
                             select: {
+                                id: true,
                                 nome_completo: true
                             }
                         },
@@ -75,6 +78,8 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
+        const meu_papel = await papelNoProjeto(Fastify, { id: projeto.id, userId: projeto.autor.id }, request.user.id);
+
         const sign = await audioSigner(Fastify.storage, [
             projeto.audio_guia,
             ...projeto.camadas.map(c => c.audio_url)
@@ -90,6 +95,8 @@ const Get_a_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                 audio_guia: sign(projeto.audio_guia),
                 descricao: projeto.descricao,
                 escala: projeto.escala,
+                status: projeto.status,
+                meu_papel,
                 createdAt: projeto.createdAt.toISOString(),
                 autor: projeto.autor,
                 camadas: projeto.camadas.map(({ id, nome_trilha, audio_url, instrumento_tag, volume_padrao, delay_offset, bpm_original, transposicao_semitons, esta_aprovada, createdAt, autor, currentVersion, _count }) => ({

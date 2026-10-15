@@ -18,6 +18,7 @@ const colaborators: FastifyPluginAsyncTypebox = async (Fastify) => {
                 colaboradores: {
                     select: {
                         cargo: true,
+                        papel: true,
                         joinedAt: true,
                         usuario: {
                             select: {
@@ -48,6 +49,7 @@ const colaborators: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         const colaboradores = cooll.colaboradores.map(c => ({
             cargo: c.cargo,
+            papel: c.papel,
             joinedAt: c.joinedAt.toISOString(),
             usuario: {
                 id: c.usuario.id,

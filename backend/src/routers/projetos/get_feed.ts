@@ -1,4 +1,4 @@
-import { MusicGenre } from "@prisma/client";
+import { MusicGenre, StatusProjeto } from "@prisma/client";
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { get_feed_schema } from "../../schemas/projetos/get_explorer.js";
@@ -8,12 +8,13 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.get("/projetos/feed", get_feed_schema, async (request, reply) => {
         const userId = request.user.id;
-        const { genero, instrumentoFaltante, cursor } = request.query;
+        const { genero, status, instrumentoFaltante, cursor } = request.query;
 
         const projetosRaw = await Fastify.prisma.projeto.findMany({
             where: {
                 deletedAt: null,
                 ...(genero && { genero: genero as MusicGenre }),
+                ...(status && { status: status as StatusProjeto }),
                 ...(instrumentoFaltante && {
                     camadas: {
                         none: {
@@ -36,6 +37,7 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
                 bpm: true,
                 escala: true,
                 descricao: true,
+                status: true,
                 createdAt: true,
                 autor: {
                     select: {
@@ -69,8 +71,8 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
         const likedSet = new Set(userLikes.map(l => l.projetoId));
         const favoritedSet = new Set(userFavorites.map(f => f.projetoId));
 
-        const projetos = projetosRaw.map(({ id, titulo, genero, bpm, escala, descricao, createdAt, autor, _count }) => ({
-            id, titulo, genero, bpm, escala, descricao,
+        const projetos = projetosRaw.map(({ id, titulo, genero, bpm, escala, descricao, status, createdAt, autor, _count }) => ({
+            id, titulo, genero, bpm, escala, descricao, status,
             createdAt: createdAt.toISOString(),
             autor, _count,
             userHasLiked: likedSet.has(id),

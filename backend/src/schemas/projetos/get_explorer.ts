@@ -1,6 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 import { GeneroEnum } from './genero.enum.js';
+import { StatusProjetoEnum } from './status.enum.js';
 
 const get_feed_schema = {
     schema: {
@@ -9,6 +10,7 @@ const get_feed_schema = {
         security: [{ bearerAuth: [] }],
         querystring: Type.Object({
             genero: Type.Optional(GeneroEnum),
+            status: Type.Optional(StatusProjetoEnum),
             instrumentoFaltante: Type.Optional(Type.String()),
             cursor: Type.Optional(Type.String({ format: 'uuid' }))
         }),
@@ -23,6 +25,7 @@ const get_feed_schema = {
                     bpm: Type.Number(),
                     escala: Type.Union([Type.String(), Type.Null()]),
                     descricao: Type.Union([Type.String(), Type.Null()]),
+                    status: Type.String(),
                     createdAt: Type.String({ format: 'date-time' }),
                     autor: Type.Object({
                         nome_completo: Type.String({ minLength: 6 }),

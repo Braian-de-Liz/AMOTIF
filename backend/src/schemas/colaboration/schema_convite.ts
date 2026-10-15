@@ -1,5 +1,6 @@
 import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
+import { PapelColaboradorEnum } from './papel.enum.js';
 
 const schema_convite = {
     schema: {
@@ -12,6 +13,7 @@ const schema_convite = {
         body: Type.Object({
             email_destinatario: Type.String({ format: 'email' }),
             cargo: Type.String({ minLength: 2, maxLength: 30 }),
+            papel: Type.Optional(PapelColaboradorEnum),
             mensagem: Type.Optional(Type.String({ maxLength: 255 }))
         }),
         response: {

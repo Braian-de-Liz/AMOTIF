@@ -68,6 +68,12 @@ interface SupabaseStorage {
     signUrls: UrlSigner;
 }
 
+/** Resposta do Storage para "arquivo não existe": 404, ou 400 com corpo not_found/NoSuchKey. */
+function isObjetoInexistente(status: number, body: string): boolean {
+    if (status === 404) return true;
+    return status === 400 && /not_found|NoSuchKey|Object not found/i.test(body);
+}
+
 /** Extrai o path de uma URL pública do Storage; null se host/bucket não conferem ou houver traversal. */
 function extractPathFromUrl(url: string): string | null {
     return safeExtractPath(url);
@@ -183,6 +189,11 @@ const Upload_Service: FastifyPluginAsync = fp(async (Fastify) => {
 
             if (!deleteResponse.ok) {
                 const errBody = await deleteResponse.text();
+                // O Supabase responde 400 com "not_found" (ou 404) para arquivo inexistente: o objetivo já está cumprido.
+                if (isObjetoInexistente(deleteResponse.status, errBody)) {
+                    Fastify.log.info(`deleteAudio: arquivo já não existia (${path})`);
+                    return;
+                }
                 Fastify.log.error(`Supabase delete error (${deleteResponse.status}): ${errBody}`);
                 throw new UploadError(500, "Erro ao deletar arquivo do Supabase");
             }
@@ -192,4 +203,4 @@ const Upload_Service: FastifyPluginAsync = fp(async (Fastify) => {
     Fastify.decorate("storage", storage);
 });
 
-export { Upload_Service, UploadError, ALLOWED_CONTENT_TYPES, MAX_FILE_SIZE, MULTIPART_OVERHEAD, MENSAGEM_LIMITE, extractPathFromUrl, resolveSafeExtension };
+export { Upload_Service, UploadError, isObjetoInexistente, ALLOWED_CONTENT_TYPES, MAX_FILE_SIZE, MULTIPART_OVERHEAD, MENSAGEM_LIMITE, extractPathFromUrl, resolveSafeExtension };

@@ -22,17 +22,17 @@ const delete_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         });
 
+        await Fastify.prisma.camada.delete({ where: { id } });
+
+        // Arquivos só depois do banco: uma falha no Storage não impede a exclusão nem deixa a camada sem áudio.
+        // Só apaga arquivos dentro do diretório de quem os enviou (bloqueia URLs forjadas/legadas).
         if (layer) {
             const refs: AudioRef[] = [
                 ...(layer.versions ?? []).map((v) => ({ url: v.audio_url, ownerId: v.autorId })),
                 { url: layer.audio_url, ownerId: layer.userId }
             ];
-
-            // Só apaga arquivos dentro do diretório de quem os enviou (bloqueia URLs forjadas/legadas).
             await deleteOwnedAudios(Fastify, refs);
         }
-
-        await Fastify.prisma.camada.delete({ where: { id } });
 
         return reply.status(200).send({
             status: "sucesso",

@@ -48,6 +48,12 @@ const del_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         });
 
+        await Fastify.prisma.projeto.update({
+            where: { id },
+            data: { deletedAt: new Date() }
+        });
+
+        // Arquivos só depois do banco: uma falha no Storage não deixa o projeto ativo com parte dos áudios apagada.
         if (projeto) {
             const refs: AudioRef[] = [{ url: projeto.audio_guia, ownerId: projeto.userId }];
 
@@ -61,11 +67,6 @@ const del_project: FastifyPluginAsyncTypebox = async (Fastify) => {
             // Só apaga arquivos dentro do diretório de quem os enviou (bloqueia URLs forjadas/legadas).
             await deleteOwnedAudios(Fastify, refs);
         }
-
-        await Fastify.prisma.projeto.update({
-            where: { id },
-            data: { deletedAt: new Date() }
-        });
 
         return reply.status(202).send({
             status: "sucesso",

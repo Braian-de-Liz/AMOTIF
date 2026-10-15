@@ -12,6 +12,7 @@ import { resolveSafeExtension } from "../src/lib/upload.js";
 import { create_Layer } from "../src/routers/layers/create_layer.js";
 import { update_layer } from "../src/routers/layers/update_layers.js";
 import { delete_layer } from "../src/routers/layers/delete_layer.js";
+import { patch_layer_status } from "../src/routers/layers/autorizar_layer.js";
 import { rollback_route } from "../src/routers/versions/manage_branches.js";
 import { post_project } from "../src/routers/projetos/create_project.js";
 import { del_project } from "../src/routers/projetos/delete_project.js";
@@ -54,6 +55,7 @@ let camada: Camada;
 let camadaUpdates: any[];
 let camadaCreates: any[];
 let deletedPaths: string[];
+let colabPapel: string; // papel do COLAB no PROJETO
 
 function resetState() {
     camada = {
@@ -64,6 +66,7 @@ function resetState() {
     camadaUpdates = [];
     camadaCreates = [];
     deletedPaths = [];
+    colabPapel = "MUSICO";
 }
 resetState();
 
@@ -85,7 +88,7 @@ function projetoComCamadas(id: string) {
         autor: { id: p.userId, nome_completo: "Dono", avatar_url: null },
         camadas: [{ ...camada, autor: { nome_completo: "Autor" } }],
         colaboradores: [{
-            cargo: "membro", joinedAt: new Date(),
+            cargo: "membro", papel: "MUSICO", joinedAt: new Date(),
             usuario: { id: COLAB, nome_completo: "Colab User", avatar_url: null, instrumentos: [], email: USER_EMAILS[COLAB] },
         }],
     };
@@ -143,7 +146,10 @@ const mockPrisma: any = {
     },
     colaborador: {
         findFirst: async ({ where }: any) => (where.projetoId === PROJETO && where.userId === COLAB ? { id: "colab-row" } : null),
-        findUnique: async () => null,
+        findUnique: async ({ where }: any) => {
+            const k = where.userId_projetoId;
+            return k && k.projetoId === PROJETO && k.userId === COLAB ? { id: "colab-row", papel: colabPapel } : null;
+        },
         delete: async () => ({}),
     },
     convite: { findMany: async () => [], deleteMany: async () => ({ count: 0 }) },
@@ -202,7 +208,7 @@ beforeAll(async () => {
     for (const plugin of [
         create_Layer, update_layer, delete_layer, rollback_route, post_project, del_project, Deletar_user,
         Delete_Colab, list_invite, colaborators, Get_user_with_counts, Get_a_project, search_project,
-        Get_projects_user, criar_sugestao, listar_sugestoes, Create_like, Toggle_favorite, cleanup_route,
+        Get_projects_user, criar_sugestao, listar_sugestoes, Create_like, Toggle_favorite, cleanup_route, patch_layer_status,
     ]) {
         app.register(plugin as any, { prefix: "/api" });
     }
@@ -219,18 +225,18 @@ const layerBody = (audio_url = AUDIO_AUTOR) => ({ nome_trilha: "Baixo", audio_ur
 // ---------- Task 2: validação de URL na entrada ----------
 describe("Storage - validação de audio_url/audio_guia na entrada", () => {
     it("criar layer com áudio de outro usuário → 400", async () => {
-        const res = await http({ method: "POST", url: `/api/layer/${PROJETO}`, headers: auth(ESTRANHO), payload: layerBody(AUDIO_DONO) });
+        const res = await http({ method: "POST", url: `/api/layer/${PROJETO}`, headers: auth(COLAB), payload: layerBody(AUDIO_DONO) });
         expect(res.statusCode).toBe(400);
         expect(camadaCreates.length).toBe(0);
     });
 
     it("criar layer com traversal para o diretório de outro usuário → 400", async () => {
-        const res = await http({ method: "POST", url: `/api/layer/${PROJETO}`, headers: auth(ESTRANHO), payload: layerBody(`${PUBLIC_BASE}${ESTRANHO}/../${DONO}/guia.mp3`) });
+        const res = await http({ method: "POST", url: `/api/layer/${PROJETO}`, headers: auth(COLAB), payload: layerBody(`${PUBLIC_BASE}${COLAB}/../${DONO}/guia.mp3`) });
         expect(res.statusCode).toBe(400);
     });
 
     it("criar layer com áudio próprio → 201 e sempre pendente", async () => {
-        const res = await http({ method: "POST", url: `/api/layer/${PROJETO}`, headers: auth(ESTRANHO), payload: { ...layerBody(audioUrlFor(ESTRANHO, "x.mp3")), esta_aprovada: true } });
+        const res = await http({ method: "POST", url: `/api/layer/${PROJETO}`, headers: auth(COLAB), payload: { ...layerBody(audioUrlFor(COLAB, "x.mp3")), esta_aprovada: true } });
         expect(res.statusCode).toBe(201);
         expect(camadaCreates[0].esta_aprovada).toBe(false);
         expect(res.json().camada.esta_aprovada).toBe(false);
@@ -335,6 +341,55 @@ describe("Layers - quem pode editar/apagar", () => {
         camada.projetoId = PROJETO_DEL;
         const res = await http({ method: "DELETE", url: `/api/layer/${CAMADA}`, headers: auth(AUTOR) });
         expect(res.statusCode).toBe(404);
+    });
+});
+
+// ---------- Papéis: quem envia e quem aprova camadas ----------
+describe("Papéis - enviar e aprovar camadas", () => {
+    const enviar = (who: string) =>
+        http({ method: "POST", url: `/api/layer/${PROJETO}`, headers: auth(who), payload: layerBody(audioUrlFor(who, "x.mp3")) });
+    const aprovar = (who: string) =>
+        http({ method: "PATCH", url: `/api/layer/${CAMADA}/status`, headers: auth(who), payload: { aprovada: true } });
+
+    it("usuário de fora do projeto não envia camada → 403", async () => {
+        const res = await enviar(ESTRANHO);
+        expect(res.statusCode).toBe(403);
+        expect(camadaCreates.length).toBe(0);
+    });
+
+    it("ouvinte não envia camada → 403", async () => {
+        colabPapel = "OUVINTE";
+        const res = await enviar(COLAB);
+        expect(res.statusCode).toBe(403);
+        expect(camadaCreates.length).toBe(0);
+    });
+
+    it("dono, produtor e músico enviam camada → 201", async () => {
+        expect((await enviar(DONO)).statusCode).toBe(201);
+        for (const papel of ["PRODUTOR", "MUSICO"]) {
+            colabPapel = papel;
+            expect((await enviar(COLAB)).statusCode).toBe(201);
+        }
+    });
+
+    it("dono e produtor aprovam → 200", async () => {
+        expect((await aprovar(DONO)).statusCode).toBe(200);
+        colabPapel = "PRODUTOR";
+        expect((await aprovar(COLAB)).statusCode).toBe(200);
+    });
+
+    it("músico, ouvinte e usuário de fora não aprovam → 403", async () => {
+        for (const papel of ["MUSICO", "OUVINTE"]) {
+            colabPapel = papel;
+            expect((await aprovar(COLAB)).statusCode).toBe(403);
+        }
+        expect((await aprovar(ESTRANHO)).statusCode).toBe(403);
+        expect(camadaUpdates.length).toBe(0);
+    });
+
+    it("aprovar camada apagada → 404", async () => {
+        camada.deletedAt = new Date();
+        expect((await aprovar(DONO)).statusCode).toBe(404);
     });
 });
 

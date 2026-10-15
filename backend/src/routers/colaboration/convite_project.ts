@@ -3,6 +3,7 @@ import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_convite } from "../../schemas/colaboration/schema_convite.js";
 import { verificar_dono_projeto } from "../../hooks/verificar_dono_projeto.js";
 import { enviarConviteEmail } from "../../services/emailService.js";
+import { normalizarEmail } from "../../lib/normalizar_email.js";
 
 const convite_project: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -10,7 +11,8 @@ const convite_project: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.post("/colaboration/:id/invite", schema_convite, async (request, reply) => {
         const { id } = request.params;
-        const { email_destinatario, cargo, mensagem } = request.body
+        const { cargo, papel, mensagem } = request.body
+        const email_destinatario = normalizarEmail(request.body.email_destinatario)
 
         const novoConvite = await Fastify.prisma.convite.create({
             data: {
@@ -18,6 +20,7 @@ const convite_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                 remetenteId: request.user.id,
                 email_destinatario: email_destinatario,
                 cargo: cargo,
+                ...(papel && { papel }),
                 mensagem: mensagem,
                 expira_em: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
             }

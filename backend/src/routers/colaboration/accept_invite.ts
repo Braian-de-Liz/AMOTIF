@@ -1,6 +1,7 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { aceitar_convite_schema } from "../../schemas/colaboration/accept_invite.schema.js";
+import { normalizarEmail } from "../../lib/normalizar_email.js";
 
 const Accept_invite: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -24,7 +25,7 @@ const Accept_invite: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
-        if (conviteExistente.email_destinatario !== request.user.email) {
+        if (normalizarEmail(conviteExistente.email_destinatario) !== normalizarEmail(request.user.email)) {
             return reply.status(403).send({
                 status: 'erro',
                 mensagem: 'Este convite não é destinado a você.'
@@ -56,7 +57,8 @@ const Accept_invite: FastifyPluginAsyncTypebox = async (Fastify) => {
                 data: {
                     userId: userId,
                     projetoId: projetoId,
-                    cargo: conviteExistente.cargo
+                    cargo: conviteExistente.cargo,
+                    papel: conviteExistente.papel
                 }
             }),
             Fastify.prisma.convite.delete({

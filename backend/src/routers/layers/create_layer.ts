@@ -5,6 +5,7 @@ import { createInitialVersion } from "../../services/versionService.js";
 import { createMainBranchIfNotExists } from "../../services/branchService.js";
 import { audioSigner } from "../../lib/signed_urls.js";
 import { isOwnedAudioUrl, normalizeAudioUrl } from "../../lib/storage_path.js";
+import { papelNoProjeto, pode } from "../../lib/permissoes.js";
 
 const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -34,6 +35,17 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
+        // Só dono, produtores e músicos do projeto enviam camadas; ouvintes e usuários de fora não.
+        const papel = await papelNoProjeto(Fastify, { id: projetoId, userId: check_project.userId }, userId);
+        if (!pode(papel, "enviarCamada")) {
+            return reply.status(403).send({
+                status: "erro",
+                mensagem: papel === "OUVINTE"
+                    ? "Ação negada: ouvintes não podem enviar camadas."
+                    : "Ação negada: apenas colaboradores do projeto podem enviar camadas."
+            });
+        }
+
         // O áudio precisa ter sido enviado pelo próprio usuário (diretório `${userId}/` no Storage).
         if (!isOwnedAudioUrl(audio_url, userId)) {
             return reply.status(400).send({
@@ -42,35 +54,38 @@ const create_Layer: FastifyPluginAsyncTypebox = async (Fastify) => {
             });
         }
 
-        const nova_camada = await Fastify.prisma.camada.create({
-            data: {
-                nome_trilha,
+        // Camada, versão inicial e branch main são gravadas juntas: se uma etapa falhar, nada fica órfão.
+        const nova_camada = await Fastify.prisma.$transaction(async (tx) => {
+            const camada = await tx.camada.create({
+                data: {
+                    nome_trilha,
+                    audio_url,
+                    instrumento_tag,
+                    delay_offset,
+                    volume_padrao,
+                    bpm_original: bpm_original ?? null,
+                    transposicao_semitons: transposicao_semitons ?? 0,
+                    // Toda contribuição entra como pendente; só o dono do projeto aprova.
+                    esta_aprovada: false,
+                    projetoId,
+                    userId
+                }
+            })
+
+            await createInitialVersion(tx, camada.id, userId, {
                 audio_url,
+                nome_trilha,
                 instrumento_tag,
-                delay_offset,
-                volume_padrao,
-                bpm_original: bpm_original ?? null,
-                transposicao_semitons: transposicao_semitons ?? 0,
-                // Toda contribuição entra como pendente; só o dono do projeto aprova.
-                esta_aprovada: false,
-                projetoId,
-                userId
-            }
-        })
+                delay_offset: delay_offset ?? 0,
+                volume_padrao: volume_padrao ?? 1.0,
+                bpm_original: camada.bpm_original,
+                transposicao_semitons: camada.transposicao_semitons
+            }, tag);
 
-        // Cria a versão inicial (lança erro se falhar)
-        await createInitialVersion(Fastify.prisma, nova_camada.id, userId, {
-            audio_url,
-            nome_trilha,
-            instrumento_tag,
-            delay_offset: delay_offset ?? 0,
-            volume_padrao: volume_padrao ?? 1.0,
-            bpm_original: nova_camada.bpm_original,
-            transposicao_semitons: nova_camada.transposicao_semitons
-        }, tag);
+            await createMainBranchIfNotExists(tx, camada.id, userId);
 
-        // Cria a branch main automaticamente
-        await createMainBranchIfNotExists(Fastify.prisma, nova_camada.id, userId);
+            return camada;
+        });
 
         if (userId !== check_project.userId) {
 

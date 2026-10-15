@@ -16,6 +16,7 @@ const schema_colaboretors = {
                 colaborators: Type.Object({
                     colaboradores: Type.Array(Type.Object({
                         cargo: Type.Union([Type.String(), Type.Null()]),
+                        papel: Type.String(),
                         joinedAt: Type.String({ format: "date-time" }),
                         usuario: Type.Object({
                             id: Type.String({ format: 'uuid' }),

@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 
 interface CreateBranchData {
     nome: string;
@@ -80,7 +80,7 @@ async function createBranch(
 }
 
 async function createMainBranchIfNotExists(
-    prisma: PrismaClient,
+    prisma: PrismaClient | Prisma.TransactionClient,
     camadaId: string,
     userId: string
 ) {

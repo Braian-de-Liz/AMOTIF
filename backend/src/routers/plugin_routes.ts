@@ -65,6 +65,11 @@ import { listar_sugestoes } from "./sugestoes/listar_sugestoes.js";
 import { atualizar_sugestao } from "./sugestoes/atualizar_sugestao.js";
 import { deletar_sugestao } from "./sugestoes/deletar_sugestao.js";
 
+import { listar_comentarios } from "./comentarios/listar_comentarios.js";
+import { criar_comentario } from "./comentarios/criar_comentario.js";
+import { atualizar_comentario } from "./comentarios/atualizar_comentario.js";
+import { deletar_comentario } from "./comentarios/deletar_comentario.js";
+
 import { upload_audio } from "./upload/upload_point.js";
 
 import { cleanup_route } from "./cleanup/cleanup.js";
@@ -133,6 +138,11 @@ const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
     Fastify.register(listar_sugestoes);
     Fastify.register(atualizar_sugestao);
     Fastify.register(deletar_sugestao);
+
+    Fastify.register(listar_comentarios);
+    Fastify.register(criar_comentario);
+    Fastify.register(atualizar_comentario);
+    Fastify.register(deletar_comentario);
 
     await Fastify.register(upload_audio);
 

@@ -1,6 +1,7 @@
 import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 import { GeneroEnum } from './genero.enum.js';
+import { StatusProjetoEnum } from './status.enum.js';
 
 const update_project_schema = {
     schema: {
@@ -14,6 +15,7 @@ const update_project_schema = {
             titulo: Type.String({ minLength: 3 }),
             descricao: Type.Union([Type.String(), Type.Null()]),
             genero: GeneroEnum,
+            status: StatusProjetoEnum,
             bpm: Type.Number({ minimum: 1 }),
             escala: Type.Union([Type.String(), Type.Null()]),
         })),
@@ -25,6 +27,7 @@ const update_project_schema = {
                     id: Type.String({ format: 'uuid' }),
                     titulo: Type.String(),
                     genero: Type.String(),
+                    status: Type.String(),
                     bpm: Type.Number(),
                     descricao: Type.Union([Type.String(), Type.Null()]),
                     escala: Type.Union([Type.String(), Type.Null()]),

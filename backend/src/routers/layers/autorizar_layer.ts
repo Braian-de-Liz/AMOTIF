@@ -1,6 +1,7 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { schema_auth_layer } from "../../schemas/layers/auth_layer.js";
+import { papelNoProjeto, pode } from "../../lib/permissoes.js";
 
 const patch_layer_status: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -13,21 +14,24 @@ const patch_layer_status: FastifyPluginAsyncTypebox = async (Fastify) => {
         const camada = await Fastify.prisma.camada.findUnique({
             where: { id: layerId },
             select: {
+                deletedAt: true,
                 projeto: {
-                    select: { userId: true }
+                    select: { id: true, userId: true, deletedAt: true }
                 }
             }
         });
 
-        if (!camada) return reply.status(404).send({
+        if (!camada || camada.deletedAt || camada.projeto.deletedAt) return reply.status(404).send({
             status: 'erro',
             mensagem: "Camada não encontrada"
         });
 
-        if (camada.projeto.userId !== usuarioLogadoId) {
+        // Dono do projeto e produtores decidem o que entra no mix oficial.
+        const papel = await papelNoProjeto(Fastify, camada.projeto, usuarioLogadoId);
+        if (!pode(papel, "aprovarCamada")) {
             return reply.status(403).send({
                 status: 'erro',
-                mensagem: "Ação negada: Você não é o dono deste projeto."
+                mensagem: "Ação negada: apenas o dono do projeto ou um produtor pode aprovar camadas."
             });
         }
 

@@ -62,10 +62,11 @@ const Deletar_user: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         }
 
+        await Fastify.prisma.user.delete({ where: { id } });
+
+        // Arquivos só depois do banco (melhor esforço): uma falha no Storage não impede a exclusão da conta.
         // Só apaga arquivos dentro do diretório de quem os enviou (bloqueia URLs forjadas/legadas).
         await deleteOwnedAudios(Fastify, refs);
-
-        await Fastify.prisma.user.delete({ where: { id } });
 
         return reply.status(202).send({
             status: 'sucesso',

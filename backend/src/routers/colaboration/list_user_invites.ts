@@ -1,6 +1,7 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { list_user_invites_schema } from "../../schemas/colaboration/list_user_invites_schema.js";
+import { emailIgual } from "../../lib/normalizar_email.js";
 
 const list_user_invites: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -12,7 +13,7 @@ const list_user_invites: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         const convites = await Fastify.prisma.convite.findMany({
             where: {
-                email_destinatario: userEmail,
+                email_destinatario: emailIgual(userEmail),
                 ...(cursor ? { createdAt: { lt: new Date(cursor) } } : {})
             },
             orderBy: { createdAt: 'desc' },

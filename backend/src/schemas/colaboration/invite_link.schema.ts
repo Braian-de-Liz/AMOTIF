@@ -1,3 +1,4 @@
+import { PapelColaboradorEnum } from './papel.enum.js';
 import { Type } from '@sinclair/typebox';
 import { Error_schema } from '../error/erro_schema.js';
 
@@ -5,6 +6,7 @@ const LinkInfo = Type.Object({
     id: Type.String({ format: 'uuid' }),
     token: Type.String(),
     cargo: Type.String(),
+    papel: Type.Optional(PapelColaboradorEnum),
     max_usos: Type.Integer(),
     usos: Type.Integer(),
     expira_em: Type.String()
@@ -18,6 +20,7 @@ const criar_invite_link_schema = {
         params: Type.Object({ id: Type.String({ format: 'uuid' }) }),
         body: Type.Object({
             cargo: Type.Optional(Type.String({ minLength: 2, maxLength: 30 })),
+            papel: Type.Optional(PapelColaboradorEnum),
             max_usos: Type.Optional(Type.Integer({ minimum: 1, maximum: 100 })),
             dias_validade: Type.Optional(Type.Integer({ minimum: 1, maximum: 30 }))
         }),

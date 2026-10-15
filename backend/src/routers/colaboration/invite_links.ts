@@ -16,7 +16,7 @@ const invite_links: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.post("/colaboration/:id/invite-link", criar_invite_link_schema, async (request, reply) => {
         const { id } = request.params;
-        const { cargo = "membro", max_usos = 10, dias_validade = 7 } = request.body;
+        const { cargo = "membro", papel, max_usos = 10, dias_validade = 7 } = request.body;
 
         const link = await Fastify.prisma.conviteLink.create({
             data: {
@@ -24,6 +24,7 @@ const invite_links: FastifyPluginAsyncTypebox = async (Fastify) => {
                 criadoPorId: request.user.id,
                 token: randomBytes(24).toString("base64url"),
                 cargo,
+                ...(papel && { papel }),
                 max_usos,
                 expira_em: new Date(Date.now() + dias_validade * DIA_MS)
             }
@@ -36,6 +37,7 @@ const invite_links: FastifyPluginAsyncTypebox = async (Fastify) => {
                 id: link.id,
                 token: link.token,
                 cargo: link.cargo,
+                papel: link.papel,
                 max_usos: link.max_usos,
                 usos: link.usos,
                 expira_em: link.expira_em.toISOString()
@@ -59,6 +61,7 @@ const invite_links: FastifyPluginAsyncTypebox = async (Fastify) => {
                     id: l.id,
                     token: l.token,
                     cargo: l.cargo,
+                    papel: l.papel,
                     max_usos: l.max_usos,
                     usos: l.usos,
                     expira_em: l.expira_em.toISOString()

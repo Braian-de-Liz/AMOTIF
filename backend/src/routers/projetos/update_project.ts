@@ -9,12 +9,13 @@ const Update_project: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.patch("/projetos/:id", update_project_schema, async (request, reply) => {
         const { id } = request.params;
-        const { titulo, descricao, genero, bpm, escala } = request.body;
+        const { titulo, descricao, genero, status, bpm, escala } = request.body;
 
         const dadosAtualizados: Record<string, unknown> = {};
         if (titulo !== undefined) dadosAtualizados.titulo = titulo;
         if (descricao !== undefined) dadosAtualizados.descricao = descricao;
         if (genero !== undefined) dadosAtualizados.genero = genero;
+        if (status !== undefined) dadosAtualizados.status = status;
         if (bpm !== undefined) dadosAtualizados.bpm = bpm;
         if (escala !== undefined) dadosAtualizados.escala = escala;
 
@@ -25,6 +26,7 @@ const Update_project: FastifyPluginAsyncTypebox = async (Fastify) => {
                 id: true,
                 titulo: true,
                 genero: true,
+                status: true,
                 bpm: true,
                 descricao: true,
                 escala: true,

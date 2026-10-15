@@ -1,12 +1,14 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { schema_register } from "../../schemas/user_schema/cadastroUSer_sche.js";
 import { encryptCPF, hashCPF } from "../../lib/cpf.js";
+import { normalizarEmail, emailIgual } from "../../lib/normalizar_email.js";
 
 const User_register: FastifyPluginAsyncTypebox = async (Fastify) => {
 
     Fastify.post("/usuario", schema_register, async (request, reply) => {
 
-        const { nome_completo, email, senha, cpf } = request.body;
+        const { nome_completo, senha, cpf } = request.body;
+        const email = normalizarEmail(request.body.email);
 
         const cpfEncrypted = encryptCPF(cpf);
         const cpfHash = hashCPF(cpf);
@@ -14,7 +16,7 @@ const User_register: FastifyPluginAsyncTypebox = async (Fastify) => {
         const check_user = await Fastify.prisma.user.findFirst({
             where: {
                 OR: [
-                    { email: email },
+                    { email: emailIgual(email) },
                     { cpf_hash: cpfHash }
                 ]
             }

@@ -2,6 +2,7 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { schema_login } from "../../schemas/user_schema/schema_login.js";
 import { generateRefreshToken } from '../../services/refreshToken.js';
 import { secure_state, sameSite_state } from '../../lib/config.enviriment.js';
+import { emailIgual } from '../../lib/normalizar_email.js';
 const ACCESS_TOKEN_MAX_AGE = 4 * 60 * 60;
 const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60;
 
@@ -11,7 +12,7 @@ const login_user: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         const { email, senha } = request.body;
 
-        const check_user = await Fastify.prisma.user.findUnique({ where: { email } });
+        const check_user = await Fastify.prisma.user.findFirst({ where: { email: emailIgual(email) } });
 
         if (!check_user) {
             Fastify.log.error("usuário não encontrado");

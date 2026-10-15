@@ -36,6 +36,7 @@ model User {
   likes_dados        Like[]         @relation("UserLikes")
   favorites          Favorite[]     @relation("UserFavorites")
   authoredVersions   LayerVersion[] @relation("AuthoredVersions")
+  comentarios        Comentario[]   @relation("ComentariosAutor")
   createdBranches    LayerBranch[]  @relation("BranchCreatedBy")
   refreshTokens      RefreshToken[]
 }
@@ -76,6 +77,7 @@ model Projeto {
   descricao      String?
   audio_guia     String
   audio_metadata Json?
+  status         StatusProjeto @default(IDEIA)
   userId         String        @db.Uuid
   autor          User          @relation("DonoDoProjeto", fields: [userId], references: [id], onDelete: Cascade)
   favoritos      Favorite[]    @relation("ProjectFavorites")
@@ -123,6 +125,19 @@ enum SugestaoStatus {
   RESOLVIDA
 }
 
+enum StatusProjeto {
+  IDEIA
+  EM_GRAVACAO
+  EM_MIXAGEM
+  FINALIZADO
+}
+
+enum PapelColaborador {
+  PRODUTOR
+  MUSICO
+  OUVINTE
+}
+
 enum MusicGenre {
   ROCK
   POP
@@ -167,6 +182,7 @@ model Convite {
   remetente          User     @relation("ConviteRemetente", fields: [remetenteId], references: [id], onDelete: Cascade)
   email_destinatario String
   cargo              String   @default("membro")
+  papel              PapelColaborador @default(MUSICO)
   mensagem           String?
   token_convite      String   @unique @default(uuid())
   expira_em          DateTime
@@ -186,6 +202,7 @@ model ConviteLink {
   criadoPor   User      @relation("ConviteLinkCriador", fields: [criadoPorId], references: [id], onDelete: Cascade)
   token       String    @unique
   cargo       String    @default("membro")
+  papel       PapelColaborador @default(MUSICO)
   max_usos    Int
   usos        Int       @default(0)
   expira_em   DateTime
@@ -203,7 +220,8 @@ model Colaborador {
   projetoId String  @db.Uuid
   projeto   Projeto @relation(fields: [projetoId], references: [id], onDelete: Cascade)
 
-  cargo    String   @default("membro")
+  cargo    String           @default("membro")
+  papel    PapelColaborador @default(MUSICO)
   joinedAt DateTime @default(now())
 
   @@unique([userId, projetoId])
@@ -234,6 +252,7 @@ model Camada {
   currentVersion   LayerVersion?  @relation("CurrentVersion", fields: [currentVersionId], references: [id])
   versions         LayerVersion[]
   branches         LayerBranch[]
+  comentarios      Comentario[]
 
   createdAt DateTime @default(now())
 
@@ -349,4 +368,24 @@ enum NotificationType {
   NEW_FOLLOWER
   PROJECT_RELEASED
   NEW_LIKE
+  NEW_COMMENT
+}
+
+// Comentário preso a um instante (em segundos) do áudio de uma camada.
+model Comentario {
+  id           String   @id @default(uuid()) @db.Uuid
+  camadaId     String   @db.Uuid
+  camada       Camada   @relation(fields: [camadaId], references: [id], onDelete: Cascade)
+  autorId      String   @db.Uuid
+  autor        User     @relation("ComentariosAutor", fields: [autorId], references: [id], onDelete: Cascade)
+  segundos     Float
+  texto        String
+  // Versão da camada que estava sendo ouvida quando o comentário foi feito.
+  versaoNumero Int?
+  resolvido    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([camadaId, segundos])
+  @@index([autorId])
 }

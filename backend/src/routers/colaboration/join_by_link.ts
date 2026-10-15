@@ -76,7 +76,7 @@ const join_by_link: FastifyPluginAsyncTypebox = async (Fastify) => {
                 if (count === 0) throw new LinkEsgotadoError();
 
                 await tx.colaborador.create({
-                    data: { userId, projetoId: link.projetoId, cargo: link.cargo }
+                    data: { userId, projetoId: link.projetoId, cargo: link.cargo, papel: link.papel }
                 });
             });
         } catch (err) {

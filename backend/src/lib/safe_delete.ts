@@ -25,10 +25,24 @@ function collectDeletablePaths(Fastify: FastifyInstance, refs: AudioRef[]): stri
     return [...paths];
 }
 
-async function deleteOwnedAudios(Fastify: FastifyInstance, refs: AudioRef[]): Promise<void> {
+/**
+ * Apaga os arquivos em "melhor esforço": uma falha não interrompe os demais nem a operação de quem chamou.
+ * Deve rodar DEPOIS da alteração no banco, para que um erro do Storage nunca deixe o registro vivo com áudio já apagado.
+ * Devolve os paths que não puderam ser apagados (ficam órfãos no bucket e são registrados no log).
+ */
+async function deleteOwnedAudios(Fastify: FastifyInstance, refs: AudioRef[]): Promise<string[]> {
+    const falhas: string[] = [];
+
     for (const path of collectDeletablePaths(Fastify, refs)) {
-        await Fastify.storage.deleteAudio(path);
+        try {
+            await Fastify.storage.deleteAudio(path);
+        } catch (err) {
+            falhas.push(path);
+            Fastify.log.error(`Storage: falha ao apagar ${path} (ficou órfão no bucket): ${err}`);
+        }
     }
+
+    return falhas;
 }
 
 export { deleteOwnedAudios, collectDeletablePaths, type AudioRef };

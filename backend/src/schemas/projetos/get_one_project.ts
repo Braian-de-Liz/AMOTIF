@@ -20,6 +20,9 @@ const schema_details_project = {
                     audio_guia: Type.String(),
                     descricao: Type.Union([Type.String(), Type.Null()]),
                     escala: Type.Union([Type.String(), Type.Null()]),
+                    status: Type.String(),
+                    // Papel de quem está vendo: DONO, PRODUTOR, MUSICO, OUVINTE ou null (não participa).
+                    meu_papel: Type.Union([Type.String(), Type.Null()]),
                     createdAt: Type.String({ format: 'date-time' }),
                     autor: Type.Object({
                         id: Type.String(),
@@ -38,6 +41,7 @@ const schema_details_project = {
                         esta_aprovada: Type.Boolean(),
                         createdAt: Type.String({ format: 'date-time' }),
                         autor: Type.Object({
+                            id: Type.String(),
                             nome_completo: Type.String()
                         }),
                         versaoAtual: Type.Union([
