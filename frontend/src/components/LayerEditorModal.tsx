@@ -77,7 +77,6 @@ function LayerEditorModal({ layerId, audioUrl, nomeTrilha, isOpen, onClose, onVe
 
             <AudioEditor
                 audioUrl={audioUrl}
-                audioDuration={0}
                 onEdited={handleEdited}
             />
 

@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { History, RotateCcw, Loader2, X, Undo2, Play, GitBranch } from 'lucide-react';
 import { BranchManager } from './BranchManager';
+import { useFeedback } from '../contexts/FeedbackContext';
 
 interface VersionAutor {
     id: string
@@ -36,6 +38,7 @@ interface LayerVersionPanelProps {
 }
 
 function LayerVersionPanel({ layerId, isOpen, onClose, onRollback, onRestoreInPlace, onOpenDetail }: LayerVersionPanelProps) {
+    const feedback = useFeedback();
     const [versoes, setVersoes] = useState<Version[]>([]);
     const [loading, setLoading] = useState(true);
     const [rollbacking, setRollbacking] = useState<string | null>(null);
@@ -77,10 +80,10 @@ function LayerVersionPanel({ layerId, isOpen, onClose, onRollback, onRestoreInPl
                 onClose();
             } else {
                 const data = await res.json();
-                alert(data.mensagem || 'Erro ao fazer rollback');
+                feedback.error(data.mensagem || 'Erro ao fazer rollback');
             }
         } catch (err) {
-            alert('Erro ao conectar ao servidor');
+            feedback.error('Erro ao conectar ao servidor');
         } finally {
             setRollbacking(null);
         }
@@ -99,10 +102,10 @@ function LayerVersionPanel({ layerId, isOpen, onClose, onRollback, onRestoreInPl
                 onClose();
             } else {
                 const data = await res.json();
-                alert(data.mensagem || 'Erro ao restaurar vers\u00e3o');
+                feedback.error(data.mensagem || 'Erro ao restaurar versão');
             }
         } catch (err) {
-            alert('Erro ao conectar ao servidor');
+            feedback.error('Erro ao conectar ao servidor');
         } finally {
             setRestoringInPlace(null);
         }
@@ -139,7 +142,7 @@ function LayerVersionPanel({ layerId, isOpen, onClose, onRollback, onRestoreInPl
                             <GitBranch size={16} /> Branches
                         </button>
                     </div>
-                    <button className="btn-icon" onClick={onClose}>
+                    <button className="btn-icon" onClick={onClose} aria-label="Fechar">
                         <X size={18} />
                     </button>
                 </div>
@@ -157,7 +160,20 @@ function LayerVersionPanel({ layerId, isOpen, onClose, onRollback, onRestoreInPl
                             ) : (
                                 <div className="version-list">
                                     {versoes.map((v) => (
-                                        <div key={v.id} className="version-item" onClick={() => onOpenDetail?.(v)}>
+                                        <div
+                                            key={v.id}
+                                            className="version-item"
+                                            role="button"
+                                            tabIndex={0}
+                                            onClick={() => onOpenDetail?.(v)}
+                                            onKeyDown={(e) => {
+                                                if (e.target !== e.currentTarget) return;
+                                                if (e.key === 'Enter' || e.key === ' ') {
+                                                    e.preventDefault();
+                                                    onOpenDetail?.(v);
+                                                }
+                                            }}
+                                        >
                                             <div className="version-item-header">
                                                 <span className="version-number">v{v.versionNumber}</span>
                                                 {v.tag && <span className="version-tag">{v.tag}</span>}

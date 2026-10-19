@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { Mic, Square, Play, Pause } from 'lucide-react';
+import { openMicStream, recorderOptions } from '../utility/micCapture';
 
 interface AudioRecorderProps {
     onRecordingComplete: (blob: Blob, duration: number) => void
@@ -98,7 +99,7 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
 
     const requestMicPermission = useCallback(async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const stream = await openMicStream();
             streamRef.current = stream;
 
             const audioContext = new AudioContext();
@@ -128,11 +129,10 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
         elapsedMsRef.current = 0;
         setElapsedTime(0);
 
-        const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-            ? 'audio/webm;codecs=opus'
-            : 'audio/webm';
+        const options = recorderOptions();
+        const mimeType = options.mimeType;
 
-        const recorder = new MediaRecorder(streamRef.current!, { mimeType });
+        const recorder = new MediaRecorder(streamRef.current!, options);
         mediaRecorderRef.current = recorder;
 
         recorder.ondataavailable = (e) => {
@@ -335,7 +335,7 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
                     className="btn-transport"
                     disabled={!isRecording}
                     onClick={isPaused ? resumeRecording : pauseRecording}
-                    title={isPaused ? 'Retomar' : 'Pausar'}
+                    title={isPaused ? 'Retomar' : 'Pausar'} aria-label={isPaused ? 'Retomar' : 'Pausar'}
                 >
                     {isPaused ? <Play size={18} /> : <Pause size={18} />}
                 </button>
@@ -343,7 +343,7 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
                 <button
                     className={`btn-record ${isRecording ? 'recording' : ''}`}
                     onClick={isRecording ? stopRecording : startRecording}
-                    title={isRecording ? 'Parar gravação' : 'Iniciar gravação'}
+                    title={isRecording ? 'Parar gravação' : 'Iniciar gravação'} aria-label={isRecording ? 'Parar gravação' : 'Iniciar gravação'}
                 >
                     {isRecording && <Square size={20} color="#fff" />}
                 </button>
@@ -352,7 +352,7 @@ function AudioRecorder({ onRecordingComplete }: AudioRecorderProps) {
                     className="btn-transport"
                     disabled={!isRecording}
                     onClick={stopRecording}
-                    title="Parar"
+                    title="Parar" aria-label="Parar"
                 >
                     <Square size={18} />
                 </button>

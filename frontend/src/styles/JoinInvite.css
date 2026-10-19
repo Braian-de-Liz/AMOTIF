@@ -25,7 +25,7 @@
 }
 
 .join-invite-card h1 {
-    font-family: 'Bitter', Georgia, serif;
+    font-family: var(--font-display);
     font-size: 1.75rem;
     color: var(--verde-tinta);
     margin-bottom: 12px;

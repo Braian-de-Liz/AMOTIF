@@ -1,0 +1,500 @@
+/* AudioEditor.css — editor de áudio (usado no Studio e no Novo Studio).
+   Fica fora de NovoStudio.css para carregar junto com o componente, onde quer que ele apareça. */
+
+.step-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.6rem;
+    margin-top: var(--space-lg);
+}
+
+/* Editor area */
+.editor-area {
+    background: var(--branco);
+    border-radius: var(--radius-xl);
+    padding: var(--space-xl);
+    border: 1px solid rgba(92, 122, 68, 0.08);
+    box-shadow: var(--sombra-card);
+}
+
+.editor-waveform-container {
+    width: 100%;
+    min-height: 150px;
+    background: var(--fundo-secundario);
+    border: 1px solid var(--borda);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    margin-bottom: var(--space-xs);
+    position: relative;
+}
+
+.editor-waveform-status {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-sm);
+    color: var(--texto-secundario);
+    pointer-events: none;
+}
+
+.editor-waveform-status.error {
+    color: var(--erro);
+}
+
+.editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-sm);
+}
+
+.editor-toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.editor-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    background: transparent;
+    border: 1px solid var(--borda);
+    border-radius: var(--radius-base);
+    color: var(--verde-musgo);
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.editor-icon-btn:hover:not(:disabled) {
+    background: var(--verde-pastel);
+    border-color: var(--verde-medio);
+}
+
+.editor-icon-btn.primary {
+    background: var(--verde-musgo);
+    border-color: var(--verde-musgo);
+    color: var(--branco);
+}
+
+.editor-icon-btn.primary:hover:not(:disabled) {
+    background: #506b3a;
+}
+
+.editor-icon-btn.active {
+    background: var(--verde-pastel);
+    border-color: var(--accent-latao);
+    color: var(--accent-latao);
+}
+
+.editor-icon-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.editor-clock {
+    margin-left: var(--space-xs);
+    font-family: var(--font-mono);
+    font-size: var(--text-sm);
+    font-variant-numeric: tabular-nums;
+    color: var(--texto);
+}
+
+.editor-clock-total {
+    color: var(--texto-secundario);
+}
+
+.editor-zoom {
+    width: 8rem;
+}
+
+.editor-hint {
+    margin: 0 0 var(--space-lg);
+    font-size: var(--text-xs);
+    line-height: 1.7;
+    color: var(--texto-secundario);
+}
+
+.editor-hint kbd {
+    padding: 0 0.35rem;
+    background: var(--fundo-secundario);
+    border: 1px solid var(--borda);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+}
+
+.editor-mode {
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 0.2rem;
+    background: var(--fundo-secundario);
+    border: 1px solid var(--borda);
+    border-radius: var(--radius-base);
+}
+
+.editor-mode-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    background: transparent;
+    border: none;
+    border-radius: calc(var(--radius-base) - 2px);
+    color: var(--texto-secundario);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.editor-mode-btn.active {
+    background: var(--verde-musgo);
+    color: var(--branco);
+}
+
+.editor-mode-btn.remove.active {
+    background: var(--erro);
+}
+
+.editor-result {
+    margin: 0;
+    font-size: var(--text-sm);
+    color: var(--texto-secundario);
+}
+
+.editor-result strong {
+    color: var(--texto);
+    font-variant-numeric: tabular-nums;
+}
+
+.trim-input-row {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.trim-input-row .trim-input {
+    min-width: 0;
+    flex: 1;
+}
+
+.trim-set-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.5rem;
+    background: transparent;
+    border: 1px solid var(--borda);
+    border-radius: var(--radius-sm);
+    color: var(--verde-musgo);
+    cursor: pointer;
+}
+
+.trim-set-btn:hover {
+    background: var(--verde-pastel);
+}
+
+.editor-select-all {
+    align-self: flex-end;
+}
+
+.editor-controls {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+}
+
+.editor-slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.editor-slider-label {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: var(--text-sm);
+    font-weight: 500;
+    color: var(--texto);
+}
+
+.editor-slider-label span {
+    color: var(--verde-musgo);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+}
+
+.editor-range {
+    width: 100%;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--fundo-secundario);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.editor-range:hover {
+    height: 7px;
+}
+
+.editor-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--verde-musgo);
+    border: 2px solid var(--branco);
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    transition: all 0.15s ease;
+}
+
+.editor-range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+.trim-inputs {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+}
+
+.trim-input-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2xs);
+}
+
+.trim-input-group label {
+    font-size: var(--text-xs);
+    color: var(--texto-secundario);
+    font-weight: 500;
+}
+
+.trim-input {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--borda);
+    border-radius: var(--radius-sm);
+    background: var(--fundo);
+    color: var(--texto);
+    font-size: var(--text-sm);
+    font-family: var(--font-mono);
+    transition: all 0.15s ease;
+}
+
+.trim-input:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(92, 122, 68, 0.18);
+    border-color: var(--verde-medio);
+}
+
+.trim-separator {
+    color: var(--placeholder);
+    font-size: var(--text-sm);
+    margin-top: 1.2rem;
+}
+
+.editor-preview-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.55rem 1rem;
+    background: transparent;
+    border: 1px solid rgba(92, 122, 68, 0.14);
+    color: var(--verde-musgo);
+    border-radius: var(--radius-base);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    align-self: flex-start;
+}
+
+.editor-preview-btn:hover {
+    background: var(--verde-pastel);
+    border-color: var(--verde-medio);
+}
+
+/* Editor de áudio — seções */
+.editor-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--borda);
+}
+
+.editor-section:first-child {
+    padding-top: 0;
+    border-top: none;
+}
+
+.editor-section-title {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--texto-secundario);
+}
+
+.editor-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-md) var(--space-xl);
+}
+
+/* Slider também no Firefox (o thumb WebKit já estava estilizado acima) */
+.editor-range::-moz-range-track {
+    height: 6px;
+    background: var(--fundo-secundario);
+    border-radius: 3px;
+}
+
+.editor-range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--verde-musgo);
+    border: 2px solid var(--branco);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    cursor: pointer;
+}
+
+.editor-range:focus-visible {
+    outline: 2px solid var(--verde-medio);
+    outline-offset: 3px;
+}
+
+.editor-slider-label label {
+    color: var(--texto);
+}
+
+/* Gravação de extensão */
+.editor-rec {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.editor-rec-canvas {
+    width: 100%;
+    height: 60px;
+    border-radius: var(--radius-base);
+    background: var(--fundo-secundario);
+}
+
+.editor-rec-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
+.editor-rec-time {
+    font-family: var(--font-mono);
+    font-size: var(--text-base);
+    font-weight: 500;
+    color: var(--verde-musgo);
+}
+
+.editor-rec-done {
+    font-size: var(--text-sm);
+    color: var(--texto-secundario);
+}
+
+.editor-rec-stop {
+    background: var(--erro);
+    border-color: var(--erro);
+    color: var(--branco);
+}
+
+.editor-rec-stop:hover {
+    background: var(--erro-texto);
+    border-color: var(--erro-texto);
+}
+
+.editor-rec-remove {
+    padding: 0.3rem 0.6rem;
+    font-size: var(--text-xs);
+}
+
+.editor-actions-mobile {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+}
+
+.editor-preview-btn:focus-visible,
+.editor-icon-btn:focus-visible,
+.editor-mode-btn:focus-visible,
+.trim-set-btn:focus-visible {
+    outline: 2px solid var(--verde-medio);
+    outline-offset: 2px;
+}
+
+@media (max-width: 720px) {
+    .editor-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    /* Editor buttons full-width */
+    .editor-actions-mobile {
+        flex-direction: column;
+    }
+
+    .editor-actions-mobile .editor-preview-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .trim-inputs {
+        flex-direction: column;
+    }
+
+    .trim-separator {
+        margin-top: 0;
+        transform: rotate(90deg);
+    }
+
+    .step-actions {
+        flex-direction: column;
+    }
+
+    .step-actions button {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Campos de tempo: quebram de linha em vez de espremer (o modal é estreito) */
+.trim-inputs {
+    flex-wrap: wrap;
+    align-items: flex-end;
+}
+
+.trim-input-group {
+    flex: 1 1 8.5rem;
+    min-width: 0;
+}
+
+.trim-separator {
+    display: none;
+}
+
+.editor-select-all {
+    flex: 0 0 auto;
+}

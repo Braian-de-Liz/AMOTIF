@@ -1,13 +1,39 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
-import { Play, Pause, Scissors, Volume2, Mic, Square, Loader2 } from 'lucide-react';
+import { Play, Pause, Scissors, Volume2, Mic, Square, Loader2, Repeat, ZoomIn, ZoomOut, Maximize2, Headphones, Trash2, Crosshair } from 'lucide-react';
+import { openMicStream, recorderOptions } from '../utility/micCapture';
+import { useFeedback } from '../contexts/FeedbackContext';
+import '../styles/AudioEditor.css';
+import {
+    applyFades,
+    clampSelection,
+    concatChannels,
+    formatTimePrecise,
+    parseTime,
+    removeRange,
+    sliceChannels,
+    zoomToPxPerSec,
+    type Channels,
+} from '../utility/audioEdit';
 
 interface AudioEditorProps {
     audioBlob?: Blob
     audioUrl?: string
-    audioDuration: number
+    /** Só um palpite inicial (a duração real vem do áudio decodificado). */
+    audioDuration?: number
     onEdited: (blob: Blob) => void
     onBack?: () => void
 }
+
+type EditMode = 'keep' | 'remove';
+
+const REGION_COLORS: Record<EditMode, string> = {
+    keep: 'rgba(92, 122, 68, 0.28)',
+    remove: 'rgba(198, 32, 32, 0.25)',
+};
+
+/** Quanto as setas andam no editor, em segundos. */
+const SKIP_SECONDS = 1;
+const MAX_PX_PER_SEC = 1200;
 
 function encodeWav(audioBuffer: AudioBuffer): Blob {
     const numChannels = audioBuffer.numberOfChannels;
@@ -64,37 +90,136 @@ function encodeWav(audioBuffer: AudioBuffer): Blob {
     return new Blob([buffer], { type: 'audio/wav' });
 }
 
-function concatenateBuffers(ctx: OfflineAudioContext, buffers: AudioBuffer[]): AudioBuffer {
-    if (buffers.length === 1) return buffers[0];
+// Gate suave: segue o envelope do sinal e abaixa o ganho com rampa (~5 ms) quando
+// ele cai abaixo do limiar. Cortar amostra a amostra gera chiado e distorção.
+function applyNoiseGate(buffer: AudioBuffer, amount: number) {
+    if (amount <= 0) return;
+    const threshold = (amount / 100) * 0.1;
+    const floorGain = 1 - amount / 100;
+    const sr = buffer.sampleRate;
+    const smooth = 1 - Math.exp(-1 / (0.005 * sr));
+    const release = Math.exp(-1 / (0.05 * sr));
+    const channels = Array.from({ length: buffer.numberOfChannels }, (_, c) => buffer.getChannelData(c));
 
-    const totalLength = buffers.reduce((acc, b) => acc + b.length, 0);
-    const sampleRate = buffers[0].sampleRate;
-    const numChannels = Math.max(...buffers.map(b => b.numberOfChannels));
-
-    const result = ctx.createBuffer(numChannels, totalLength, sampleRate);
-    let offset = 0;
-
-    for (const buf of buffers) {
-        for (let ch = 0; ch < numChannels; ch++) {
-            const src = ch < buf.numberOfChannels ? buf.getChannelData(ch) : buf.getChannelData(0);
-            const dest = result.getChannelData(ch);
-            dest.set(src, offset);
-        }
-        offset += buf.length;
+    let envelope = 0;
+    let gain = 1;
+    for (let i = 0; i < buffer.length; i++) {
+        let level = 0;
+        for (const ch of channels) level = Math.max(level, Math.abs(ch[i]));
+        envelope = Math.max(level, envelope * release);
+        gain += ((envelope < threshold ? floorGain : 1) - gain) * smooth;
+        for (const ch of channels) ch[i] *= gain;
     }
-
-    return result;
 }
 
-function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: AudioEditorProps) {
-    const [trimStart, setTrimStart] = useState(0);
-    const [trimEnd, setTrimEnd] = useState(100);
+// Se o ganho/EQ passar de 1.0, reduz tudo proporcionalmente em vez de cortar (clipping).
+function normalizeIfClipping(buffer: AudioBuffer) {
+    let peak = 0;
+    for (let c = 0; c < buffer.numberOfChannels; c++) {
+        const data = buffer.getChannelData(c);
+        for (let i = 0; i < data.length; i++) peak = Math.max(peak, Math.abs(data[i]));
+    }
+    if (peak <= 1) return;
+    const scale = 0.98 / peak;
+    for (let c = 0; c < buffer.numberOfChannels; c++) {
+        const data = buffer.getChannelData(c);
+        for (let i = 0; i < data.length; i++) data[i] *= scale;
+    }
+}
+
+interface TimeFieldProps {
+    id: string
+    label: string
+    value: number
+    min: number
+    max: number
+    readOnly?: boolean
+    onCommit?: (seconds: number) => void
+    /** Botão "usar a posição do cursor". */
+    onSetFromPlayhead?: () => void
+}
+
+/** Campo de tempo editável: Enter/blur confirma, ↑/↓ ajustam em centésimos (Shift = décimos). */
+function TimeField({ id, label, value, min, max, readOnly, onCommit, onSetFromPlayhead }: TimeFieldProps) {
+    const [text, setText] = useState(formatTimePrecise(value));
+    const [editing, setEditing] = useState(false);
+
+    useEffect(() => {
+        if (!editing) setText(formatTimePrecise(value));
+    }, [value, editing]);
+
+    const commit = () => {
+        setEditing(false);
+        const parsed = parseTime(text);
+        if (parsed === null) {
+            setText(formatTimePrecise(value));
+            return;
+        }
+        onCommit?.(Math.min(max, Math.max(min, parsed)));
+    };
+
+    const onKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            commit();
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            const step = (e.shiftKey ? 0.1 : 0.01) * (e.key === 'ArrowUp' ? 1 : -1);
+            onCommit?.(Math.min(max, Math.max(min, value + step)));
+        }
+    };
+
+    return (
+        <div className="trim-input-group">
+            <label htmlFor={id}>{label}</label>
+            <div className="trim-input-row">
+                <input
+                    id={id}
+                    type="text"
+                    inputMode="decimal"
+                    className="trim-input"
+                    value={text}
+                    readOnly={readOnly}
+                    onFocus={() => setEditing(true)}
+                    onChange={e => setText(e.target.value)}
+                    onBlur={commit}
+                    onKeyDown={onKeyDown}
+                    aria-label={`${label} (minutos:segundos.centésimos)`}
+                />
+                {onSetFromPlayhead && (
+                    <button
+                        type="button"
+                        className="trim-set-btn"
+                        onClick={onSetFromPlayhead}
+                        title={`${label} = posição do cursor`}
+                        aria-label={`Usar posição do cursor como ${label.toLowerCase()}`}
+                    >
+                        <Crosshair size={14} />
+                    </button>
+                )}
+            </div>
+        </div>
+    );
+}
+
+function AudioEditor({ audioBlob, audioUrl, onEdited, onBack }: AudioEditorProps) {
+    const feedback = useFeedback();
+    const [duration, setDuration] = useState(0);
+    const [selStart, setSelStart] = useState(0);
+    const [selEnd, setSelEnd] = useState(0);
+    const [mode, setMode] = useState<EditMode>('keep');
+    const [fadeIn, setFadeIn] = useState(0);
+    const [fadeOut, setFadeOut] = useState(0);
+    const [zoom, setZoom] = useState(0);
+    const [loop, setLoop] = useState(false);
     const [volumeGain, setVolumeGain] = useState(100);
     const [bassGain, setBassGain] = useState(0);
     const [trebleGain, setTrebleGain] = useState(0);
     const [noiseReduction, setNoiseReduction] = useState(0);
     const [isPlaying, setIsPlaying] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [loadError, setLoadError] = useState(false);
+    const [previewState, setPreviewState] = useState<'idle' | 'rendering' | 'playing'>('idle');
 
     const [isRecording, setIsRecording] = useState(false);
     const [isPaused, setIsPaused] = useState(false);
@@ -105,6 +230,10 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const wavesurferRef = useRef<any>(null);
+    const regionRef = useRef<any>(null);
+    const sourceRef = useRef<AudioBuffer | null>(null);
+    const clockRef = useRef<HTMLSpanElement | null>(null);
+    const loopRef = useRef(false);
     const audioUrlRef = useRef<string | null>(null);
     const mediaRecorderRef = useRef<MediaRecorder | null>(null);
     const chunksRef = useRef<Blob[]>([]);
@@ -116,18 +245,18 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const analyserRef = useRef<AnalyserNode | null>(null);
     const animFrameRef = useRef<number>(0);
-    const previewContainerRef = useRef<HTMLDivElement | null>(null);
     const previewWaveSurferRef = useRef<any>(null);
     const audioContextRef = useRef<AudioContext | null>(null);
+    const previewAudioRef = useRef<HTMLAudioElement | null>(null);
+    const previewUrlRef = useRef<string | null>(null);
 
-    const trimStartSec = (trimStart / 100) * audioDuration;
-    const trimEndSec = (trimEnd / 100) * audioDuration;
-    const trimmedDuration = trimEndSec - trimStartSec;
+    useEffect(() => { loopRef.current = loop; }, [loop]);
 
-    const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    const selectionLength = Math.max(0, selEnd - selStart);
+    const resultDuration = (mode === 'keep' ? selectionLength : Math.max(0, duration - selectionLength)) + recordedDuration;
+    const fitPxPerSec = () => {
+        const width = containerRef.current?.clientWidth ?? 0;
+        return duration > 0 ? width / duration : 0;
     };
 
     const formatTimeMs = (ms: number) => {
@@ -137,13 +266,19 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
         return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
     };
 
+    // ---------- waveform + régua + seleção arrastável ----------
     useEffect(() => {
         if (!containerRef.current) return;
 
         let cancelled = false;
+        setLoadError(false);
 
         async function initWaveSurfer() {
-            const { default: WaveSurferModule } = await import('wavesurfer.js');
+            const [{ default: WaveSurferModule }, { default: RegionsPlugin }, { default: TimelinePlugin }] = await Promise.all([
+                import('wavesurfer.js'),
+                import('wavesurfer.js/plugins/regions'),
+                import('wavesurfer.js/plugins/timeline'),
+            ]);
             if (cancelled || !containerRef.current) return;
 
             const url = audioBlob ? URL.createObjectURL(audioBlob) : audioUrl!;
@@ -151,26 +286,68 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
 
             const ws = WaveSurferModule.create({
                 container: containerRef.current,
-                waveColor: '#22c55e',
-                progressColor: '#1f2937',
-                cursorColor: '#fff',
+                waveColor: '#7a9f6a',
+                progressColor: '#3f5a2c',
+                cursorColor: '#8a6a14',
+                cursorWidth: 2,
                 barWidth: 2,
                 barGap: 1,
                 barRadius: 3,
-                height: 140,
+                height: 150,
                 normalize: true,
                 backend: 'WebAudio',
+                minPxPerSec: 0,
             });
+
+            const regions = ws.registerPlugin(RegionsPlugin.create());
+            ws.registerPlugin(TimelinePlugin.create({
+                height: 22,
+                style: { fontSize: '11px', color: '#55684c' },
+            }));
 
             ws.load(url);
 
             ws.on('ready', () => {
-                if (!cancelled) setTrimEnd(100);
+                if (cancelled) return;
+                const decoded = ws.getDecodedData();
+                const total = ws.getDuration();
+                sourceRef.current = decoded;
+                setDuration(total);
+                setSelStart(0);
+                setSelEnd(total);
+
+                regionRef.current = regions.addRegion({
+                    start: 0,
+                    end: total,
+                    color: REGION_COLORS.keep,
+                    drag: true,
+                    resize: true,
+                    minLength: 0.05,
+                });
             });
 
+            ws.on('error', () => { if (!cancelled) setLoadError(true); });
             ws.on('play', () => { if (!cancelled) setIsPlaying(true); });
             ws.on('pause', () => { if (!cancelled) setIsPlaying(false); });
             ws.on('finish', () => { if (!cancelled) setIsPlaying(false); });
+            ws.on('timeupdate', (time: number) => {
+                if (clockRef.current) clockRef.current.textContent = formatTimePrecise(time);
+            });
+            ws.on('interaction', (time: number) => {
+                if (clockRef.current) clockRef.current.textContent = formatTimePrecise(time);
+            });
+
+            const syncSelection = (region: any) => {
+                if (cancelled || region !== regionRef.current) return;
+                setSelStart(region.start);
+                setSelEnd(region.end);
+            };
+            regions.on('region-update', syncSelection);
+            regions.on('region-updated', syncSelection);
+            // Em repetição, ao sair da seleção volta para o começo dela.
+            regions.on('region-out', (region: any) => {
+                if (!cancelled && loopRef.current && region === regionRef.current) region.play();
+            });
 
             wavesurferRef.current = ws;
         }
@@ -179,6 +356,8 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
 
         return () => {
             cancelled = true;
+            regionRef.current = null;
+            sourceRef.current = null;
             if (wavesurferRef.current) {
                 wavesurferRef.current.destroy();
                 wavesurferRef.current = null;
@@ -188,6 +367,36 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
             }
         };
     }, [audioBlob, audioUrl]);
+
+    // A seleção digitada/ajustada por botão vai para a região desenhada (e a cor segue o modo).
+    useEffect(() => {
+        const region = regionRef.current;
+        if (!region) return;
+        if (region.start !== selStart || region.end !== selEnd) region.setOptions({ start: selStart, end: selEnd });
+        region.setOptions({ color: REGION_COLORS[mode] });
+    }, [selStart, selEnd, mode]);
+
+    // Zoom: o nível 0 cabe a faixa inteira na largura; 100 chega a MAX_PX_PER_SEC.
+    useEffect(() => {
+        const ws = wavesurferRef.current;
+        if (!ws || duration <= 0) return;
+        const fit = fitPxPerSec();
+        ws.zoom(zoom === 0 ? 0 : zoomToPxPerSec(zoom, fit, MAX_PX_PER_SEC));
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [zoom, duration]);
+
+    // Ctrl + roda do mouse aproxima/afasta a forma de onda.
+    useEffect(() => {
+        const el = containerRef.current;
+        if (!el) return;
+        const onWheel = (e: WheelEvent) => {
+            if (!e.ctrlKey) return;
+            e.preventDefault();
+            setZoom(z => Math.min(100, Math.max(0, z + (e.deltaY < 0 ? 5 : -5))));
+        };
+        el.addEventListener('wheel', onWheel, { passive: false });
+        return () => el.removeEventListener('wheel', onWheel);
+    }, []);
 
     useEffect(() => {
         return () => {
@@ -200,6 +409,8 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
             }
             if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
             if (previewWaveSurferRef.current) previewWaveSurferRef.current.destroy();
+            previewAudioRef.current?.pause();
+            if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
         };
     }, []);
 
@@ -261,55 +472,98 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
         }
     }, []);
 
-    const handleTrimStartChange = (value: number) => {
-        if (value < trimEnd - 1) {
-            setTrimStart(value);
-        }
-    };
+    // ---------- seleção ----------
+    const setSelection = useCallback((start: number, end: number) => {
+        const next = clampSelection(start, end, duration);
+        setSelStart(next.start);
+        setSelEnd(next.end);
+    }, [duration]);
 
-    const handleTrimEndChange = (value: number) => {
-        if (value > trimStart + 1) {
-            setTrimEnd(value);
-        }
-    };
+    const playheadTime = () => wavesurferRef.current?.getCurrentTime() ?? 0;
+
+    const setStartFromPlayhead = useCallback(() => {
+        setSelection(playheadTime(), selEnd > playheadTime() ? selEnd : duration);
+    }, [setSelection, selEnd, duration]);
+
+    const setEndFromPlayhead = useCallback(() => {
+        setSelection(selStart < playheadTime() ? selStart : 0, playheadTime());
+    }, [setSelection, selStart]);
+
+    const selectAll = useCallback(() => setSelection(0, duration), [setSelection, duration]);
+
+    // ---------- reprodução ----------
+    const stopResultPreview = useCallback(() => {
+        previewAudioRef.current?.pause();
+        setPreviewState('idle');
+    }, []);
 
     const togglePlayback = useCallback(() => {
-        if (!wavesurferRef.current) return;
-
-        if (isPlaying) {
-            wavesurferRef.current.pause();
-        } else {
-            const ws = wavesurferRef.current;
-            const duration = ws.getDuration();
-            const startSec = (trimStart / 100) * duration;
-            ws.seekTo(startSec / duration);
-            ws.play();
-        }
-    }, [isPlaying, trimStart]);
-
-    const handlePreviewTrim = useCallback(() => {
-        if (!wavesurferRef.current) return;
-
         const ws = wavesurferRef.current;
-        const duration = ws.getDuration();
-        const startSec = (trimStart / 100) * duration;
-        const endSec = (trimEnd / 100) * duration;
+        if (!ws) return;
+        stopResultPreview();
+        ws.playPause();
+    }, [stopResultPreview]);
 
-        ws.seekTo(startSec / duration);
-        ws.play();
+    const playSelection = useCallback(() => {
+        const region = regionRef.current;
+        if (!region) return;
+        stopResultPreview();
+        region.play();
+    }, [stopResultPreview]);
 
-        const checkEnd = () => {
-            if (ws.getCurrentTime() >= endSec) {
-                ws.pause();
-                ws.un('audioprocess', checkEnd);
+    const seekBy = useCallback((delta: number) => {
+        const ws = wavesurferRef.current;
+        if (!ws || duration <= 0) return;
+        ws.setTime(Math.min(duration, Math.max(0, ws.getCurrentTime() + delta)));
+    }, [duration]);
+
+    // Atalhos do editor; não roubam teclas de quem digita nem o Espaço de um botão focado.
+    useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.ctrlKey || e.metaKey || e.altKey) return;
+            const target = e.target instanceof Element ? e.target : null;
+            if (target?.closest('input, textarea, select, [contenteditable="true"]')) return;
+            if (e.key === ' ' && target?.closest('button, a, [role="button"]')) return;
+
+            switch (e.key) {
+                case ' ':
+                    e.preventDefault();
+                    togglePlayback();
+                    break;
+                case '[':
+                    e.preventDefault();
+                    setStartFromPlayhead();
+                    break;
+                case ']':
+                    e.preventDefault();
+                    setEndFromPlayhead();
+                    break;
+                case 'l':
+                case 'L':
+                    setLoop(v => !v);
+                    break;
+                case 'Home':
+                    e.preventDefault();
+                    wavesurferRef.current?.setTime(0);
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    seekBy(-SKIP_SECONDS);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    seekBy(SKIP_SECONDS);
+                    break;
             }
         };
-        ws.on('audioprocess', checkEnd);
-    }, [trimStart, trimEnd]);
+        document.addEventListener('keydown', onKeyDown);
+        return () => document.removeEventListener('keydown', onKeyDown);
+    }, [togglePlayback, setStartFromPlayhead, setEndFromPlayhead, seekBy]);
 
+    // ---------- gravação de extensão ----------
     const startRecording = useCallback(async () => {
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            const stream = await openMicStream();
             streamRef.current = stream;
 
             const audioContext = new AudioContext();
@@ -325,11 +579,10 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
             elapsedMsRef.current = 0;
             setElapsedTime(0);
 
-            const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
-                ? 'audio/webm;codecs=opus'
-                : 'audio/webm';
+            const options = recorderOptions();
+            const mimeType = options.mimeType;
 
-            const recorder = new MediaRecorder(stream, { mimeType });
+            const recorder = new MediaRecorder(stream, options);
             mediaRecorderRef.current = recorder;
 
             recorder.ondataavailable = (e) => {
@@ -358,9 +611,9 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
             startTimer();
             drawVisualizer();
         } catch {
-            alert('Não foi possível acessar o microfone.');
+            feedback.error('Não foi possível acessar o microfone. Verifique a permissão do navegador.');
         }
-    }, [startTimer, stopTimer, drawVisualizer, stopVisualizer]);
+    }, [startTimer, stopTimer, drawVisualizer, stopVisualizer, feedback]);
 
     const pauseRecording = useCallback(() => {
         if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
@@ -399,279 +652,313 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
         }
     }, []);
 
+    // ---------- renderização (a mesma para a prévia e para confirmar) ----------
+    const renderEdit = useCallback(async (): Promise<Blob> => {
+        const source = sourceRef.current;
+        if (!source) throw new Error('O áudio ainda está carregando.');
+
+        const sampleRate = source.sampleRate;
+        const original: Channels = Array.from({ length: source.numberOfChannels }, (_, c) => source.getChannelData(c));
+        const edited = mode === 'keep'
+            ? sliceChannels(original, sampleRate, selStart, selEnd)
+            : removeRange(original, sampleRate, selStart, selEnd);
+
+        const parts: Channels[] = [edited];
+        if (recordedBlob) {
+            // O contexto na taxa do original faz o decode reamostrar a extensão para ela.
+            const decodeCtx = new AudioContext({ sampleRate });
+            try {
+                const decoded = await decodeCtx.decodeAudioData(await recordedBlob.arrayBuffer());
+                parts.push(Array.from({ length: decoded.numberOfChannels }, (_, c) => decoded.getChannelData(c)));
+            } finally {
+                decodeCtx.close();
+            }
+        }
+
+        const merged = concatChannels(parts);
+        if (merged[0].length === 0) throw new Error('Não sobrou áudio com essa seleção.');
+
+        const numChannels = merged.length;
+        const offlineCtx = new OfflineAudioContext(numChannels, merged[0].length, sampleRate);
+        const buffer = offlineCtx.createBuffer(numChannels, merged[0].length, sampleRate);
+        merged.forEach((data, c) => buffer.copyToChannel(data as Float32Array<ArrayBuffer>, c));
+
+        // Uma única renderização (um OfflineAudioContext só renderiza uma vez):
+        // ganho -> graves -> agudos -> saída.
+        const node = offlineCtx.createBufferSource();
+        node.buffer = buffer;
+        const gainNode = offlineCtx.createGain();
+        gainNode.gain.value = volumeGain / 100;
+        let tail: AudioNode = node.connect(gainNode);
+
+        if (bassGain !== 0) {
+            const bassFilter = offlineCtx.createBiquadFilter();
+            bassFilter.type = 'lowshelf';
+            bassFilter.frequency.value = 80;
+            bassFilter.gain.value = bassGain;
+            tail = tail.connect(bassFilter);
+        }
+
+        if (trebleGain !== 0) {
+            const trebleFilter = offlineCtx.createBiquadFilter();
+            trebleFilter.type = 'highshelf';
+            trebleFilter.frequency.value = 6000;
+            trebleFilter.gain.value = trebleGain;
+            tail = tail.connect(trebleFilter);
+        }
+
+        tail.connect(offlineCtx.destination);
+        node.start();
+
+        const rendered = await offlineCtx.startRendering();
+        applyNoiseGate(rendered, noiseReduction);
+        applyFades(
+            Array.from({ length: rendered.numberOfChannels }, (_, c) => rendered.getChannelData(c)),
+            rendered.sampleRate,
+            fadeIn,
+            fadeOut,
+        );
+        normalizeIfClipping(rendered);
+        return encodeWav(rendered);
+    }, [mode, selStart, selEnd, recordedBlob, volumeGain, bassGain, trebleGain, noiseReduction, fadeIn, fadeOut]);
+
     const handleExport = useCallback(async () => {
         setIsProcessing(true);
-
         try {
-            const audioContext = new AudioContext();
-            const buffers: AudioBuffer[] = [];
-
-            if (audioBlob) {
-                const arrayBuffer = await audioBlob.arrayBuffer();
-                const fullBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-                const startSample = Math.floor((trimStart / 100) * fullBuffer.length);
-                const endSample = Math.floor((trimEnd / 100) * fullBuffer.length);
-                const newLength = endSample - startSample;
-
-                if (newLength > 0) {
-                    const trimmedBuffer = audioContext.createBuffer(
-                        fullBuffer.numberOfChannels,
-                        newLength,
-                        fullBuffer.sampleRate
-                    );
-
-                    for (let ch = 0; ch < fullBuffer.numberOfChannels; ch++) {
-                        const sourceData = fullBuffer.getChannelData(ch);
-                        const destData = trimmedBuffer.getChannelData(ch);
-                        for (let i = 0; i < newLength; i++) {
-                            destData[i] = sourceData[startSample + i];
-                        }
-                    }
-
-                    buffers.push(trimmedBuffer);
-                }
-            } else if (audioUrl) {
-                const response = await fetch(audioUrl);
-                const blob = await response.blob();
-                const arrayBuffer = await blob.arrayBuffer();
-                const fullBuffer = await audioContext.decodeAudioData(arrayBuffer);
-
-                const startSample = Math.floor((trimStart / 100) * fullBuffer.length);
-                const endSample = Math.floor((trimEnd / 100) * fullBuffer.length);
-                const newLength = endSample - startSample;
-
-                if (newLength > 0) {
-                    const trimmedBuffer = audioContext.createBuffer(
-                        fullBuffer.numberOfChannels,
-                        newLength,
-                        fullBuffer.sampleRate
-                    );
-
-                    for (let ch = 0; ch < fullBuffer.numberOfChannels; ch++) {
-                        const sourceData = fullBuffer.getChannelData(ch);
-                        const destData = trimmedBuffer.getChannelData(ch);
-                        for (let i = 0; i < newLength; i++) {
-                            destData[i] = sourceData[startSample + i];
-                        }
-                    }
-
-                    buffers.push(trimmedBuffer);
-                }
-            }
-
-            if (recordedBlob) {
-                const arrayBuffer = await recordedBlob.arrayBuffer();
-                const recBuffer = await audioContext.decodeAudioData(arrayBuffer);
-                buffers.push(recBuffer);
-            }
-
-            if (buffers.length === 0) {
-                setIsProcessing(false);
-                return;
-            }
-
-            const sampleRate = buffers[0].sampleRate;
-            const numChannels = Math.max(...buffers.map(b => b.numberOfChannels));
-            const totalLength = buffers.reduce((acc, b) => acc + b.length, 0);
-
-            const offlineCtx = new OfflineAudioContext(numChannels, totalLength, sampleRate);
-
-            const mergedBuffer = concatenateBuffers(offlineCtx, buffers);
-
-            const gain = volumeGain / 100;
-
-            const finalBuffer = offlineCtx.createBuffer(numChannels, mergedBuffer.length, sampleRate);
-
-            for (let ch = 0; ch < numChannels; ch++) {
-                const srcData = mergedBuffer.getChannelData(ch);
-                const destData = finalBuffer.getChannelData(ch);
-                for (let i = 0; i < srcData.length; i++) {
-                    destData[i] = srcData[i] * gain;
-                }
-            }
-
-            if (bassGain !== 0) {
-                const bassFilter = offlineCtx.createBiquadFilter();
-                bassFilter.type = 'lowshelf';
-                bassFilter.frequency.value = 80;
-                bassFilter.gain.value = bassGain;
-
-                const tempBuffer = offlineCtx.createBuffer(numChannels, finalBuffer.length, sampleRate);
-                for (let ch = 0; ch < numChannels; ch++) {
-                    tempBuffer.getChannelData(ch).set(finalBuffer.getChannelData(ch));
-                }
-
-                const source = offlineCtx.createBufferSource();
-                source.buffer = tempBuffer;
-                const merger = offlineCtx.createChannelMerger(numChannels);
-                const splitter = offlineCtx.createChannelSplitter(numChannels);
-
-                source.connect(splitter);
-                for (let ch = 0; ch < numChannels; ch++) {
-                    splitter.connect(bassFilter, ch);
-                    bassFilter.connect(merger, 0, ch);
-                }
-                merger.connect(offlineCtx.destination);
-                source.start();
-
-                const rendered = await offlineCtx.startRendering();
-                for (let ch = 0; ch < numChannels; ch++) {
-                    finalBuffer.getChannelData(ch).set(rendered.getChannelData(ch));
-                }
-            }
-
-            if (trebleGain !== 0) {
-                const trebleFilter = offlineCtx.createBiquadFilter();
-                trebleFilter.type = 'highshelf';
-                trebleFilter.frequency.value = 6000;
-                trebleFilter.gain.value = trebleGain;
-
-                const tempBuffer = offlineCtx.createBuffer(numChannels, finalBuffer.length, sampleRate);
-                for (let ch = 0; ch < numChannels; ch++) {
-                    tempBuffer.getChannelData(ch).set(finalBuffer.getChannelData(ch));
-                }
-
-                const source = offlineCtx.createBufferSource();
-                source.buffer = tempBuffer;
-                const merger = offlineCtx.createChannelMerger(numChannels);
-                const splitter = offlineCtx.createChannelSplitter(numChannels);
-
-                source.connect(splitter);
-                for (let ch = 0; ch < numChannels; ch++) {
-                    splitter.connect(trebleFilter, ch);
-                    trebleFilter.connect(merger, 0, ch);
-                }
-                merger.connect(offlineCtx.destination);
-                source.start();
-
-                const rendered = await offlineCtx.startRendering();
-                for (let ch = 0; ch < numChannels; ch++) {
-                    finalBuffer.getChannelData(ch).set(rendered.getChannelData(ch));
-                }
-            }
-
-            if (noiseReduction > 0) {
-                const threshold = noiseReduction / 100 * 0.1;
-
-                for (let ch = 0; ch < numChannels; ch++) {
-                    const data = finalBuffer.getChannelData(ch);
-                    for (let i = 0; i < data.length; i++) {
-                        if (Math.abs(data[i]) < threshold) {
-                            data[i] *= (1 - noiseReduction / 100);
-                        }
-                    }
-                }
-            }
-
-            const source = offlineCtx.createBufferSource();
-            source.buffer = finalBuffer;
-            source.connect(offlineCtx.destination);
-            source.start();
-
-            const renderedBuffer = await offlineCtx.startRendering();
-            const wavBlob = encodeWav(renderedBuffer);
-
-            onEdited(wavBlob);
+            onEdited(await renderEdit());
         } catch (err) {
             console.error('Erro ao processar áudio:', err);
+            feedback.error(err instanceof Error ? err.message : 'Não foi possível processar o áudio.');
         } finally {
             setIsProcessing(false);
         }
-    }, [audioBlob, audioUrl, trimStart, trimEnd, volumeGain, bassGain, trebleGain, noiseReduction, recordedBlob, onEdited]);
+    }, [renderEdit, onEdited, feedback]);
 
-    const regionLeft = `${trimStart}%`;
-    const regionWidth = `${trimEnd - trimStart}%`;
+    // Ouve o resultado de verdade (corte, fades, EQ, ruído), não só a faixa original.
+    const handlePreviewResult = useCallback(async () => {
+        if (previewState === 'playing') {
+            stopResultPreview();
+            return;
+        }
+        if (previewState === 'rendering') return;
+
+        wavesurferRef.current?.pause();
+        setPreviewState('rendering');
+        try {
+            const blob = await renderEdit();
+            if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+            const url = URL.createObjectURL(blob);
+            previewUrlRef.current = url;
+
+            const audio = new Audio(url);
+            audio.onended = () => setPreviewState('idle');
+            previewAudioRef.current = audio;
+            await audio.play();
+            setPreviewState('playing');
+        } catch (err) {
+            setPreviewState('idle');
+            feedback.error(err instanceof Error ? err.message : 'Não foi possível gerar a prévia.');
+        }
+    }, [previewState, renderEdit, stopResultPreview, feedback]);
+
+    const ready = duration > 0;
+    const zoomIn = () => setZoom(z => Math.min(100, z + 10));
+    const zoomOut = () => setZoom(z => Math.max(0, z - 10));
 
     return (
         <div className="editor-area">
-            <div className="editor-waveform-container">
-                <div ref={containerRef}></div>
-                <div
-                    className="waveform-region"
-                    style={{ left: regionLeft, width: regionWidth }}
-                ></div>
-            </div>
-
-            <div className="editor-controls">
-                <div className="editor-slider-group">
-                    <div className="editor-slider-label">
-                        <span>
-                            <Scissors size={14} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                            Início do corte
-                        </span>
-                        <span>{formatTime(trimStartSec)}</span>
-                    </div>
-                    <input
-                        type="range"
-                        className="editor-range"
-                        min={0}
-                        max={100}
-                        step={0.1}
-                        value={trimStart}
-                        onChange={e => handleTrimStartChange(Number(e.target.value))}
-                    />
+            <div className="editor-toolbar" role="toolbar" aria-label="Reprodução e zoom">
+                <div className="editor-toolbar-group">
+                    <button
+                        type="button"
+                        className="editor-icon-btn primary"
+                        onClick={togglePlayback}
+                        disabled={!ready}
+                        title={isPlaying ? 'Pausar (Espaço)' : 'Reproduzir (Espaço)'}
+                        aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
+                    >
+                        {isPlaying ? <Pause size={18} /> : <Play size={18} />}
+                    </button>
+                    <button
+                        type="button"
+                        className="editor-icon-btn"
+                        onClick={playSelection}
+                        disabled={!ready}
+                        title="Ouvir só a seleção"
+                        aria-label="Ouvir só a seleção"
+                    >
+                        <Scissors size={16} />
+                    </button>
+                    <button
+                        type="button"
+                        className={`editor-icon-btn${loop ? ' active' : ''}`}
+                        onClick={() => setLoop(v => !v)}
+                        disabled={!ready}
+                        title="Repetir a seleção (L)"
+                        aria-label="Repetir a seleção"
+                        aria-pressed={loop}
+                    >
+                        <Repeat size={16} />
+                    </button>
+                    <span className="editor-clock" aria-label="Posição do cursor">
+                        <span ref={clockRef}>0:00.00</span>
+                        <span className="editor-clock-total"> / {formatTimePrecise(duration)}</span>
+                    </span>
                 </div>
 
-                <div className="editor-slider-group">
-                    <div className="editor-slider-label">
-                        <span>
-                            <Scissors size={14} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                            Fim do corte
-                        </span>
-                        <span>{formatTime(trimEndSec)}</span>
-                    </div>
+                <div className="editor-toolbar-group">
+                    <button type="button" className="editor-icon-btn" onClick={zoomOut} disabled={!ready || zoom === 0} title="Afastar" aria-label="Afastar">
+                        <ZoomOut size={16} />
+                    </button>
                     <input
                         type="range"
-                        className="editor-range"
+                        className="editor-range editor-zoom"
                         min={0}
                         max={100}
-                        step={0.1}
-                        value={trimEnd}
-                        onChange={e => handleTrimEndChange(Number(e.target.value))}
+                        step={1}
+                        value={zoom}
+                        onChange={e => setZoom(Number(e.target.value))}
+                        disabled={!ready}
+                        aria-label="Zoom da forma de onda"
+                        title="Zoom (Ctrl + roda do mouse)"
                     />
+                    <button type="button" className="editor-icon-btn" onClick={zoomIn} disabled={!ready || zoom === 100} title="Aproximar" aria-label="Aproximar">
+                        <ZoomIn size={16} />
+                    </button>
+                    <button type="button" className="editor-icon-btn" onClick={() => setZoom(0)} disabled={!ready || zoom === 0} title="Ajustar à tela" aria-label="Ajustar à tela">
+                        <Maximize2 size={16} />
+                    </button>
+                </div>
+            </div>
+
+            <div className="editor-waveform-container">
+                <div ref={containerRef}></div>
+                {!ready && !loadError && <div className="editor-waveform-status">Carregando áudio…</div>}
+                {loadError && <div className="editor-waveform-status error">Não foi possível carregar o áudio.</div>}
+            </div>
+            <p className="editor-hint">
+                Arraste as bordas da área colorida para escolher o trecho · clique na onda para posicionar o cursor ·
+                <kbd>[</kbd> <kbd>]</kbd> marcam início e fim no cursor · <kbd>Espaço</kbd> toca · <kbd>L</kbd> repete · Ctrl + roda dá zoom
+            </p>
+
+            <div className="editor-controls">
+                <section className="editor-section" aria-labelledby="editor-sec-selecao">
+                <h4 className="editor-section-title" id="editor-sec-selecao">Seleção</h4>
+                <div className="editor-mode" role="radiogroup" aria-label="O que fazer com a seleção">
+                    <button
+                        type="button"
+                        role="radio"
+                        aria-checked={mode === 'keep'}
+                        className={`editor-mode-btn${mode === 'keep' ? ' active' : ''}`}
+                        onClick={() => setMode('keep')}
+                    >
+                        <Scissors size={14} /> Manter só a seleção
+                    </button>
+                    <button
+                        type="button"
+                        role="radio"
+                        aria-checked={mode === 'remove'}
+                        className={`editor-mode-btn remove${mode === 'remove' ? ' active' : ''}`}
+                        onClick={() => setMode('remove')}
+                    >
+                        <Trash2 size={14} /> Remover a seleção
+                    </button>
                 </div>
 
                 <div className="trim-inputs">
-                    <div className="trim-input-group">
-                        <label>Inicio</label>
-                        <input
-                            type="text"
-                            className="trim-input"
-                            value={formatTime(trimStartSec)}
-                            readOnly
-                        />
-                    </div>
+                    <TimeField
+                        id="editor-sel-start"
+                        label="Início"
+                        value={selStart}
+                        min={0}
+                        max={Math.max(0, selEnd - 0.05)}
+                        onCommit={v => setSelection(v, selEnd)}
+                        onSetFromPlayhead={setStartFromPlayhead}
+                    />
                     <span className="trim-separator">→</span>
-                    <div className="trim-input-group">
-                        <label>Fim</label>
-                        <input
-                            type="text"
-                            className="trim-input"
-                            value={formatTime(trimEndSec)}
-                            readOnly
-                        />
+                    <TimeField
+                        id="editor-sel-end"
+                        label="Fim"
+                        value={selEnd}
+                        min={Math.min(duration, selStart + 0.05)}
+                        max={duration}
+                        onCommit={v => setSelection(selStart, v)}
+                        onSetFromPlayhead={setEndFromPlayhead}
+                    />
+                    <TimeField
+                        id="editor-sel-length"
+                        label="Seleção"
+                        value={selectionLength}
+                        min={0.05}
+                        max={Math.max(0.05, duration - selStart)}
+                        onCommit={v => setSelection(selStart, selStart + v)}
+                    />
+                    <button type="button" className="editor-preview-btn editor-select-all" onClick={selectAll} disabled={!ready}>
+                        Tudo
+                    </button>
+                </div>
+
+                <p className="editor-result">
+                    Resultado: <strong>{formatTimePrecise(resultDuration)}</strong>
+                    {mode === 'remove' && ready && <> (o trecho de {formatTimePrecise(selectionLength)} será apagado)</>}
+                    {recordedDuration > 0 && <> · inclui {formatTimePrecise(recordedDuration)} de extensão gravada</>}
+                </p>
+
+                </section>
+
+                <section className="editor-section" aria-labelledby="editor-sec-fades">
+                <h4 className="editor-section-title" id="editor-sec-fades">Entrada e saída</h4>
+                <div className="editor-grid">
+                <div className="editor-slider-group">
+                    <div className="editor-slider-label">
+                        <label htmlFor="editor-fade-in">Fade in</label>
+                        <span>{fadeIn.toFixed(2)} s</span>
                     </div>
-                    <div className="trim-input-group">
-                        <label>Duração</label>
-                        <input
-                            type="text"
-                            className="trim-input"
-                            value={formatTime(trimmedDuration + (recordedDuration || 0))}
-                            readOnly
-                        />
-                    </div>
+                    <input
+                        id="editor-fade-in"
+                        type="range"
+                        className="editor-range"
+                        min={0}
+                        max={3}
+                        step={0.05}
+                        value={fadeIn}
+                        onChange={e => setFadeIn(Number(e.target.value))}
+                    />
                 </div>
 
                 <div className="editor-slider-group">
                     <div className="editor-slider-label">
-                        <span>
+                        <label htmlFor="editor-fade-out">Fade out</label>
+                        <span>{fadeOut.toFixed(2)} s</span>
+                    </div>
+                    <input
+                        id="editor-fade-out"
+                        type="range"
+                        className="editor-range"
+                        min={0}
+                        max={3}
+                        step={0.05}
+                        value={fadeOut}
+                        onChange={e => setFadeOut(Number(e.target.value))}
+                    />
+                </div>
+
+                </div>
+                </section>
+
+                <section className="editor-section" aria-labelledby="editor-sec-tom">
+                <h4 className="editor-section-title" id="editor-sec-tom">Volume e timbre</h4>
+                <div className="editor-grid">
+                <div className="editor-slider-group">
+                    <div className="editor-slider-label">
+                        <label htmlFor="editor-volume">
                             <Volume2 size={14} style={{ verticalAlign: 'middle', marginRight: 4 }} />
                             Volume
-                        </span>
+                        </label>
                         <span>{volumeGain}%</span>
                     </div>
                     <input
+                        id="editor-volume"
                         type="range"
                         className="editor-range"
                         min={0}
@@ -684,10 +971,11 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
 
                 <div className="editor-slider-group">
                     <div className="editor-slider-label">
-                        <span> graves</span>
+                        <label htmlFor="editor-bass">Graves</label>
                         <span>{bassGain > 0 ? `+${bassGain}` : bassGain} dB</span>
                     </div>
                     <input
+                        id="editor-bass"
                         type="range"
                         className="editor-range"
                         min={-12}
@@ -700,10 +988,11 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
 
                 <div className="editor-slider-group">
                     <div className="editor-slider-label">
-                        <span> agudos</span>
+                        <label htmlFor="editor-treble">Agudos</label>
                         <span>{trebleGain > 0 ? `+${trebleGain}` : trebleGain} dB</span>
                     </div>
                     <input
+                        id="editor-treble"
                         type="range"
                         className="editor-range"
                         min={-12}
@@ -716,10 +1005,11 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
 
                 <div className="editor-slider-group">
                     <div className="editor-slider-label">
-                        <span>Redução de Ruído</span>
+                        <label htmlFor="editor-noise">Redução de Ruído</label>
                         <span>{noiseReduction}%</span>
                     </div>
                     <input
+                        id="editor-noise"
                         type="range"
                         className="editor-range"
                         min={0}
@@ -730,38 +1020,30 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
                     />
                 </div>
 
-                <div className="editor-divider" style={{ borderTop: '1px solid rgba(92,122,68,0.15)', margin: '1rem 0' }}></div>
+                </div>
+                </section>
 
+                <section className="editor-section" aria-labelledby="editor-sec-extensao">
+                <h4 className="editor-section-title" id="editor-sec-extensao">Gravar extensão</h4>
                 <div className="editor-slider-group">
-                    <div className="editor-slider-label">
-                        <span>
-                            <Mic size={14} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                            Gravar Extensão
-                        </span>
-                    </div>
 
                     {!hasRecording && !isRecording && (
-                        <button className="editor-preview-btn" onClick={startRecording} style={{ marginTop: '0.5rem' }}>
+                        <button className="editor-preview-btn" onClick={startRecording}>
                             <Mic size={16} />
                             Iniciar Gravação
                         </button>
                     )}
 
                     {isRecording && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
-                            <canvas
-                                ref={canvasRef}
-                                style={{ width: '100%', height: 60, borderRadius: 8, background: 'rgba(0,0,0,0.05)' }}
-                            ></canvas>
-                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                                <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--verde-musgo)' }}>
-                                    {formatTimeMs(elapsedTime)}
-                                </span>
+                        <div className="editor-rec">
+                            <canvas ref={canvasRef} className="editor-rec-canvas"></canvas>
+                            <div className="editor-rec-row">
+                                <span className="editor-rec-time">{formatTimeMs(elapsedTime)}</span>
                                 <button className="editor-preview-btn" onClick={isPaused ? resumeRecording : pauseRecording}>
                                     {isPaused ? <Play size={14} /> : <Pause size={14} />}
                                     {isPaused ? 'Retomar' : 'Pausar'}
                                 </button>
-                                <button className="editor-preview-btn" onClick={stopRecording} style={{ background: '#ef4444', color: '#fff' }}>
+                                <button className="editor-preview-btn editor-rec-stop" onClick={stopRecording}>
                                     <Square size={14} />
                                     Parar
                                 </button>
@@ -770,16 +1052,10 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
                     )}
 
                     {hasRecording && recordedBlob && (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.5rem' }}>
-                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                                <span style={{ fontSize: '0.85rem', color: 'var(--texto-secundario)' }}>
-                                    Extensão: {formatTime(recordedDuration)}
-                                </span>
-                                <button
-                                    className="editor-preview-btn"
-                                    onClick={clearRecording}
-                                    style={{ fontSize: '0.8rem', padding: '0.3rem 0.6rem' }}
-                                >
+                        <div className="editor-rec">
+                            <div className="editor-rec-row">
+                                <span className="editor-rec-done">Extensão: {formatTimePrecise(recordedDuration)}</span>
+                                <button className="editor-preview-btn editor-rec-remove" onClick={clearRecording}>
                                     Remover
                                 </button>
                             </div>
@@ -787,14 +1063,14 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
                     )}
                 </div>
 
-                <div className="editor-actions-mobile" style={{ display: 'flex', gap: '0.6rem', flexWrap: 'wrap' }}>
-                    <button className="editor-preview-btn" onClick={togglePlayback}>
-                        {isPlaying ? <Pause size={16} /> : <Play size={16} />}
-                        {isPlaying ? 'Pausar' : 'Reproduzir'}
-                    </button>
-                    <button className="editor-preview-btn" onClick={handlePreviewTrim}>
-                        <Scissors size={16} />
-                        Preview do Corte
+                </section>
+
+                <div className="editor-actions-mobile">
+                    <button className="editor-preview-btn" onClick={handlePreviewResult} disabled={!ready || previewState === 'rendering'}>
+                        {previewState === 'rendering'
+                            ? <Loader2 size={16} className="spin" />
+                            : previewState === 'playing' ? <Square size={16} /> : <Headphones size={16} />}
+                        {previewState === 'rendering' ? 'Gerando prévia…' : previewState === 'playing' ? 'Parar prévia' : 'Ouvir resultado'}
                     </button>
                 </div>
             </div>
@@ -808,7 +1084,7 @@ function AudioEditor({ audioBlob, audioUrl, audioDuration, onEdited, onBack }: A
                 <button
                     className="btn-confirm"
                     onClick={handleExport}
-                    disabled={isProcessing}
+                    disabled={isProcessing || !ready}
                 >
                     {isProcessing ? (
                         <><Loader2 size={16} className="spin" /> Processando...</>

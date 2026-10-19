@@ -13,12 +13,16 @@ import { URL_API_TESTE } from "../utility/url_apis";
 import { TransportBar } from "../components/TransportBar";
 import { usePlayback } from "../hooks/usePlayback";
 import { Mic, Music, Users, MessageSquare, Lightbulb, Pencil, Trash2, Download } from "lucide-react";
+import { ActionMenu } from "../components/ActionMenu";
+import { WaveArt } from "../components/WaveArt";
 import { mixdownToWav, downloadBlob } from "../utility/mixdown";
 import type { Project, Camada } from "../types";
 import { useUserData } from "../contexts/UserDataContext";
 import '../styles/Studio.css';
+import '../styles/StudioPolish.css';
 import { SEOHead } from '../components/SEOHead';
 import { pode, rotuloPapel, rotuloStatus } from "../utility/papeis";
+import { useFeedback } from "../contexts/FeedbackContext";
 
 function Studio() {
     const { id } = useParams<{ id: string }>();
@@ -27,7 +31,6 @@ function Studio() {
     const [erro, setErro] = useState<string | null>(null);
     const [saving, setSaving] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('tracks');
-    const [saveErro, setSaveErro] = useState<string | null>(null);
     const [exporting, setExporting] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
@@ -35,6 +38,7 @@ function Studio() {
     const [deleteLayerTarget, setDeleteLayerTarget] = useState<{ id: string; nome: string } | null>(null);
     const [editLayerTarget, setEditLayerTarget] = useState<{ id: string; audioUrl: string; nome: string } | null>(null);
     const { usuario } = useUserData();
+    const feedback = useFeedback();
 
     // Um único motor toca todas as faixas (respeitando delay, volume e mute de cada uma).
     const engine = usePlayback();
@@ -79,12 +83,11 @@ function Studio() {
         if (!projeto) return;
         const aprovadas = (projeto.camadas || []).filter(c => c.esta_aprovada);
         if (aprovadas.length === 0) {
-            setSaveErro("Aprove ao menos uma camada para exportar o mix.");
+            feedback.info("Aprove ao menos uma camada para exportar o mix.");
             return;
         }
 
         setExporting(true);
-        setSaveErro(null);
         try {
             const wav = await mixdownToWav([
                 ...(projeto.audio_guia ? [{ url: projeto.audio_guia, delayMs: 0, volume: 1, label: 'Áudio guia' }] : []),
@@ -94,13 +97,13 @@ function Studio() {
         } catch (err) {
             console.error(err);
             const motivo = err instanceof Error ? err.message : '';
-            setSaveErro(motivo ? `Não foi possível gerar o mix: ${motivo}.` : "Não foi possível gerar o mix. Tente novamente.");
+            feedback.error(motivo ? `Não foi possível gerar o mix: ${motivo}.` : "Não foi possível gerar o mix. Tente novamente.");
         } finally {
             setExporting(false);
         }
-    }, [projeto]);
+    }, [projeto, feedback]);
 
-    const handleSaveLayer = useCallback(async (layerId: string, changes: { volume_padrao: number; delay_offset: number }) => {
+    const handleSaveLayer = useCallback(async (layerId: string, changes: { volume_padrao: number; delay_offset: number }): Promise<boolean> => {
         setSaving(layerId);
         try {
             const response = await fetch(`${URL_API_TESTE}/layer/${layerId}`, {
@@ -119,17 +122,19 @@ function Studio() {
                         c.id === layerId ? { ...c, ...changes } : c
                     )
                 } : prev);
-                setSaveErro(null);
-            } else {
-                setSaveErro('Erro ao salvar alterações');
+                feedback.success('Ajustes salvos.');
+                return true;
             }
+            feedback.error('Erro ao salvar alterações');
+            return false;
         } catch (err) {
             console.error('Erro ao salvar:', err);
-            setSaveErro('Erro ao salvar alterações');
+            feedback.error('Erro ao salvar alterações');
+            return false;
         } finally {
             setSaving(null);
         }
-    }, []);
+    }, [feedback]);
 
     const handleAuthorizeLayer = useCallback(async (layerId: string, aprovada: boolean) => {
         try {
@@ -151,15 +156,15 @@ function Studio() {
                         c.id === layerId ? { ...c, esta_aprovada: aprovada } : c
                     )
                 } : prev);
-                setSaveErro(null);
+                feedback.success(aprovada ? 'Camada aprovada.' : 'Camada rejeitada.');
             } else {
-                setSaveErro(data.mensagem || 'Erro ao atualizar status da camada');
+                feedback.error(data.mensagem || 'Erro ao atualizar status da camada');
             }
         } catch (err) {
             console.error('Erro ao autorizar camada:', err);
-            setSaveErro('Erro ao conectar ao servidor');
+            feedback.error('Erro ao conectar ao servidor');
         }
-    }, []);
+    }, [feedback]);
 
     // O papel vem da API (meu_papel); a comparação com o autor cobre respostas antigas sem o campo.
     const meuPapel = projeto?.meu_papel ?? null;
@@ -197,87 +202,110 @@ function Studio() {
         setProjeto(prev => prev ? { ...prev, ...updated } : prev);
     }, []);
 
-    if (loading) return <div className="loading-txt">Montando setup do estúdio...</div>;
+    if (loading) {
+        return (
+            <div className="studio-loading" role="status" aria-live="polite">
+                <WaveArt variant="skeleton" bars={48} />
+                <p>Montando o setup do estúdio…</p>
+            </div>
+        );
+    }
     if (erro) return <div className="error-msg">{erro}</div>;
     if (!projeto) return <div className="error-msg">Projeto não encontrado.</div>;
+
+    const camadasPendentes = (projeto.camadas || []).filter(c => !c.esta_aprovada).length;
+    const tabs: { id: string; label: string; icon: React.ReactNode; count?: number; alert?: boolean }[] = [
+        { id: 'tracks', label: 'Tracks', icon: <Music size={18} />, count: (projeto.camadas || []).length + 1 },
+        { id: 'mural', label: 'Mural', icon: <MessageSquare size={18} /> },
+        { id: 'sugestoes', label: 'Sugestões', icon: <Lightbulb size={18} /> },
+        { id: 'colaboradores', label: 'Colaboradores', icon: <Users size={18} /> },
+    ];
+    // Quem aprova vê quantas camadas esperam por ele na própria aba.
+    if (podeAprovar && camadasPendentes > 0) {
+        tabs[0] = { ...tabs[0], count: camadasPendentes, alert: true, label: 'Tracks pendentes' };
+    }
+
+    // Setas/Home/End movem entre abas (padrão WAI-ARIA para tablist).
+    const onTabKeyDown = (e: React.KeyboardEvent, current: string) => {
+        const index = tabs.findIndex(t => t.id === current);
+        let next = index;
+        if (e.key === 'ArrowRight') next = (index + 1) % tabs.length;
+        else if (e.key === 'ArrowLeft') next = (index - 1 + tabs.length) % tabs.length;
+        else if (e.key === 'Home') next = 0;
+        else if (e.key === 'End') next = tabs.length - 1;
+        else return;
+        e.preventDefault();
+        setActiveTab(tabs[next].id);
+        document.getElementById(`studio-tab-${tabs[next].id}`)?.focus();
+    };
 
     return (
         <div className="studio-page">
             <SEOHead
                 title={`Estúdio: ${projeto.titulo}`}
-                description={`Estúdio do projeto "${projeto.titulo}" - BPM: ${projeto.bpm}, Gênero: ${projeto.genero}. Colabore em tempo real.`}
+                description={`Estúdio do projeto "${projeto.titulo}" - BPM: ${projeto.bpm}${projeto.genero ? `, Gênero: ${projeto.genero}` : ''}. Colabore em tempo real.`}
                 url={`/studio/${id}`}
             />
-            <div className="user-header">
-                <h1>Estúdio: {projeto.titulo}</h1>
-                <p>BPM: <strong>{projeto.bpm}</strong> | Gênero: {projeto.genero}</p>
-                <div className="studio-meta">
-                    <span className={`status-projeto status-${(projeto.status ?? 'IDEIA').toLowerCase()}`}>{rotuloStatus(projeto.status)}</span>
-                    {meuPapel && <span className={`papel-badge papel-${meuPapel.toLowerCase()}`}>Você: {rotuloPapel(meuPapel)}</span>}
-                </div>
-                {isOwner && (
-                    <div className="project-owner-actions">
-                        <button
-                            className="btn-edit-project"
-                            onClick={() => setEditModalOpen(true)}
-                        >
-                            <Pencil size={16} />
-                            Editar
-                        </button>
-                        <button
-                            className="btn-delete-project"
-                            onClick={() => setDeleteModalOpen(true)}
-                        >
-                            <Trash2 size={16} />
-                            Excluir
-                        </button>
+            <header className="studio-header">
+                <div className="studio-header-main">
+                    <p className="studio-eyebrow">Estúdio</p>
+                    <h1>{projeto.titulo}</h1>
+                    <div className="studio-chips">
+                        <span className="chip chip-mono" title="Andamento do projeto">{projeto.bpm} BPM</span>
+                        {projeto.escala && <span className="chip chip-mono" title="Tonalidade">{projeto.escala}</span>}
+                        {projeto.genero && <span className="chip">{projeto.genero}</span>}
+                        <span className={`status-projeto status-${(projeto.status ?? 'IDEIA').toLowerCase()}`}>{rotuloStatus(projeto.status)}</span>
+                        {meuPapel && <span className={`papel-badge papel-${meuPapel.toLowerCase()}`}>Você: {rotuloPapel(meuPapel)}</span>}
                     </div>
-                )}
-                <div className="studio-controls">
-                    <button className="btn-small" onClick={handleExport} disabled={exporting}>
-                        <Download size={18} /> {exporting ? 'Gerando...' : 'Exportar WAV'}
-                    </button>
+                </div>
+
+                <div className="studio-header-actions">
                     {podeEnviar && (
-                        <button className="btn-small btn-gravar" onClick={() => setCreateLayerModalOpen(true)}>
+                        <button className="btn-primary-studio" onClick={() => setCreateLayerModalOpen(true)}>
                             <Mic size={18} /> Gravar
                         </button>
                     )}
+                    <button className="btn-secondary-studio" onClick={handleExport} disabled={exporting}>
+                        <Download size={18} /> {exporting ? 'Gerando...' : 'Exportar WAV'}
+                    </button>
+                    {isOwner && (
+                        <ActionMenu
+                            label="Mais ações do projeto"
+                            triggerClassName="btn-secondary-studio btn-icon-only"
+                            items={[
+                                { label: 'Editar projeto', icon: <Pencil size={14} />, onSelect: () => setEditModalOpen(true) },
+                                { label: 'Excluir projeto', icon: <Trash2 size={14} />, danger: true, onSelect: () => setDeleteModalOpen(true) },
+                            ]}
+                        />
+                    )}
                 </div>
+
+                <WaveArt className="studio-header-wave" bars={90} />
+            </header>
+
+            <div className="studio-tabs" role="tablist" aria-label="Seções do estúdio">
+                {tabs.map(tab => (
+                    <button
+                        key={tab.id}
+                        id={`studio-tab-${tab.id}`}
+                        role="tab"
+                        aria-selected={activeTab === tab.id}
+                        aria-controls={`studio-panel-${tab.id}`}
+                        tabIndex={activeTab === tab.id ? 0 : -1}
+                        className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`}
+                        onClick={() => setActiveTab(tab.id)}
+                        onKeyDown={e => onTabKeyDown(e, tab.id)}
+                    >
+                        {tab.icon}
+                        {tab.label}
+                        {tab.count !== undefined && tab.count > 0 && (
+                            <span className={`tab-count${tab.alert ? ' alert' : ''}`}>{tab.count}</span>
+                        )}
+                    </button>
+                ))}
             </div>
 
-            <div className="studio-tabs">
-                <button
-                    className={`tab-btn ${activeTab === 'tracks' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('tracks')}
-                >
-                    <Music size={18} />
-                    Tracks
-                </button>
-                <button
-                    className={`tab-btn ${activeTab === 'mural' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('mural')}
-                >
-                    <MessageSquare size={18} />
-                    Mural
-                </button>
-                <button
-                    className={`tab-btn ${activeTab === 'sugestoes' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('sugestoes')}
-                >
-                    <Lightbulb size={18} />
-                    Sugestões
-                </button>
-                <button
-                    className={`tab-btn ${activeTab === 'colaboradores' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('colaboradores')}
-                >
-                    <Users size={18} />
-                    Colaboradores
-                </button>
-            </div>
-
-            <main className="studio-content">
-                {saveErro && <div className="error-msg">{saveErro}</div>}
+            <main className="studio-content" role="tabpanel" id={`studio-panel-${activeTab}`} aria-labelledby={`studio-tab-${activeTab}`}>
                 {/* As faixas continuam montadas (só escondidas) nas outras abas: a música não para ao trocar de aba. */}
                 <div className="studio-tracks" style={activeTab === 'tracks' ? undefined : { display: 'none' }}>
                         <WaveformTrack
@@ -291,6 +319,19 @@ function Studio() {
                             colorIndex={0}
                             isGuia={true}
                         />
+
+                        {(projeto.camadas || []).length === 0 && (
+                            <div className="studio-empty">
+                                <WaveArt bars={36} />
+                                <h3>Nenhuma camada ainda</h3>
+                                <p>O áudio guia já está pronto. {podeEnviar ? 'Grave a primeira camada e comece a construir a música.' : 'Quando alguém gravar, as camadas aparecem aqui.'}</p>
+                                {podeEnviar && (
+                                    <button className="btn-primary-studio" onClick={() => setCreateLayerModalOpen(true)}>
+                                        <Mic size={18} /> Gravar a primeira camada
+                                    </button>
+                                )}
+                            </div>
+                        )}
 
                         {(projeto.camadas || []).map((camada: Camada, index: number) => (
                             <WaveformTrack

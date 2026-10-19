@@ -1,5 +1,5 @@
 /* front_end/src/styles/Global.css */
-@import url('https://fonts.googleapis.com/css2?family=Bitter:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 * {
   margin: 0;
@@ -16,7 +16,7 @@
   --verde-tinta: #1f2b1a;
 
   /* Accent de assinatura — uso pontual */
-  --accent-latao: #b8912f;
+  --accent-latao: #8a6a14;
 
   /* Neutros */
   --fundo: #f7f8f5;
@@ -28,7 +28,7 @@
   --texto: #1f2b1a;
   --texto-principal: #1f2b1a;
   --texto-secundario: #55684c;
-  --placeholder: #8a9a82;
+  --placeholder: #62755a;
   --borda: rgba(92, 122, 68, 0.14);
 
   /* Glass — apenas navbar e modal */
@@ -38,7 +38,7 @@
   --glass-blur: blur(14px);
 
   /* Cores semânticas */
-  --erro: #dc2626;
+  --erro: #c62020;
   --erro-bg: #fef2f2;
   --erro-texto: #991b1b;
   --sucesso: #16a34a;
@@ -52,7 +52,7 @@
   --info-bg: #eff6ff;
   --info-texto: #1e40af;
   --cor-like: #ef4444;
-  --cor-favorito: #b8912f;
+  --cor-favorito: #8a6a14;
 
   /* Sombras — suaves com toque verde */
   --sombra-card: 0 2px 8px rgba(92, 122, 68, 0.06), 0 6px 18px rgba(0, 0, 0, 0.05);
@@ -96,6 +96,11 @@
   --radius-2xl: 20px;
   --radius-full: 9999px;
 
+  /* Famílias tipográficas — display (títulos), ui (corpo), mono (dados técnicos) */
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
   /* Escala de z-index */
   --z-base: 1;
   --z-dropdown: 100;
@@ -108,7 +113,7 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: var(--font-ui);
   background-color: var(--fundo);
   color: var(--texto);
   line-height: 1.6;
@@ -147,7 +152,7 @@ button {
 }
 
 h1, h2, h3 {
-  font-family: 'Bitter', Georgia, serif;
+  font-family: var(--font-display);
   color: var(--verde-tinta);
   letter-spacing: -0.01em;
 }
@@ -164,7 +169,7 @@ hr {
   text-align: center;
   margin-bottom: var(--space-lg);
   font-size: var(--text-3xl);
-  font-family: 'Bitter', Georgia, serif;
+  font-family: var(--font-display);
   font-weight: 600;
   color: var(--verde-tinta);
 }

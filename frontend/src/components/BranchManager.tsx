@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import { GitBranch, GitMerge, Loader2, X, ArrowRight } from 'lucide-react';
 import { fetchBranches, mergeBranch, deleteBranch } from '../utility/branchApi';
 import type { LayerBranch } from '../types/project';
+import { useFeedback } from '../contexts/FeedbackContext';
 
 interface BranchManagerProps {
     layerId: string
@@ -17,6 +19,8 @@ function BranchManager({ layerId, isOpen, onClose, onMerge, currentVersionId }: 
     const [merging, setMerging] = useState<string | null>(null);
     const [deleting, setDeleting] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const dialogRef = useRef<HTMLDivElement | null>(null);
+    const feedback = useFeedback();
 
     useEffect(() => {
         if (!isOpen || !layerId) return;
@@ -37,7 +41,12 @@ function BranchManager({ layerId, isOpen, onClose, onMerge, currentVersionId }: 
     }, [isOpen, layerId]);
 
     const handleMerge = async (branch: LayerBranch) => {
-        if (!confirm(`Fazer merge de "${branch.nome}" para main? Isso criará uma nova versão na branch principal.`)) return;
+        const ok = await feedback.confirm({
+            title: 'Fazer merge',
+            message: `Fazer merge de "${branch.nome}" para main? Isso criará uma nova versão na branch principal.`,
+            confirmLabel: 'Fazer merge',
+        });
+        if (!ok) return;
 
         setMerging(branch.id);
         setError(null);
@@ -54,7 +63,13 @@ function BranchManager({ layerId, isOpen, onClose, onMerge, currentVersionId }: 
 
     const handleDelete = async (branch: LayerBranch) => {
         if (branch.isMain) return;
-        if (!confirm(`Excluir branch "${branch.nome}"?`)) return;
+        const ok = await feedback.confirm({
+            title: 'Excluir branch',
+            message: `Excluir a branch "${branch.nome}"?`,
+            confirmLabel: 'Excluir',
+            danger: true,
+        });
+        if (!ok) return;
 
         setDeleting(branch.id);
         try {
@@ -69,14 +84,24 @@ function BranchManager({ layerId, isOpen, onClose, onMerge, currentVersionId }: 
 
     const currentBranch = branches.find(b => b.headVersion.id === currentVersionId) || branches.find(b => b.isMain);
 
+    useFocusTrap(dialogRef, isOpen, onClose);
+
     if (!isOpen) return null;
 
     return (
-        <div className="branch-manager-overlay" onClick={onClose}>
-            <div className="branch-manager" onClick={e => e.stopPropagation()}>
+        <div className="branch-manager-overlay" onClick={onClose} role="presentation">
+            <div
+                className="branch-manager"
+                onClick={e => e.stopPropagation()}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="branch-manager-title"
+                tabIndex={-1}
+                ref={dialogRef}
+            >
                 <div className="branch-manager-header">
-                    <h3><GitBranch size={18} /> Gerenciar Branches</h3>
-                    <button className="btn-icon" onClick={onClose}>
+                    <h3 id="branch-manager-title"><GitBranch size={18} /> Gerenciar Branches</h3>
+                    <button className="btn-icon" onClick={onClose} aria-label="Fechar">
                         <X size={18} />
                     </button>
                 </div>

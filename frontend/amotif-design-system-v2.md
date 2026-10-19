@@ -37,7 +37,7 @@ a **waveform**.
  
 | Token | Cor | Uso |
 |---|---|---|
-| `--accent-latao` | `#b8912f` | Favoritos, destaque, badge "featured" — dourado-areia opaco, remete a instrumento/latão sem virar rainbow-SaaS |
+| `--accent-latao` | `#8a6a14` | Favoritos, destaque, badge "featured" — dourado-areia opaco, remete a instrumento/latão sem virar rainbow-SaaS |
  
 ### Neutros
  
@@ -54,14 +54,14 @@ a **waveform**.
 |---|---|---|
 | `--texto-principal` | `#1f2b1a` | Texto primário e títulos (mais contraste que antes) |
 | `--texto-secundario` | `#55684c` | Texto muted, labels |
-| `--placeholder` | `#8a9a82` | Placeholder de inputs |
+| `--placeholder` | `#62755a` | Placeholder de inputs |
 | `--borda` | `rgba(92, 122, 68, 0.14)` | Bordas gerais |
  
 ### Semânticas (mantidas — já funcionavam bem)
  
 | Token | Cor | Contexto |
 |---|---|---|
-| `--erro` | `#dc2626` | Erros, exclusão |
+| `--erro` | `#c62020` | Erros, exclusão |
 | `--erro-bg` | `#fef2f2` | Fundo de erros |
 | `--sucesso` | `#16a34a` | Aprovação |
 | `--sucesso-bg` | `#f0fdf4` | Fundo de sucesso |

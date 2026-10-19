@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Modal } from './Modal';
-import { RotateCcw, Undo2, Loader2, Volume2, VolumeX, Tag, Save, X } from 'lucide-react';
+import { RotateCcw, Undo2, Loader2, Play, Pause, Volume2, VolumeX, Tag, Save, X } from 'lucide-react';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { updateVersionTag } from '../utility/branchApi';
+import { useFeedback } from '../contexts/FeedbackContext';
 
 interface VersionAutor {
     id: string
@@ -38,6 +39,7 @@ interface VersionDetailModalProps {
 }
 
 function VersionDetailModal({ version, isOpen, onClose, layerId, onRollback, onRestoreInPlace, onTagUpdate }: VersionDetailModalProps) {
+    const feedback = useFeedback();
     const waveformRef = useRef<HTMLDivElement | null>(null);
     const [wavesurfer, setWavesurfer] = useState<any>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -160,10 +162,10 @@ function VersionDetailModal({ version, isOpen, onClose, layerId, onRollback, onR
                 onClose();
             } else {
                 const data = await res.json();
-                alert(data.mensagem || 'Erro ao fazer rollback');
+                feedback.error(data.mensagem || 'Erro ao fazer rollback');
             }
         } catch (err) {
-            alert('Erro ao conectar ao servidor');
+            feedback.error('Erro ao conectar ao servidor');
         } finally {
             setRollbacking(false);
         }
@@ -182,10 +184,10 @@ function VersionDetailModal({ version, isOpen, onClose, layerId, onRollback, onR
                 onClose();
             } else {
                 const data = await res.json();
-                alert(data.mensagem || 'Erro ao restaurar vers\u00e3o');
+                feedback.error(data.mensagem || 'Erro ao restaurar vers\u00e3o');
             }
         } catch (err) {
-            alert('Erro ao conectar ao servidor');
+            feedback.error('Erro ao conectar ao servidor');
         } finally {
             setRestoringInPlace(false);
         }
@@ -210,7 +212,7 @@ function VersionDetailModal({ version, isOpen, onClose, layerId, onRollback, onR
             setEditingTag(false);
             setTagInput('');
         } catch (err) {
-            alert(err instanceof Error ? err.message : 'Erro ao atualizar tag');
+            feedback.error(err instanceof Error ? err.message : 'Erro ao atualizar tag');
         } finally {
             setSavingTag(false);
         }
@@ -230,10 +232,10 @@ function VersionDetailModal({ version, isOpen, onClose, layerId, onRollback, onR
                 </div>
 
                 <div className="version-detail-controls">
-                    <button className="btn-icon" onClick={togglePlay} title={isPlaying ? 'Pausar' : 'Reproduzir'}>
-                        {isPlaying ? <Volume2 size={18} /> : <Volume2 size={18} />}
+                    <button className="btn-icon" onClick={togglePlay} title={isPlaying ? 'Pausar' : 'Reproduzir'} aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}>
+                        {isPlaying ? <Pause size={18} /> : <Play size={18} />}
                     </button>
-                    <button className={`btn-icon ${isMuted ? 'active' : ''}`} onClick={toggleMute} title={isMuted ? 'Ativar som' : 'Silenciar'}>
+                    <button className={`btn-icon ${isMuted ? 'active' : ''}`} onClick={toggleMute} title={isMuted ? 'Ativar som' : 'Silenciar'} aria-label={isMuted ? 'Ativar som' : 'Silenciar'}>
                         {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
                     </button>
                     <input
@@ -270,10 +272,10 @@ function VersionDetailModal({ version, isOpen, onClose, layerId, onRollback, onR
                                     autoFocus
                                     className="tag-input"
                                 />
-                                <button className="btn-icon" onClick={saveTag} disabled={savingTag} title="Salvar">
+                                <button className="btn-icon" onClick={saveTag} disabled={savingTag} title="Salvar" aria-label="Salvar">
                                     {savingTag ? <Loader2 size={14} className="spin" /> : <Save size={14} />}
                                 </button>
-                                <button className="btn-icon" onClick={cancelEditTag} title="Cancelar">
+                                <button className="btn-icon" onClick={cancelEditTag} title="Cancelar" aria-label="Cancelar">
                                     <X size={14} />
                                 </button>
                             </div>
@@ -285,7 +287,7 @@ function VersionDetailModal({ version, isOpen, onClose, layerId, onRollback, onR
                                 <button
                                     className="btn-icon btn-edit-tag"
                                     onClick={startEditTag}
-                                    title="Editar tag"
+                                    title="Editar tag" aria-label="Editar tag"
                                     disabled={savingTag}
                                 >
                                     <Tag size={14} />

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
+import { useFocusTrap } from '../hooks/useFocusTrap';
 import { URL_API_TESTE } from '../utility/url_apis';
 import { UserPlus, X, Check, Trash2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { inviteSchema } from '../schemas/colaborationSchema'
 import { formatZodErrors } from '../utility/validationHelpers'
 import { DeleteColabModal } from './DeleteColabModal';
@@ -26,19 +27,9 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
     const [inviteErro, setInviteErro] = useState<string | null>(null);
     const [inviteSucesso, setInviteSucesso] = useState<string | null>(null);
     const [deleteColabTarget, setDeleteColabTarget] = useState<{ userId: string; nome: string } | null>(null);
-    const navigate = useNavigate();
     const inviteModalRef = useRef<HTMLDivElement | null>(null);
 
-    useEffect(() => {
-        if (!showInviteModal) return;
-
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') setShowInviteModal(false);
-        };
-
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [showInviteModal]);
+    useFocusTrap(inviteModalRef, showInviteModal, () => setShowInviteModal(false));
 
     useEffect(() => {
         if (projetoId) fetchData();
@@ -169,7 +160,7 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
 
             {showInviteModal && (
                 <div className="invite-modal-overlay" onClick={() => setShowInviteModal(false)} role="presentation">
-                    <div className="invite-modal" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="invite-modal-title" ref={inviteModalRef}>
+                    <div className="invite-modal" onClick={e => e.stopPropagation()} role="dialog" aria-modal="true" aria-labelledby="invite-modal-title" tabIndex={-1} ref={inviteModalRef}>
                         <h3 id="invite-modal-title">Convidar Colaborador</h3>
                         {inviteErro && <div className="form-error">{inviteErro}</div>}
                         {inviteSucesso && <div className="form-error" style={{ backgroundColor: 'var(--sucesso-bg)', color: 'var(--sucesso-texto)', borderColor: 'var(--sucesso)' }}>{inviteSucesso}</div>}
@@ -261,30 +252,35 @@ function StudioColaboradores({ projetoId, isOwner }: StudioColaboradoresProps) {
                                 key={colab.usuario.id}
                                 className="colab-card"
                             >
-                                <div className="colab-avatar" onClick={() => navigate(`/usuario/${colab.usuario.id}`)}>
+                                <Link
+                                    to={`/usuario/${colab.usuario.id}`}
+                                    className="colab-avatar"
+                                    tabIndex={-1}
+                                    aria-hidden="true"
+                                >
                                     {colab.usuario.avatar_url ? (
-                                        <img src={colab.usuario.avatar_url} alt={colab.usuario.nome_completo} />
+                                        <img src={colab.usuario.avatar_url} alt="" />
                                     ) : (
-                                        <div className="avatar-placeholder">
+                                        <div className="avatar-placeholder" aria-hidden="true">
                                             {colab.usuario.nome_completo?.charAt(0).toUpperCase()}
                                         </div>
                                     )}
-                                </div>
-                                <div className="colab-info" onClick={() => navigate(`/usuario/${colab.usuario.id}`)}>
+                                </Link>
+                                <Link to={`/usuario/${colab.usuario.id}`} className="colab-info">
                                     <strong>{colab.usuario.nome_completo}</strong>
                                     <span className="colab-role">
                                         <span className={`papel-badge papel-${colab.papel.toLowerCase()}`}>{rotuloPapel(colab.papel)}</span>
                                         {colab.cargo && colab.cargo !== 'membro' ? ` ${colab.cargo}` : ''}
                                     </span>
-                                </div>
+                                </Link>
                                 {isOwner && (
                                     <button
                                         className="btn-auth reject"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
+                                        onClick={() => {
                                             setDeleteColabTarget({ userId: colab.usuario.id, nome: colab.usuario.nome_completo });
                                         }}
                                         title="Remover colaborador"
+                                        aria-label={`Remover ${colab.usuario.nome_completo}`}
                                     >
                                         <Trash2 size={14} />
                                     </button>

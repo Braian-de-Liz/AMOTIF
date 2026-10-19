@@ -10,6 +10,8 @@ import { pode, type PapelEfetivo } from '../utility/papeis';
 import type { PlaybackEngine } from '../utility/playbackEngine';
 import { usePlaybackFrame } from '../hooks/usePlayback';
 import { delaySeconds } from '../utility/playbackMath';
+import { useFeedback } from '../contexts/FeedbackContext';
+import { ActionMenu } from './ActionMenu';
 
 // Tons da paleta (verdes e latão) legíveis sobre o fundo claro da waveform.
 const COLORS = [
@@ -73,7 +75,8 @@ interface WaveformTrackProps {
     usuarioId?: string
     totalVersoes?: number
     versaoAtual?: { id?: string; numero: number } | null
-    onSave?: (layerId: string, changes: LayerChanges) => void
+    /** Resolve `true` quando o servidor aceitou as alterações. */
+    onSave?: (layerId: string, changes: LayerChanges) => Promise<boolean> | void
     onAuthorize?: (layerId: string, aprovada: boolean) => void
     onDelete?: (layerId: string, layerName: string) => void
     onEdit?: (layerId: string) => void
@@ -107,6 +110,7 @@ function WaveformTrackInner({
     onVersionChange,
     saving = false
 }: WaveformTrackProps) {
+    const feedback = useFeedback();
     const containerRef = useRef<HTMLDivElement | null>(null);
     const [audioErro, setAudioErro] = useState(false);
     const wavesurferRef = useRef<any>(null);
@@ -133,6 +137,14 @@ function WaveformTrackInner({
     const podeRemover = (c: Comentario) => c.autor.id === usuarioId || meuPapel === 'DONO';
 
     const color = COLORS[colorIndex % COLORS.length];
+
+    // Ajustes de volume/delay ainda não salvos se perdem ao fechar a aba.
+    useEffect(() => {
+        if (!hasChanges) return;
+        const onBeforeUnload = (e: BeforeUnloadEvent) => e.preventDefault();
+        window.addEventListener('beforeunload', onBeforeUnload);
+        return () => window.removeEventListener('beforeunload', onBeforeUnload);
+    }, [hasChanges]);
 
     // Valores mais recentes para registrar a faixa no motor assim que o áudio estiver decodificado.
     const latest = useRef({ delay: localDelay, volume: localVolume, muted: isMuted });
@@ -268,14 +280,14 @@ function WaveformTrackInner({
         setComentariosAbertos(true);
     };
 
-    const handleSave = () => {
-        if (onSave) {
-            onSave(layerId, {
-                volume_padrao: localVolume,
-                delay_offset: localDelay
-            });
-        }
-        setHasChanges(false);
+    const handleSave = async () => {
+        if (!onSave) return;
+        const ok = await onSave(layerId, {
+            volume_padrao: localVolume,
+            delay_offset: localDelay
+        });
+        // Só limpa o aviso se o servidor aceitou; `void` (sem retorno) conta como salvo.
+        if (ok !== false) setHasChanges(false);
     };
 
     const [savingVersion, setSavingVersion] = useState(false);
@@ -287,16 +299,20 @@ function WaveformTrackInner({
                 mensagem: `Commit manual - ${new Date().toLocaleString('pt-BR')}`,
                 tag: undefined
             });
+            feedback.success('Versão salva.');
             onVersionChange?.();
         } catch (err) {
-            alert(err instanceof Error ? err.message : 'Erro ao criar versão');
+            feedback.error(err instanceof Error ? err.message : 'Erro ao criar versão');
         } finally {
             setSavingVersion(false);
         }
     };
 
     return (
-        <div className="waveform-track">
+        <div
+            className={`waveform-track${!isGuia && !estaAprovada ? ' is-pending' : ''}${isGuia ? ' is-guide' : ''}`}
+            style={{ '--track-color': color } as React.CSSProperties}
+        >
             <div className="track-header">
                 <div className="track-info">
                     <h4>{nome || 'Track'}</h4>
@@ -315,7 +331,7 @@ function WaveformTrackInner({
                     <button
                         className={`btn-icon ${isMuted ? 'active' : ''}`}
                         onClick={toggleMute}
-                        title={isMuted ? 'Ativar som' : 'Silenciar'}
+                        title={isMuted ? 'Ativar som' : 'Silenciar'} aria-label={isMuted ? 'Ativar som' : 'Silenciar'}
                     >
                         {isMuted ? <VolumeX size={18} /> : <Volume2 size={18} />}
                     </button>
@@ -328,11 +344,15 @@ function WaveformTrackInner({
                         onChange={handleVolumeChange}
                         className="volume-slider"
                         title={`Volume: ${Math.round(localVolume * 100)}%`}
+                        aria-label={`Volume de ${nome || 'faixa'}`}
+                        aria-valuetext={`${Math.round(localVolume * 100)}%`}
                     />
+                    <span className="volume-value" aria-hidden="true">{Math.round(localVolume * 100)}%</span>
                     {!isGuia && (
                         <div className="delay-control">
-                            <label>Delay (ms):</label>
+                            <label htmlFor={`delay-${layerId}`}>Delay (ms):</label>
                             <input
+                                id={`delay-${layerId}`}
                                 type="number"
                                 value={localDelay}
                                 onChange={handleDelayChange}
@@ -342,8 +362,9 @@ function WaveformTrackInner({
                         </div>
                     )}
                     {!isGuia && hasChanges && (
-                        <button className="btn-save" onClick={handleSave} disabled={saving} title="Salvar">
+                        <button className="btn-save btn-save-labeled" onClick={handleSave} disabled={saving} title="Salvar volume e delay desta camada">
                             {saving ? <Loader2 size={16} className="spin" /> : <Save size={16} />}
+                            <span>{saving ? 'Salvando…' : 'Salvar ajustes'}</span>
                         </button>
                     )}
                 </div>
@@ -371,27 +392,6 @@ function WaveformTrackInner({
                             >
                                 <History size={14} />
                                 v{versaoAtual?.numero || 1}
-                            </button>
-                        )}
-                        {(isOwner || isCollaborator) && (
-                            <button
-                                className="btn-save-version"
-                                onClick={handleSaveVersion}
-                                disabled={savingVersion}
-                                title="Salvar versão atual (commit manual)"
-                                aria-label="Salvar versão atual"
-                            >
-                                {savingVersion ? <Loader2 size={14} className="spin" /> : <Bookmark size={14} />}
-                            </button>
-                        )}
-                        {(isOwner || isCollaborator) && (
-                            <button
-                                className="btn-save-version"
-                                onClick={() => onEdit?.(layerId)}
-                                title="Editar áudio"
-                                aria-label="Editar áudio"
-                            >
-                                <Pencil size={14} />
                             </button>
                         )}
                         {!isGuia && (isOwner || isCollaborator) && (
@@ -422,17 +422,22 @@ function WaveformTrackInner({
                                 </button>
                             </>
                         )}
-                        {isOwner && (
-                            <>
-                                <button
-                                    className="btn-auth reject"
-                                    onClick={() => onDelete?.(layerId, nome || 'Track')}
-                                    title="Excluir camada"
-                                    aria-label="Excluir camada"
-                                >
-                                    <Trash2 size={14} />
-                                </button>
-                            </>
+                        {(isOwner || isCollaborator) && (
+                            <ActionMenu
+                                label="Mais ações da camada"
+                                items={[
+                                    {
+                                        label: 'Salvar versão atual',
+                                        icon: savingVersion ? <Loader2 size={14} className="spin" /> : <Bookmark size={14} />,
+                                        disabled: savingVersion,
+                                        onSelect: handleSaveVersion,
+                                    },
+                                    { label: 'Editar áudio', icon: <Pencil size={14} />, onSelect: () => onEdit?.(layerId) },
+                                    ...(isOwner
+                                        ? [{ label: 'Excluir camada', icon: <Trash2 size={14} />, danger: true, onSelect: () => onDelete?.(layerId, nome || 'Track') }]
+                                        : []),
+                                ]}
+                            />
                         )}
                     </div>
                 )}

@@ -9,7 +9,7 @@ interface UserCardProps {
 
 function UserCard({ user, onClick }: UserCardProps) {
     return (
-        <div className="user-card" onClick={onClick}>
+        <div className="user-card">
             <div className="user-card-avatar">
                 <Avatar
                     src={user.avatar_url}
@@ -19,7 +19,11 @@ function UserCard({ user, onClick }: UserCardProps) {
             </div>
 
             <div className="user-card-info">
-                <h4>{user.nome_completo}</h4>
+                <h4>
+                    <button type="button" className="user-card-link" onClick={onClick}>
+                        {user.nome_completo}
+                    </button>
+                </h4>
                 {user.bio && <p className="user-bio">{user.bio}</p>}
 
                 {user.instrumentos && user.instrumentos.length > 0 && (

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { GitBranch, Plus, ChevronDown, Loader2 } from 'lucide-react';
 import { fetchBranches, switchBranch, createBranch, deleteBranch } from '../utility/branchApi';
 import type { LayerBranch } from '../types/project';
+import { useFeedback } from '../contexts/FeedbackContext';
 
 interface BranchSelectorProps {
     layerId: string
@@ -19,6 +20,7 @@ function BranchSelector({ layerId, currentVersionId, onSwitch, disabled }: Branc
     const [baseVersionId, setBaseVersionId] = useState('');
     const [error, setError] = useState<string | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const feedback = useFeedback();
 
     useEffect(() => {
         loadBranches();
@@ -53,7 +55,7 @@ function BranchSelector({ layerId, currentVersionId, onSwitch, disabled }: Branc
             onSwitch?.();
             setOpen(false);
         } catch (err) {
-            alert(err instanceof Error ? err.message : 'Erro ao trocar branch');
+            feedback.error(err instanceof Error ? err.message : 'Erro ao trocar branch');
         }
     };
 
@@ -79,13 +81,19 @@ function BranchSelector({ layerId, currentVersionId, onSwitch, disabled }: Branc
     const handleDelete = async (branch: LayerBranch, e: React.MouseEvent) => {
         e.stopPropagation();
         if (branch.isMain) return;
-        if (!confirm(`Excluir branch "${branch.nome}"?`)) return;
+        const ok = await feedback.confirm({
+            title: 'Excluir branch',
+            message: `Excluir a branch "${branch.nome}"?`,
+            confirmLabel: 'Excluir',
+            danger: true,
+        });
+        if (!ok) return;
 
         try {
             await deleteBranch(layerId, branch.id);
             await loadBranches();
         } catch (err) {
-            alert(err instanceof Error ? err.message : 'Erro ao excluir branch');
+            feedback.error(err instanceof Error ? err.message : 'Erro ao excluir branch');
         }
     };
 
