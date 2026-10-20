@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { mixdownToWav, downloadBlob } from '@/utility/mixdown'
+import { mixdown, mixdownToWav, downloadBlob } from '@/utility/mixdown'
 
 interface FakeBuf {
   length: number
@@ -79,6 +79,32 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals()
   vi.restoreAllMocks()
+})
+
+describe('mixdown (mp3)', () => {
+  it('gera um MP3 menor que o WAV equivalente', async () => {
+    const n = 44100 * 3
+    const tone = (hz: number) => Float32Array.from({ length: n }, (_, i) => 0.5 * Math.sin((2 * Math.PI * hz * i) / 44100))
+    state.render = makeBuf([tone(440), tone(660)])
+
+    const mp3 = await mixdown([track()], 'mp3')
+    const wav = await mixdown([track()], 'wav')
+
+    expect(mp3.type).toBe('audio/mpeg')
+    expect(mp3.size).toBeGreaterThan(0)
+    expect(mp3.size).toBeLessThan(wav.size / 4)
+
+    const v = await readBlob(mp3)
+    // Quadro MP3 começa com sync de 11 bits (0xFFE).
+    expect(v.getUint8(0)).toBe(0xff)
+    expect(v.getUint8(1) & 0xe0).toBe(0xe0)
+  })
+
+  it('aceita mix mono', async () => {
+    state.render = makeBuf([new Float32Array(4410).fill(0.1)])
+    const mp3 = await mixdown([track()], 'mp3')
+    expect(mp3.size).toBeGreaterThan(0)
+  })
 })
 
 describe('mixdownToWav', () => {

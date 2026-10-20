@@ -60,6 +60,8 @@ const mockPrisma: any = {
           instrumento_tag: "Baixo",
           volume_padrao: 1,
           delay_offset: 0,
+          bpm_original: null,
+          transposicao_semitons: 0,
           esta_aprovada: true,
           createdAt: new Date(),
           autor: { id: USER, nome_completo: "Dono" },

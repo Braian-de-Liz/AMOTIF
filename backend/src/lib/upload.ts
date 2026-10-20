@@ -1,6 +1,5 @@
 import fp from "fastify-plugin";
 import type { FastifyPluginAsync } from "fastify";
-import { autenticarJWT } from "../hooks/JWT_verific.js";
 import type { MultipartFile } from "@fastify/multipart";
 import { safeExtractPath, isSafePath } from "./storage_path.js";
 import { createUrlSigner, type UrlSigner } from "./signed_urls.js";

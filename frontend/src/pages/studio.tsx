@@ -15,7 +15,7 @@ import { usePlayback } from "../hooks/usePlayback";
 import { Mic, Music, Users, MessageSquare, Lightbulb, Pencil, Trash2, Download } from "lucide-react";
 import { ActionMenu } from "../components/ActionMenu";
 import { WaveArt } from "../components/WaveArt";
-import { mixdownToWav, downloadBlob } from "../utility/mixdown";
+import { mixdown, downloadBlob, type MixdownFormat } from "../utility/mixdown";
 import type { Project, Camada } from "../types";
 import { useUserData } from "../contexts/UserDataContext";
 import '../styles/Studio.css';
@@ -79,7 +79,7 @@ function Studio() {
     }, [id]);
 
     // Exporta o guia + camadas aprovadas, com o volume e o delay de cada uma.
-    const handleExport = useCallback(async () => {
+    const handleExport = useCallback(async (formato: MixdownFormat) => {
         if (!projeto) return;
         const aprovadas = (projeto.camadas || []).filter(c => c.esta_aprovada);
         if (aprovadas.length === 0) {
@@ -89,11 +89,11 @@ function Studio() {
 
         setExporting(true);
         try {
-            const wav = await mixdownToWav([
+            const mix = await mixdown([
                 ...(projeto.audio_guia ? [{ url: projeto.audio_guia, delayMs: 0, volume: 1, label: 'Áudio guia' }] : []),
                 ...aprovadas.map(c => ({ url: c.audio_url, delayMs: c.delay_offset, volume: c.volume_padrao, label: c.nome_trilha })),
-            ]);
-            downloadBlob(wav, `${projeto.titulo.normalize('NFD').replace(/\p{M}/gu, '').replace(/[^\w-]+/g, '_').replace(/^_+|_+$/g, '') || 'mix'}.wav`);
+            ], formato);
+            downloadBlob(mix, `${projeto.titulo.normalize('NFD').replace(/\p{M}/gu, '').replace(/[^\w-]+/g, '_').replace(/^_+|_+$/g, '') || 'mix'}.${formato}`);
         } catch (err) {
             console.error(err);
             const motivo = err instanceof Error ? err.message : '';
@@ -265,19 +265,20 @@ function Studio() {
                             <Mic size={18} /> Gravar
                         </button>
                     )}
-                    <button className="btn-secondary-studio" onClick={handleExport} disabled={exporting}>
-                        <Download size={18} /> {exporting ? 'Gerando...' : 'Exportar WAV'}
+                    <button className="btn-secondary-studio" onClick={() => handleExport('mp3')} disabled={exporting}>
+                        <Download size={18} /> {exporting ? 'Gerando...' : 'Exportar MP3'}
                     </button>
-                    {isOwner && (
-                        <ActionMenu
-                            label="Mais ações do projeto"
-                            triggerClassName="btn-secondary-studio btn-icon-only"
-                            items={[
+                    <ActionMenu
+                        label="Mais ações do projeto"
+                        triggerClassName="btn-secondary-studio btn-icon-only"
+                        items={[
+                            { label: 'Exportar WAV (sem perdas)', icon: <Download size={14} />, disabled: exporting, onSelect: () => handleExport('wav') },
+                            ...(isOwner ? [
                                 { label: 'Editar projeto', icon: <Pencil size={14} />, onSelect: () => setEditModalOpen(true) },
                                 { label: 'Excluir projeto', icon: <Trash2 size={14} />, danger: true, onSelect: () => setDeleteModalOpen(true) },
-                            ]}
-                        />
-                    )}
+                            ] : []),
+                        ]}
+                    />
                 </div>
 
                 <WaveArt className="studio-header-wave" bars={90} />

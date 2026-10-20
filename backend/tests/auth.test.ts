@@ -12,7 +12,8 @@ import { globalErrorHandler } from "../src/lib/global_Error.js";
 
 const VALID_UUID = "123e4567-e89b-12d3-a456-426614174000";
 
-const mockPrisma = {
+const mockPrisma: any = {
+  $transaction: async (arg: any) => (typeof arg === "function" ? arg(mockPrisma) : Promise.all(arg)),
   refreshToken: {
     findUnique: async (args: any) => {
       if (args.where?.token === "valid-refresh-token") {

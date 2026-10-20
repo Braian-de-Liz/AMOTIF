@@ -41,7 +41,9 @@ function resetState() {
     versionCreates = [];
 }
 
-const mockPrisma = {
+const mockPrisma: any = {
+    $queryRaw: async () => [],
+    $transaction: async (arg: any) => (typeof arg === "function" ? arg(mockPrisma) : Promise.all(arg)),
     camada: {
         findUnique: async (args: any) => (args.where?.id === LAYER_ID ? { ...camada } : null),
         create: async (args: any) => ({

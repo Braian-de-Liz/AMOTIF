@@ -29,6 +29,15 @@ async function decodeTrack(ctx: BaseAudioContext, track: MixdownTrack): Promise<
     }
 }
 
+// Evita clipping quando a soma das faixas passa de 1.0: reduz tudo proporcionalmente.
+function peakScale(data: Float32Array[], frames: number): number {
+    let peak = 0;
+    for (const channel of data) {
+        for (let i = 0; i < frames; i++) peak = Math.max(peak, Math.abs(channel[i]));
+    }
+    return peak > 1 ? 0.98 / peak : 1;
+}
+
 function encodeWav(buffer: AudioBuffer): Blob {
     const frames = buffer.length;
     const channels = buffer.numberOfChannels;
@@ -56,12 +65,7 @@ function encodeWav(buffer: AudioBuffer): Blob {
 
     const data = Array.from({ length: channels }, (_, c) => buffer.getChannelData(c));
 
-    // Evita clipping quando a soma das faixas passa de 1.0: reduz tudo proporcionalmente.
-    let peak = 0;
-    for (const channel of data) {
-        for (let i = 0; i < frames; i++) peak = Math.max(peak, Math.abs(channel[i]));
-    }
-    const scale = peak > 1 ? 0.98 / peak : 1;
+    const scale = peakScale(data, frames);
     let offset = 44;
     for (let i = 0; i < frames; i++) {
         for (let c = 0; c < channels; c++) {
@@ -74,8 +78,46 @@ function encodeWav(buffer: AudioBuffer): Blob {
     return new Blob([view], { type: 'audio/wav' });
 }
 
-// Mixa as faixas respeitando delay (ms) e volume de cada uma e devolve um WAV 16-bit estéreo.
-export async function mixdownToWav(tracks: MixdownTrack[]): Promise<Blob> {
+const MP3_KBPS = 192;
+const MP3_BLOCK = 1152;
+
+async function encodeMp3(buffer: AudioBuffer): Promise<Blob> {
+    const { Mp3Encoder } = await import('@breezystack/lamejs');
+    const frames = buffer.length;
+    const channels = Math.min(buffer.numberOfChannels, 2);
+    const data = Array.from({ length: channels }, (_, c) => buffer.getChannelData(c));
+    const scale = peakScale(data, frames);
+
+    const toInt16 = (src: Float32Array, start: number, end: number) => {
+        const out = new Int16Array(end - start);
+        for (let i = start; i < end; i++) {
+            const sample = Math.max(-1, Math.min(1, src[i] * scale));
+            out[i - start] = sample < 0 ? sample * 0x8000 : sample * 0x7fff;
+        }
+        return out;
+    };
+
+    const encoder = new Mp3Encoder(channels, buffer.sampleRate, MP3_KBPS);
+    const chunks: Uint8Array[] = [];
+    for (let start = 0; start < frames; start += MP3_BLOCK) {
+        const end = Math.min(start + MP3_BLOCK, frames);
+        const left = toInt16(data[0], start, end);
+        const chunk = channels === 2
+            ? encoder.encodeBuffer(left, toInt16(data[1], start, end))
+            : encoder.encodeBuffer(left);
+        if (chunk.length > 0) chunks.push(chunk);
+        // Cede a thread de vez em quando para a interface não congelar em mixes longos.
+        if ((start / MP3_BLOCK) % 400 === 399) await new Promise(r => setTimeout(r, 0));
+    }
+    const tail = encoder.flush();
+    if (tail.length > 0) chunks.push(tail);
+
+    return new Blob(chunks as BlobPart[], { type: 'audio/mpeg' });
+}
+
+export type MixdownFormat = 'mp3' | 'wav';
+
+async function renderMix(tracks: MixdownTrack[]): Promise<AudioBuffer> {
     if (tracks.length === 0) throw new Error('Nenhuma faixa para exportar.');
 
     // O contexto só serve para decodificar; a duração final depende dos buffers.
@@ -97,8 +139,16 @@ export async function mixdownToWav(tracks: MixdownTrack[]): Promise<Blob> {
         source.start(safeDelay(tracks[i].delayMs) / 1000);
     });
 
-    return encodeWav(await ctx.startRendering());
+    return ctx.startRendering();
 }
+
+// Mixa as faixas respeitando delay (ms) e volume de cada uma; devolve MP3 192 kbps ou WAV 16-bit estéreo.
+export async function mixdown(tracks: MixdownTrack[], format: MixdownFormat = 'mp3'): Promise<Blob> {
+    const mixed = await renderMix(tracks);
+    return format === 'mp3' ? encodeMp3(mixed) : encodeWav(mixed);
+}
+
+export const mixdownToWav = (tracks: MixdownTrack[]) => mixdown(tracks, 'wav');
 
 export function downloadBlob(blob: Blob, filename: string) {
     const url = URL.createObjectURL(blob);
