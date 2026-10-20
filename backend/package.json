@@ -6,9 +6,10 @@
   "main": "dist/server.js",
   "scripts": {
     "dev": "bun --hot src/server.ts",
-    "build": "bun build ./src/server.ts  --minify --target=bun --outfile dist/server.js",
-    "build_exe": "bun build ./src/server.ts --compile --minify --target=bun-windows-x64 --outfile dist/server",
-    "build_deploy": "bun build ./src/server.ts --compile --minify --target=bun-linux-x64 --outfile dist/server-linux",
+    "comp": "bun build ./src/server.ts --minify --target=bun --outfile dist/server.js",
+    "compT": "bun build ./src/server.ts --check --minify --target=bun --outfile dist/server.js",
+    "build_exe": "bun build ./src/server.ts --check --compile --minify --target=bun-windows-x64 --outfile dist/server",
+    "build_deploy": "bun build ./src/server.ts --check --compile --minify --target=bun-linux-x64 --outfile dist/server-linux",
     "start": "bun dist/server.js",
     "start_exe": "./dist/server",
     "check": "tsc --noEmit",

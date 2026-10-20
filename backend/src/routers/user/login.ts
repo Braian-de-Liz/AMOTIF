@@ -3,12 +3,13 @@ import { schema_login } from "../../schemas/user_schema/schema_login.js";
 import { generateRefreshToken } from '../../services/refreshToken.js';
 import { secure_state, sameSite_state } from '../../lib/config.enviriment.js';
 import { emailIgual } from '../../lib/normalizar_email.js';
+import { limite_autenticacao } from "../../lib/rate_limits.js";
 const ACCESS_TOKEN_MAX_AGE = 4 * 60 * 60;
 const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60;
 
 const login_user: FastifyPluginAsyncTypebox = async (Fastify) => {
 
-    Fastify.post("/usuario/login", schema_login, async (request, reply) => {
+    Fastify.post("/usuario/login", { ...schema_login, config: limite_autenticacao }, async (request, reply) => {
 
         const { email, senha } = request.body;
 

@@ -20,6 +20,16 @@ interface MergeBranchData {
     mensagem?: string;
 }
 
+type BranchVersionRow = { id: string; versionNumber: number; createdAt: Date };
+
+function serializarBranchVersion(v: BranchVersionRow) {
+    return {
+        id: v.id,
+        versionNumber: v.versionNumber,
+        createdAt: v.createdAt.toISOString()
+    };
+}
+
 async function createBranch(
     prisma: PrismaClient,
     data: CreateBranchData
@@ -76,7 +86,17 @@ async function createBranch(
         }
     });
 
-    return branch;
+    return {
+        id: branch.id,
+        nome: branch.nome,
+        camadaId: branch.camadaId,
+        isMain: branch.isMain,
+        baseVersion: serializarBranchVersion(branch.baseVersion),
+        headVersion: serializarBranchVersion(branch.headVersion),
+        createdBy: branch.createdBy,
+        createdAt: branch.createdAt.toISOString(),
+        updatedAt: branch.updatedAt.toISOString()
+    };
 }
 
 async function createMainBranchIfNotExists(
@@ -145,8 +165,8 @@ async function listBranches(
         nome: b.nome,
         camadaId: b.camadaId,
         isMain: b.isMain,
-        baseVersion: b.baseVersion,
-        headVersion: b.headVersion,
+        baseVersion: serializarBranchVersion(b.baseVersion),
+        headVersion: serializarBranchVersion(b.headVersion),
         createdBy: b.createdBy,
         createdAt: b.createdAt.toISOString(),
         updatedAt: b.updatedAt.toISOString()

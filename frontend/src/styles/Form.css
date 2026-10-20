@@ -21,7 +21,7 @@
   display: block;
   margin-bottom: var(--space-xs);
   color: var(--texto);
-  font-weight: 500;
+  font-weight: 600;
   font-size: var(--text-sm);
   transition: color 0.15s ease;
 }

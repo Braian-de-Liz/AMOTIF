@@ -1,8 +1,9 @@
 import fastify from 'fastify';
 import type { TypeBoxTypeProvider } from '@fastify/type-provider-typebox';
 import { InfraPlugin } from './lib/infra_plugins.js';
+import { trust_proxy } from './lib/config.enviriment.js';
 
-const Fastify = fastify(/* { logger: true } */).withTypeProvider<TypeBoxTypeProvider>();
+const Fastify = fastify({ trustProxy: trust_proxy }).withTypeProvider<TypeBoxTypeProvider>();
 
 Fastify.register(InfraPlugin);
 

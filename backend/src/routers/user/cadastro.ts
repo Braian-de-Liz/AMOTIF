@@ -2,10 +2,11 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { schema_register } from "../../schemas/user_schema/cadastroUSer_sche.js";
 import { encryptCPF, hashCPF } from "../../lib/cpf.js";
 import { normalizarEmail, emailIgual } from "../../lib/normalizar_email.js";
+import { limite_autenticacao } from "../../lib/rate_limits.js";
 
 const User_register: FastifyPluginAsyncTypebox = async (Fastify) => {
 
-    Fastify.post("/usuario", schema_register, async (request, reply) => {
+    Fastify.post("/usuario", { ...schema_register, config: limite_autenticacao }, async (request, reply) => {
 
         const { nome_completo, senha, cpf } = request.body;
         const email = normalizarEmail(request.body.email);

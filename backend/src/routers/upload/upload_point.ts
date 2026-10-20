@@ -13,7 +13,7 @@ export async function rejeitarCorpoGrande(request: FastifyRequest, reply: Fastif
     if (!header) return;
 
     const tamanho = Number(header);
-    if (Number.isFinite(tamanho) && tamanho > MAX_FILE_SIZE + MULTIPART_OVERHEAD) {
+    if (Number.isFinite(tamanho) && tamanho >= MAX_FILE_SIZE + MULTIPART_OVERHEAD) {
         return reply.status(413).send({
             status: "erro",
             mensagem: MENSAGEM_LIMITE

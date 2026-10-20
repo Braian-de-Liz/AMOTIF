@@ -14,7 +14,7 @@ a **waveform**.
 | Glassmorphism em cards, forms, search bar | Glass só em navbar e modal | Glass em tudo é o tell mais forte de UI genérica de IA |
 | Gradiente 135deg + shimmer no botão CTA | Cor sólida `--verde-musgo`, sem shimmer | Gradiente diagonal em botão é padrão-template |
 | Radius uniforme (`--radius-pill` em tudo) | Radius diferenciado por função | Sem hierarquia de raio, nada parece decidido |
-| Só Inter, em tudo | Inter (UI/corpo) + Fraunces (títulos) + mono (dados) | Uma única face vira "papel de parede" |
+| Só Plus Jakarta Sans, em tudo | Plus Jakarta Sans (UI/corpo) + Fraunces (títulos) + mono (dados) | Uma única face vira "papel de parede" |
 | Paleta 100% monocromática | Verde + 1 accent pontual (latão) + tinta quase-preta pra títulos | Contraste de tom sem sair da identidade |
 | `fadeInUp` com stagger `nth-child` em tudo | Motion só onde há significado (ordem real de camadas) | Stagger universal é decoração, não informação |
 | Nenhum elemento de assinatura | Waveform como divisor / loading / empty state / sublinhado de hero | O produto é sobre áudio e sync — o motivo visual estava óbvio e sem uso |
@@ -110,27 +110,27 @@ Três papéis, cada um com um trabalho:
 | Papel | Fonte | Peso | Uso |
 |---|---|---|---|
 | **Display** | Fraunces (variable) | 500 / 600 | H1, H2, título de hero, número de destaque |
-| **UI / corpo** | Inter | 400 / 500 / 600 | Corpo, labels, botões, nav, formulários |
+| **UI / corpo** | Plus Jakarta Sans | 400 / 500 / 600 | Corpo, labels, botões, nav, formulários |
 | **Dados técnicos** | JetBrains Mono | 400 / 500 | BPM, `delayMs`, timestamps de track, marcações de waveform |
  
 Fraunces entra especificamente pelas curvas orgânicas — conversa com o "natural/orgânico"
-que já é a personalidade da marca, e cria contraste real com a Inter utilitária.
+que já é a personalidade da marca, e cria contraste real com a Plus Jakarta Sans utilitária.
 JetBrains Mono aparece só em dado técnico de áudio — é um detalhe que só faz sentido
 porque o produto sincroniza camadas por offset em milissegundos.
  
 | Token | Tamanho | Face |
 |---|---|---|
-| `--text-xs` | 0.75rem (12px) | Inter / Mono — badges, timestamps |
-| `--text-sm` | 0.8125rem (13px) | Inter — labels |
-| `--text-base` | 0.9375rem (15px) | Inter — corpo, inputs |
-| `--text-lg` | 1.0625rem (17px) | Inter — labels de formulário |
+| `--text-xs` | 0.75rem (12px) | Plus Jakarta Sans / Mono — badges, timestamps |
+| `--text-sm` | 0.8125rem (13px) | Plus Jakarta Sans — labels |
+| `--text-base` | 0.9375rem (15px) | Plus Jakarta Sans — corpo, inputs |
+| `--text-lg` | 1.0625rem (17px) | Plus Jakarta Sans — labels de formulário |
 | `--text-xl` | 1.25rem (20px) | Fraunces 500 — títulos de seção |
 | `--text-2xl` | 1.5rem (24px) | Fraunces 500 — sub-títulos |
 | `--text-3xl` | 1.75rem (28px) | Fraunces 600 — títulos de página |
 | `--text-4xl` | 2rem (32px) | Fraunces 600 — headers grandes |
 | `--text-5xl` | 2.25rem (36px) | Fraunces 600 — dashboard headings |
  
-**Letter-spacing:** `-0.01em` só em Fraunces acima de `--text-2xl`. Não aplicar em Inter —
+**Letter-spacing:** `-0.01em` só em Fraunces acima de `--text-2xl`. Não aplicar em Plus Jakarta Sans —
 a tightening universal em tudo foi um dos tells genéricos.
  
 ---
@@ -320,7 +320,7 @@ Sem alteração — breakpoint `768px`, mesma estrutura desktop/mobile.
 6. Não aplicar `fadeInUp` + stagger `nth-child` como default de qualquer lista
 7. Não usar sombras pretas pesadas
 8. Não usar cores hipersaturadas
-9. Não usar mais de uma face de destaque além de Fraunces/Inter/Mono
+9. Não usar mais de uma face de destaque além de Fraunces/Plus Jakarta Sans/Mono
 10. Não usar a waveform como decoração solta — só como divisor, loading, empty state ou sublinhado de hero
 ---
  

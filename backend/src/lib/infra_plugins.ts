@@ -76,7 +76,7 @@ const InfraPlugin: FastifyPluginAsync = async (Fastify) => {
     });
 
     if (isProduction) {
-        await Fastify.register(rate_limite, { max: 60, timeWindow: '1 minute' }); //só ativar em produção
+        await Fastify.register(rate_limite, { max: 60, timeWindow: '1 minute', }); //só ativar em produção
     }
 
 

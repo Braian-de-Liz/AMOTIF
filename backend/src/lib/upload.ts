@@ -15,7 +15,7 @@ const ALLOWED_CONTENT_TYPES: Record<string, boolean> = {
     "audio/x-m4a": true,
 };
 
-const MAX_FILE_SIZE = 40 * 1024 * 1024;
+const MAX_FILE_SIZE = 50 * 1024 * 1024;
 
 // Folga para boundary e cabeçalhos do multipart ao comparar com o Content-Length da requisição.
 const MULTIPART_OVERHEAD = 64 * 1024;

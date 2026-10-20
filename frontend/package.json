@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@breezystack/lamejs": "1.2.7",
+    "@fontsource-variable/plus-jakarta-sans": "^5.3.0",
     "br_standards_with_zod": "^1.1.2",
     "lucide-react": "^1.7.0",
     "music-metadata": "^11.12.3",
