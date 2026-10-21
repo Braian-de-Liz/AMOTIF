@@ -123,6 +123,7 @@ const mockPrisma: any = {
         count: async () => 0,
         create: async ({ data }: any) => ({ id: "branch-id", ...data, createdAt: new Date(), updatedAt: new Date(), baseVersion: { id: "55555555-5555-4555-8555-555555555555", versionNumber: 1, createdAt: new Date() }, headVersion: { id: "55555555-5555-4555-8555-555555555555", versionNumber: 1, createdAt: new Date() }, createdBy: { id: AUTOR, nome_completo: "Autor", avatar_url: null } }),
         findMany: async () => [],
+        deleteMany: async () => ({ count: 0 }),
     },
     projeto: {
         findUnique: async ({ where }: any) => projetoComCamadas(where.id),

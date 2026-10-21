@@ -16,6 +16,10 @@ const get_me_schema = {
                     bio: Type.Union([Type.String(), Type.Null()]),
                     instrumentos: Type.Array(Type.String()),
                     avatar_url: Type.Union([Type.String(), Type.Null()]),
+                    _count: Type.Object({
+                        seguidores: Type.Number(),
+                        seguindo: Type.Number()
+                    }),
                 })
             }),
             ...Error_schema

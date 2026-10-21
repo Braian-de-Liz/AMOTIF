@@ -50,6 +50,7 @@ const mockPrisma: any = {
     count: async () => 0,
     create: async (data: any) => ({ id: "branch-id", ...data.data, createdAt: new Date(), updatedAt: new Date(), baseVersion: { id: "version-id", versionNumber: 1, createdAt: new Date() }, headVersion: { id: "version-id", versionNumber: 1, createdAt: new Date() }, createdBy: { id: "test-user-id", nome_completo: "Test User", avatar_url: null } }),
     findMany: async () => [],
+    deleteMany: async () => ({ count: 0 }),
   },
   notification: {
     create: async () => ({}),

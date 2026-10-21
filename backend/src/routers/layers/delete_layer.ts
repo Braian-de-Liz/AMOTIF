@@ -22,7 +22,11 @@ const delete_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
             }
         });
 
-        await Fastify.prisma.camada.delete({ where: { id } });
+        // As branches apontam para versões com ON DELETE RESTRICT: precisam sair antes da camada (que leva as versões em cascata).
+        await Fastify.prisma.$transaction(async (tx) => {
+            await tx.layerBranch.deleteMany({ where: { camadaId: id } });
+            await tx.camada.delete({ where: { id } });
+        });
 
         // Arquivos só depois do banco: uma falha no Storage não impede a exclusão nem deixa a camada sem áudio.
         // Só apaga arquivos dentro do diretório de quem os enviou (bloqueia URLs forjadas/legadas).

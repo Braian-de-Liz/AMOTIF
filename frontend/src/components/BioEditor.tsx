@@ -3,7 +3,7 @@ import { useUserData } from '../contexts/UserDataContext';
 import { URL_API_TESTE } from '../utility/url_apis';
 
 function BioEditor() {
-    const { usuario, loading } = useUserData();
+    const { usuario, loading, updateUsuario } = useUserData();
     const usuarioId = usuario?.id || '';
 
     const [bio, setBio] = useState('');
@@ -40,6 +40,7 @@ function BioEditor() {
             const result = await res.json();
             if (res.ok) {
                 setOriginalBio(payload);
+                updateUsuario({ bio: payload });
                 setBio(payload ?? '');
                 setEditing(false);
             } else {

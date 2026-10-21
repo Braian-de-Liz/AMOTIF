@@ -1,12 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { WaveformTrack } from "../components/WaveformTrack";
 import { StudioMural } from "../components/StudioMural";
 import { StudioSugestoes } from "../components/StudioSugestoes";
 import { StudioColaboradores } from "../components/StudioColaboradores";
 import { EditProjectModal } from "../components/EditProjectModal";
 import { DeleteProjectModal } from "../components/DeleteProjectModal";
-import { CreateLayerModal } from "../components/CreateLayerModal";
 import { DeleteLayerModal } from "../components/DeleteLayerModal";
 import { LayerEditorModal } from "../components/LayerEditorModal";
 import { URL_API_TESTE } from "../utility/url_apis";
@@ -26,6 +25,7 @@ import { useFeedback } from "../contexts/FeedbackContext";
 
 function Studio() {
     const { id } = useParams<{ id: string }>();
+    const navigate = useNavigate();
     const [projeto, setProjeto] = useState<Project | null>(null);
     const [loading, setLoading] = useState(true);
     const [erro, setErro] = useState<string | null>(null);
@@ -34,7 +34,6 @@ function Studio() {
     const [exporting, setExporting] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-    const [createLayerModalOpen, setCreateLayerModalOpen] = useState(false);
     const [deleteLayerTarget, setDeleteLayerTarget] = useState<{ id: string; nome: string } | null>(null);
     const [editLayerTarget, setEditLayerTarget] = useState<{ id: string; audioUrl: string; nome: string } | null>(null);
     const { usuario } = useUserData();
@@ -261,7 +260,7 @@ function Studio() {
 
                 <div className="studio-header-actions">
                     {podeEnviar && (
-                        <button className="btn-primary-studio" onClick={() => setCreateLayerModalOpen(true)}>
+                        <button className="btn-primary-studio" onClick={() => navigate(`/studio/${id}/gravar`)}>
                             <Mic size={18} /> Gravar
                         </button>
                     )}
@@ -327,7 +326,7 @@ function Studio() {
                                 <h3>Nenhuma camada ainda</h3>
                                 <p>O áudio guia já está pronto. {podeEnviar ? 'Grave a primeira camada e comece a construir a música.' : 'Quando alguém gravar, as camadas aparecem aqui.'}</p>
                                 {podeEnviar && (
-                                    <button className="btn-primary-studio" onClick={() => setCreateLayerModalOpen(true)}>
+                                    <button className="btn-primary-studio" onClick={() => navigate(`/studio/${id}/gravar`)}>
                                         <Mic size={18} /> Gravar a primeira camada
                                     </button>
                                 )}
@@ -393,12 +392,6 @@ function Studio() {
                 onClose={() => setDeleteModalOpen(false)}
             />
 
-            <CreateLayerModal
-                projetoId={id || ''}
-                isOpen={createLayerModalOpen}
-                onClose={() => setCreateLayerModalOpen(false)}
-                onLayerCreated={refetchProjeto}
-            />
 
             <TransportBar engine={engine} />
 

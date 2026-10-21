@@ -77,6 +77,8 @@ const mockPrisma: any = {
         },
         delete: async () => { eventos.push("db:delete-camada"); return {}; },
     },
+    layerBranch: { deleteMany: async () => ({ count: 0 }) },
+    $transaction: async (arg: any) => (typeof arg === "function" ? arg(mockPrisma) : Promise.all(arg)),
     user: {
         findFirst: async ({ where }: any) => {
             if (where.email && !where.OR) return usuarios.find((u) => bateEmail(u.email, where.email)) ?? null;

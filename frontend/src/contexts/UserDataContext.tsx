@@ -7,13 +7,16 @@ interface UserDataContextValue {
     loading: boolean
     error: string | null
     refetch: () => Promise<void>
+    /** Atualiza campos do usuário em memória, sem recarregar (refetch desmonta a tela via loading). */
+    updateUsuario: (changes: Partial<User>) => void
 }
 
 const UserDataContext = createContext<UserDataContextValue>({
     usuario: null,
     loading: true,
     error: null,
-    refetch: async () => { }
+    refetch: async () => { },
+    updateUsuario: () => { }
 });
 
 function UserDataProvider({ children }: { children: ReactNode }) {
@@ -42,12 +45,16 @@ function UserDataProvider({ children }: { children: ReactNode }) {
         }
     };
 
+    const updateUsuario = (changes: Partial<User>) => {
+        setUsuario(prev => prev ? { ...prev, ...changes } : prev);
+    };
+
     useEffect(() => {
         fetchUser();
     }, []);
 
     return (
-        <UserDataContext.Provider value={{ usuario, loading, error, refetch: fetchUser }}>
+        <UserDataContext.Provider value={{ usuario, loading, error, refetch: fetchUser, updateUsuario }}>
             {children}
         </UserDataContext.Provider>
     );

@@ -16,6 +16,7 @@ const Studio = React.lazy(() => import('./pages/studio').then(m => ({ default: m
 const InvitesPage = React.lazy(() => import('./pages/invitesPage').then(m => ({ default: m.InvitesPage })));
 const FavoritesPage = React.lazy(() => import('./pages/favoritesPage').then(m => ({ default: m.FavoritesPage })));
 const NovoStudio = React.lazy(() => import('./pages/novoStudio').then(m => ({ default: m.NovoStudio })));
+const GravarCamada = React.lazy(() => import('./pages/gravarCamada').then(m => ({ default: m.GravarCamada })));
 const JoinInvite = React.lazy(() => import('./pages/joinInvite'));
 const NotFound = React.lazy(() => import('./pages/notFound'));
 
@@ -52,6 +53,7 @@ function App() {
                             <Route path='/home' element={<Home />} />
                             <Route path='/usuario' element={<UserPage />} />
                             <Route path='/studio/:id' element={<Studio />} />
+                            <Route path='/studio/:id/gravar' element={<GravarCamada />} />
                             <Route path='/usuario/:id' element={<UserProfile />} />
                             <Route path='/novo-studio' element={<NovoStudio />} />
                             <Route path='/convites' element={<InvitesPage />} />

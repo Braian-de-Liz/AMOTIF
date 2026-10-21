@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useApi } from '../hooks/useApi';
 import { useUserData } from '../contexts/UserDataContext';
 import { Avatar } from './Avatar';
@@ -27,7 +28,12 @@ function FollowersList({ userId }: FollowersListProps) {
             ) : (
                 <div className="followers-grid">
                     {followers.map((follow) => (
-                        <div key={follow.followerId} className="follower-card">
+                        <Link
+                            key={follow.followerId}
+                            to={`/usuario/${follow.followerId}`}
+                            className="follower-card"
+                            style={{ textDecoration: 'none', color: 'inherit' }}
+                        >
                             <div className="follower-avatar">
                                 <Avatar
                                     src={follow.follower.avatar_url}
@@ -39,7 +45,7 @@ function FollowersList({ userId }: FollowersListProps) {
                                 <strong>{follow.follower.nome_completo}</strong>
                                 {follow.follower.bio && <p>{follow.follower.bio}</p>}
                             </div>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             )}

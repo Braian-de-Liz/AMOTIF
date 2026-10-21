@@ -17,6 +17,7 @@ const Get_me: FastifyPluginAsyncTypebox = async (Fastify) => {
                 bio: true,
                 instrumentos: true,
                 avatar_url: true,
+                _count: { select: { seguidores: true, seguindo: true } },
             }
         });
 

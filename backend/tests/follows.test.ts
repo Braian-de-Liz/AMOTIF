@@ -16,6 +16,7 @@ const mockPrisma = {
   follows: {
     findUnique: async () => null,
     findMany: async () => [],
+    count: async () => 0,
     create: async (data: any) => ({ ...data.data }),
     delete: async () => ({}),
   },
