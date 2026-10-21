@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, memo } from 'react';
+import { useCallback, useEffect, useRef, useState, memo } from 'react';
 import { Play, Pause, Volume2, VolumeX, Save, Loader2, Trash2, History, Pencil, Bookmark, MessageSquare } from 'lucide-react';
 import { LayerVersionPanel } from './LayerVersionPanel';
 import { VersionDetailModal } from './VersionDetailModal';
@@ -10,6 +10,8 @@ import { pode, type PapelEfetivo } from '../utility/papeis';
 import type { PlaybackEngine } from '../utility/playbackEngine';
 import { usePlaybackFrame } from '../hooks/usePlayback';
 import { delaySeconds } from '../utility/playbackMath';
+import { renderStretched } from '../utility/stretchRender';
+import { computeStretchRatio, isQualityRisk, MIN_RATIO } from '../utility/tempo';
 import { useFeedback } from '../contexts/FeedbackContext';
 import { ActionMenu } from './ActionMenu';
 
@@ -51,7 +53,14 @@ interface Version {
 interface LayerChanges {
     volume_padrao: number
     delay_offset: number
+    /** Só vai quando a velocidade foi mexida; null = volta ao BPM do projeto. */
+    bpm_original?: number | null
 }
+
+/** Teto do controle de velocidade: acima de √2 o cálculo de tempo (computeStretchRatio) trataria como meio-tempo. */
+const MAX_SPEED = 1.4;
+const SPEED_STEP = 0.05;
+const RENDER_DEBOUNCE_MS = 300;
 
 interface WaveformTrackProps {
     /** Motor que toca todas as faixas; o wavesurfer aqui só desenha a forma de onda. */
@@ -62,6 +71,9 @@ interface WaveformTrackProps {
     layerId: string
     delayOffset?: number
     volume?: number
+    /** BPM do projeto e BPM em que esta camada foi gravada: definem a velocidade salva. */
+    projectBpm?: number
+    bpmOriginal?: number | null
     colorIndex?: number
     isGuia?: boolean
     estaAprovada?: boolean
@@ -92,6 +104,8 @@ function WaveformTrackInner({
     layerId,
     delayOffset = 0,
     volume = 1.0,
+    projectBpm,
+    bpmOriginal = null,
     colorIndex = 0,
     isGuia = false,
     estaAprovada = false,
@@ -123,6 +137,10 @@ function WaveformTrackInner({
     const [localVolume, setLocalVolume] = useState(volume);
     const [isMuted, setIsMuted] = useState(false);
     const [localDelay, setLocalDelay] = useState(delayOffset);
+    // Velocidade da camada (1 = original; >1 acelera). Preserva a afinação.
+    const [localRate, setLocalRate] = useState(() => Math.min(MAX_SPEED, Math.max(MIN_RATIO, computeStretchRatio(projectBpm ?? 0, bpmOriginal))));
+    const [rateTouched, setRateTouched] = useState(false);
+    const [rendering, setRendering] = useState(false);
     const [hasChanges, setHasChanges] = useState(false);
     const [versionPanelOpen, setVersionPanelOpen] = useState(false);
     const [detailVersion, setDetailVersion] = useState<Version | null>(null);
@@ -147,9 +165,44 @@ function WaveformTrackInner({
     }, [hasChanges]);
 
     // Valores mais recentes para registrar a faixa no motor assim que o áudio estiver decodificado.
-    const latest = useRef({ delay: localDelay, volume: localVolume, muted: isMuted });
-    useEffect(() => { latest.current = { delay: localDelay, volume: localVolume, muted: isMuted }; });
-    const durationRef = useRef(0);
+    const latest = useRef({ delay: localDelay, volume: localVolume, muted: isMuted, rate: localRate });
+    useEffect(() => { latest.current = { delay: localDelay, volume: localVolume, muted: isMuted, rate: localRate }; });
+    // Áudio decodificado original e velocidade já aplicada ao que está no motor.
+    const decodedRef = useRef<AudioBuffer | null>(null);
+    const renderToken = useRef(0);
+    const [appliedRate, setAppliedRate] = useState(1);
+    const appliedRef = useRef(1);
+
+    // Troca o áudio do motor por uma versão acelerada/desacelerada (afinação preservada).
+    const applyRate = useCallback(async (rate: number) => {
+        const decoded = decodedRef.current;
+        if (!decoded) return;
+
+        const token = ++renderToken.current;
+        setRendering(true);
+        try {
+            const buffer = await renderStretched(decoded, rate, 0);
+            if (token !== renderToken.current) return;
+            appliedRef.current = rate;
+            setAppliedRate(rate);
+            engine.registerTrack(layerId, buffer);
+        } catch (err) {
+            if (token !== renderToken.current) return;
+            console.error(err);
+            feedback.error(err instanceof Error ? err.message : 'Não foi possível ajustar a velocidade.');
+        } finally {
+            if (token === renderToken.current) setRendering(false);
+        }
+    }, [engine, layerId, feedback]);
+
+    // Mexer na velocidade re-renderiza só depois que o usuário para de arrastar.
+    useEffect(() => {
+        if (!decodedRef.current || localRate === appliedRef.current) return;
+        const timer = setTimeout(() => { void applyRate(localRate); }, RENDER_DEBOUNCE_MS);
+        return () => clearTimeout(timer);
+    }, [localRate, applyRate]);
+
+    useEffect(() => () => { renderToken.current++; }, []);    const durationRef = useRef(0);
     useEffect(() => { durationRef.current = duration; }, [duration]);
 
     useEffect(() => {
@@ -195,16 +248,21 @@ function WaveformTrackInner({
                 setAudioErro(false);
                 setDuration(wavesurfer.getDuration());
                 readyRef.current = true;
+                decodedRef.current = decoded;
+                appliedRef.current = 1;
+                setAppliedRate(1);
                 engine.registerTrack(layerId, decoded, {
                     delayMs: latest.current.delay,
                     volume: latest.current.volume,
                     muted: latest.current.muted,
                 });
+                // Camada salva com outra velocidade: troca para a versão ajustada assim que ficar pronta.
+                if (latest.current.rate !== 1) void applyRate(latest.current.rate);
             });
 
             // Clicar na forma de onda leva a reprodução de TODAS as faixas para aquele ponto.
             wavesurfer.on('interaction', (newTime: number) => {
-                if (!cancelled) engine.seek(newTime + delaySeconds(latest.current.delay));
+                if (!cancelled) engine.seek(newTime / appliedRef.current + delaySeconds(latest.current.delay));
             });
 
             wavesurferRef.current = wavesurfer;
@@ -215,13 +273,15 @@ function WaveformTrackInner({
         return () => {
             cancelled = true;
             readyRef.current = false;
+            decodedRef.current = null;
+            renderToken.current++;
             engine.unregisterTrack(layerId);
             if (wavesurferRef.current) {
                 wavesurferRef.current.destroy();
                 wavesurferRef.current = null;
             }
         };
-    }, [audioUrl, color, layerId, engine]);
+    }, [audioUrl, color, layerId, engine, applyRate]);
 
     // Volume, mute e delay valem ao vivo no motor, inclusive antes de salvar.
     useEffect(() => {
@@ -230,9 +290,16 @@ function WaveformTrackInner({
 
     // Cursor e relógio da faixa seguem a posição global (já descontado o delay desta camada).
     const playback = usePlaybackFrame(engine, position => {
-        const local = Math.min(Math.max(0, position - delaySeconds(localDelay)), durationRef.current);
+        // Outra camada tocando sozinha: esta fica parada, sem cursor nem relógio andando.
+        const { playing, soloId } = engine.getState();
+        if (playing && soloId !== null && soloId !== layerId) return;
 
-        if (readyRef.current) wavesurferRef.current?.setTime(local);
+        // `local` é o tempo tocado (já com a velocidade); `original` é o ponto correspondente no áudio gravado.
+        const rate = appliedRef.current;
+        const local = Math.min(Math.max(0, position - delaySeconds(localDelay)), durationRef.current / rate);
+        const original = local * rate;
+
+        if (readyRef.current) wavesurferRef.current?.setTime(original);
         if (timeLabelRef.current) timeLabelRef.current.textContent = formatarTempo(local);
 
         // O painel de comentários precisa do tempo em estado, mas sem re-renderizar a cada quadro.
@@ -240,7 +307,7 @@ function WaveformTrackInner({
             const now = performance.now();
             if (!engine.getState().playing || now - lastCommentClock.current > 250) {
                 lastCommentClock.current = now;
-                setCurrentTime(local);
+                setCurrentTime(original);
             }
         }
     });
@@ -253,6 +320,18 @@ function WaveformTrackInner({
     const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newVolume = parseFloat(e.target.value);
         setLocalVolume(newVolume);
+        setHasChanges(true);
+    };
+
+    const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setLocalRate(parseFloat(e.target.value));
+        setRateTouched(true);
+        setHasChanges(true);
+    };
+
+    const resetRate = () => {
+        setLocalRate(1);
+        setRateTouched(true);
         setHasChanges(true);
     };
 
@@ -270,7 +349,7 @@ function WaveformTrackInner({
 
     // `segundos` é tempo da camada; na linha do tempo global ele vem somado ao delay.
     const irPara = (segundos: number) => {
-        engine.seek(segundos + delaySeconds(localDelay));
+        engine.seek(segundos / appliedRef.current + delaySeconds(localDelay));
         setCurrentTime(segundos);
     };
 
@@ -284,10 +363,14 @@ function WaveformTrackInner({
         if (!onSave) return;
         const ok = await onSave(layerId, {
             volume_padrao: localVolume,
-            delay_offset: localDelay
+            delay_offset: localDelay,
+            // Só manda o BPM quando a velocidade foi mexida, para não sobrescrever o que já estava salvo.
+            ...(rateTouched && projectBpm
+                ? { bpm_original: localRate === 1 ? null : Math.min(300, Math.max(20, Math.round(projectBpm / localRate))) }
+                : {}),
         });
         // Só limpa o aviso se o servidor aceitou; `void` (sem retorno) conta como salvo.
-        if (ok !== false) setHasChanges(false);
+        if (ok !== false) { setHasChanges(false); setRateTouched(false); }
     };
 
     const [savingVersion, setSavingVersion] = useState(false);
@@ -361,8 +444,29 @@ function WaveformTrackInner({
                             />
                         </div>
                     )}
+                    {!isGuia && !!projectBpm && (
+                        <div className="speed-control">
+                            <label htmlFor={`speed-${layerId}`}>Velocidade:</label>
+                            <input
+                                id={`speed-${layerId}`}
+                                type="range"
+                                min={MIN_RATIO}
+                                max={MAX_SPEED}
+                                step={SPEED_STEP}
+                                value={localRate}
+                                onChange={handleRateChange}
+                                onDoubleClick={resetRate}
+                                className="speed-slider"
+                                title={isQualityRisk(localRate) ? 'Ajustes grandes podem reduzir a qualidade do áudio. Clique duas vezes para voltar a 100%.' : 'Clique duas vezes para voltar a 100%.'}
+                                aria-valuetext={`${Math.round(localRate * 100)}%`}
+                            />
+                            <span className="volume-value" aria-live="polite">
+                                {rendering ? <Loader2 size={12} className="spin" /> : `${Math.round(localRate * 100)}%`}
+                            </span>
+                        </div>
+                    )}
                     {!isGuia && hasChanges && (
-                        <button className="btn-save btn-save-labeled" onClick={handleSave} disabled={saving} title="Salvar volume e delay desta camada">
+                        <button className="btn-save btn-save-labeled" onClick={handleSave} disabled={saving} title="Salvar volume, delay e velocidade desta camada">
                             {saving ? <Loader2 size={16} className="spin" /> : <Save size={16} />}
                             <span>{saving ? 'Salvando…' : 'Salvar ajustes'}</span>
                         </button>
@@ -460,7 +564,7 @@ function WaveformTrackInner({
             )}
             <div className="track-time">
                 <span ref={timeLabelRef}>0:00</span>
-                <span>{formatTime(duration)}</span>
+                <span>{formatTime(duration / appliedRate)}</span>
             </div>
 
             {podeComentar && comentariosAbertos && (

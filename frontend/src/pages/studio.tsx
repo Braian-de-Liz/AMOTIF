@@ -7,6 +7,8 @@ import { StudioColaboradores } from "../components/StudioColaboradores";
 import { EditProjectModal } from "../components/EditProjectModal";
 import { DeleteProjectModal } from "../components/DeleteProjectModal";
 import { DeleteLayerModal } from "../components/DeleteLayerModal";
+import { AddLayerChoiceModal } from "../components/AddLayerChoiceModal";
+import { CreateLayerModal } from "../components/CreateLayerModal";
 import { LayerEditorModal } from "../components/LayerEditorModal";
 import { URL_API_TESTE } from "../utility/url_apis";
 import { TransportBar } from "../components/TransportBar";
@@ -14,6 +16,7 @@ import { usePlayback } from "../hooks/usePlayback";
 import { Mic, Music, Users, MessageSquare, Lightbulb, Pencil, Trash2, Download } from "lucide-react";
 import { ActionMenu } from "../components/ActionMenu";
 import { WaveArt } from "../components/WaveArt";
+import { computeStretchRatio, MIN_RATIO } from "../utility/tempo";
 import { mixdown, downloadBlob, type MixdownFormat } from "../utility/mixdown";
 import type { Project, Camada } from "../types";
 import { useUserData } from "../contexts/UserDataContext";
@@ -22,6 +25,9 @@ import '../styles/StudioPolish.css';
 import { SEOHead } from '../components/SEOHead';
 import { pode, rotuloPapel, rotuloStatus } from "../utility/papeis";
 import { useFeedback } from "../contexts/FeedbackContext";
+
+// Mesmo intervalo do controle de velocidade da camada.
+const clampSpeed = (rate: number) => Math.min(1.4, Math.max(MIN_RATIO, rate));
 
 function Studio() {
     const { id } = useParams<{ id: string }>();
@@ -32,6 +38,8 @@ function Studio() {
     const [saving, setSaving] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState('tracks');
     const [exporting, setExporting] = useState(false);
+    const [choiceModalOpen, setChoiceModalOpen] = useState(false);
+    const [createLayerOpen, setCreateLayerOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteLayerTarget, setDeleteLayerTarget] = useState<{ id: string; nome: string } | null>(null);
@@ -90,7 +98,7 @@ function Studio() {
         try {
             const mix = await mixdown([
                 ...(projeto.audio_guia ? [{ url: projeto.audio_guia, delayMs: 0, volume: 1, label: 'Áudio guia' }] : []),
-                ...aprovadas.map(c => ({ url: c.audio_url, delayMs: c.delay_offset, volume: c.volume_padrao, label: c.nome_trilha })),
+                ...aprovadas.map(c => ({ url: c.audio_url, delayMs: c.delay_offset, volume: c.volume_padrao, rate: clampSpeed(computeStretchRatio(projeto.bpm, c.bpm_original)), label: c.nome_trilha })),
             ], formato);
             downloadBlob(mix, `${projeto.titulo.normalize('NFD').replace(/\p{M}/gu, '').replace(/[^\w-]+/g, '_').replace(/^_+|_+$/g, '') || 'mix'}.${formato}`);
         } catch (err) {
@@ -102,7 +110,7 @@ function Studio() {
         }
     }, [projeto, feedback]);
 
-    const handleSaveLayer = useCallback(async (layerId: string, changes: { volume_padrao: number; delay_offset: number }): Promise<boolean> => {
+    const handleSaveLayer = useCallback(async (layerId: string, changes: { volume_padrao: number; delay_offset: number; bpm_original?: number | null }): Promise<boolean> => {
         setSaving(layerId);
         try {
             const response = await fetch(`${URL_API_TESTE}/layer/${layerId}`, {
@@ -260,7 +268,7 @@ function Studio() {
 
                 <div className="studio-header-actions">
                     {podeEnviar && (
-                        <button className="btn-primary-studio" onClick={() => navigate(`/studio/${id}/gravar`)}>
+                        <button className="btn-primary-studio" onClick={() => setChoiceModalOpen(true)}>
                             <Mic size={18} /> Gravar
                         </button>
                     )}
@@ -326,7 +334,7 @@ function Studio() {
                                 <h3>Nenhuma camada ainda</h3>
                                 <p>O áudio guia já está pronto. {podeEnviar ? 'Grave a primeira camada e comece a construir a música.' : 'Quando alguém gravar, as camadas aparecem aqui.'}</p>
                                 {podeEnviar && (
-                                    <button className="btn-primary-studio" onClick={() => navigate(`/studio/${id}/gravar`)}>
+                                    <button className="btn-primary-studio" onClick={() => setChoiceModalOpen(true)}>
                                         <Mic size={18} /> Gravar a primeira camada
                                     </button>
                                 )}
@@ -343,6 +351,8 @@ function Studio() {
                                 layerId={camada.id}
                                 delayOffset={camada.delay_offset}
                                 volume={camada.volume_padrao}
+                                projectBpm={projeto.bpm}
+                                bpmOriginal={camada.bpm_original}
                                 colorIndex={index + 1}
                                 isGuia={false}
                                 estaAprovada={camada.esta_aprovada}
@@ -385,6 +395,20 @@ function Studio() {
                     onUpdated={handleProjectUpdated}
                 />
             )}
+
+            <AddLayerChoiceModal
+                isOpen={choiceModalOpen}
+                onClose={() => setChoiceModalOpen(false)}
+                onRecord={() => { setChoiceModalOpen(false); navigate(`/studio/${id}/gravar`); }}
+                onCreateForm={() => { setChoiceModalOpen(false); setCreateLayerOpen(true); }}
+            />
+
+            <CreateLayerModal
+                projetoId={id || ''}
+                isOpen={createLayerOpen}
+                onClose={() => setCreateLayerOpen(false)}
+                onLayerCreated={() => { setCreateLayerOpen(false); refetchProjeto(); }}
+            />
 
             <DeleteProjectModal
                 projetoId={id || ''}

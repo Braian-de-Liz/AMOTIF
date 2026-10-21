@@ -1,3 +1,5 @@
+import { renderStretched } from './stretchRender';
+
 const SAMPLE_RATE = 44100;
 const CHANNELS = 2;
 
@@ -5,6 +7,8 @@ export interface MixdownTrack {
     url: string;
     delayMs: number;
     volume: number;
+    /** Velocidade da camada (1 = original; >1 acelera), com a afinação preservada. */
+    rate?: number;
     /** Nome mostrado na mensagem de erro quando a faixa não pode ser baixada ou decodificada. */
     label?: string;
 }
@@ -122,7 +126,15 @@ async function renderMix(tracks: MixdownTrack[]): Promise<AudioBuffer> {
 
     // O contexto só serve para decodificar; a duração final depende dos buffers.
     const decodeCtx = new OfflineAudioContext(CHANNELS, SAMPLE_RATE, SAMPLE_RATE);
-    const decoded = await Promise.all(tracks.map(t => decodeTrack(decodeCtx, t)));
+    const decoded = await Promise.all(tracks.map(async t => {
+        const buffer = await decodeTrack(decodeCtx, t);
+        try {
+            return await renderStretched(buffer, t.rate ?? 1, 0);
+        } catch (err) {
+            const onde = t.label ? ` da faixa "${t.label}"` : '';
+            throw new Error(`${err instanceof Error ? err.message : 'Falha no ajuste de velocidade'}${onde}`);
+        }
+    }));
 
     const totalSeconds = Math.max(
         ...decoded.map((buf, i) => safeDelay(tracks[i].delayMs) / 1000 + buf.duration)

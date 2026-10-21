@@ -400,3 +400,56 @@
 .track-actions .status-badge {
     flex-shrink: 0;
 }
+
+/* Modal de escolha ao adicionar camada */
+.layer-choice-options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.layer-choice-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 1rem;
+    text-align: left;
+    color: inherit;
+    background: transparent;
+    border: 1px solid var(--borda, rgba(255, 255, 255, 0.15));
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.layer-choice-card:hover,
+.layer-choice-card:focus-visible {
+    border-color: currentColor;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.layer-choice-card span {
+    font-size: 0.85rem;
+    opacity: 0.75;
+    line-height: 1.4;
+}
+
+@media (max-width: 520px) {
+    .layer-choice-options {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Controle de velocidade da camada */
+.speed-control {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+}
+
+.speed-slider {
+    width: 90px;
+}
