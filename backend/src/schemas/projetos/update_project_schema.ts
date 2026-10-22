@@ -18,6 +18,7 @@ const update_project_schema = {
             status: StatusProjetoEnum,
             bpm: Type.Number({ minimum: 1 }),
             escala: Type.Union([Type.String(), Type.Null()]),
+            audio_guia: Type.String({ format: 'uri' }),
         })),
         response: {
             200: Type.Object({

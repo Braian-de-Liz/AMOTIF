@@ -1,13 +1,13 @@
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
-import { verificar_autor_layer } from "../../hooks/verificar_dono_layer.js";
+import { verificar_autor_ou_dono_layer } from "../../hooks/verificar_dono_layer.js";
 import { update_layer_schema } from "../../schemas/layers/update_layer.schema.js";
 import { createNewVersion } from "../../services/versionService.js";
 import { isOwnedAudioUrl, normalizeAudioUrl } from "../../lib/storage_path.js";
 
 const update_layer: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
-    Fastify.addHook("preHandler", verificar_autor_layer);
+    Fastify.addHook("preHandler", verificar_autor_ou_dono_layer);
 
     Fastify.put("/layer/:id", update_layer_schema, async (request, reply) => {
         const { id } = request.params;

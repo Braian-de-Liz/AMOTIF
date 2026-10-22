@@ -1,8 +1,8 @@
 // back_end\src\hooks\verificar_dono_layer.ts
 // Hooks de autorização para ações sobre uma camada (layer) identificada por `params.id`.
 //
-// - verificar_autor_layer:          somente o autor da camada (editar).
-// - verificar_autor_ou_dono_layer:  autor da camada ou dono do projeto (deletar, rollback).
+// - verificar_autor_layer:          somente o autor da camada.
+// - verificar_autor_ou_dono_layer:  autor da camada ou dono do projeto (editar, deletar, rollback).
 //
 // Ambos retornam 404 se a camada não existir, estiver soft-deletada ou pertencer a um projeto soft-deletado.
 import { FastifyReply, FastifyRequest } from "fastify";

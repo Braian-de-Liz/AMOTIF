@@ -10,6 +10,7 @@ import { DeleteLayerModal } from "../components/DeleteLayerModal";
 import { AddLayerChoiceModal } from "../components/AddLayerChoiceModal";
 import { CreateLayerModal } from "../components/CreateLayerModal";
 import { LayerEditorModal } from "../components/LayerEditorModal";
+import { GuideEditorModal } from "../components/GuideEditorModal";
 import { URL_API_TESTE } from "../utility/url_apis";
 import { TransportBar } from "../components/TransportBar";
 import { usePlayback } from "../hooks/usePlayback";
@@ -40,10 +41,11 @@ function Studio() {
     const [exporting, setExporting] = useState(false);
     const [choiceModalOpen, setChoiceModalOpen] = useState(false);
     const [createLayerOpen, setCreateLayerOpen] = useState(false);
+    const [guideEditorOpen, setGuideEditorOpen] = useState(false);
     const [editModalOpen, setEditModalOpen] = useState(false);
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [deleteLayerTarget, setDeleteLayerTarget] = useState<{ id: string; nome: string } | null>(null);
-    const [editLayerTarget, setEditLayerTarget] = useState<{ id: string; audioUrl: string; nome: string } | null>(null);
+    const [editLayerTarget, setEditLayerTarget] = useState<{ id: string; audioUrl: string; nome: string; nomeTrilha: string; instrumentoTag: string } | null>(null);
     const { usuario } = useUserData();
     const feedback = useFeedback();
 
@@ -111,6 +113,13 @@ function Studio() {
     }, [projeto, feedback]);
 
     const handleSaveLayer = useCallback(async (layerId: string, changes: { volume_padrao: number; delay_offset: number; bpm_original?: number | null }): Promise<boolean> => {
+        // A API exige nome, instrumento e áudio em todo PUT (a URL assinada volta como canônica).
+        const camada = projeto?.camadas?.find(c => c.id === layerId);
+        if (!camada) {
+            feedback.error('Camada não encontrada.');
+            return false;
+        }
+
         setSaving(layerId);
         try {
             const response = await fetch(`${URL_API_TESTE}/layer/${layerId}`, {
@@ -119,7 +128,12 @@ function Studio() {
                     'Content-Type': 'application/json'
                 },
                 credentials: 'include',
-                body: JSON.stringify(changes)
+                body: JSON.stringify({
+                    nome_trilha: camada.nome_trilha || camada.instrumento_tag || 'Track',
+                    instrumento_tag: camada.instrumento_tag || camada.nome_trilha || 'Track',
+                    audio_url: camada.audio_url,
+                    ...changes,
+                })
             });
 
             if (response.ok) {
@@ -141,7 +155,7 @@ function Studio() {
         } finally {
             setSaving(null);
         }
-    }, [feedback]);
+    }, [feedback, projeto]);
 
     const handleAuthorizeLayer = useCallback(async (layerId: string, aprovada: boolean) => {
         try {
@@ -190,7 +204,9 @@ function Studio() {
             setEditLayerTarget({
                 id: camada.id,
                 audioUrl: camada.audio_url,
-                nome: camada.instrumento_tag || 'Track'
+                nome: camada.instrumento_tag || 'Track',
+                nomeTrilha: camada.nome_trilha || camada.instrumento_tag || 'Track',
+                instrumentoTag: camada.instrumento_tag || camada.nome_trilha || 'Track',
             });
         }
     }, [projeto]);
@@ -281,6 +297,7 @@ function Studio() {
                         items={[
                             { label: 'Exportar WAV (sem perdas)', icon: <Download size={14} />, disabled: exporting, onSelect: () => handleExport('wav') },
                             ...(isOwner ? [
+                                { label: 'Editar áudio guia', icon: <Pencil size={14} />, onSelect: () => setGuideEditorOpen(true) },
                                 { label: 'Editar projeto', icon: <Pencil size={14} />, onSelect: () => setEditModalOpen(true) },
                                 { label: 'Excluir projeto', icon: <Trash2 size={14} />, danger: true, onSelect: () => setDeleteModalOpen(true) },
                             ] : []),
@@ -316,18 +333,6 @@ function Studio() {
             <main className="studio-content" role="tabpanel" id={`studio-panel-${activeTab}`} aria-labelledby={`studio-tab-${activeTab}`}>
                 {/* As faixas continuam montadas (só escondidas) nas outras abas: a música não para ao trocar de aba. */}
                 <div className="studio-tracks" style={activeTab === 'tracks' ? undefined : { display: 'none' }}>
-                        <WaveformTrack
-                            engine={engine}
-                            audioUrl={projeto.audio_guia}
-                            nome="Áudio Guia"
-                            autor={projeto.autor?.nome_completo}
-                            layerId="__guide__"
-                            delayOffset={0}
-                            volume={1.0}
-                            colorIndex={0}
-                            isGuia={true}
-                        />
-
                         {(projeto.camadas || []).length === 0 && (
                             <div className="studio-empty">
                                 <WaveArt bars={36} />
@@ -340,6 +345,25 @@ function Studio() {
                                 )}
                             </div>
                         )}
+
+                        {/* Com camadas, o atalho fica no topo da lista: não some para o fim de uma lista longa. */}
+                        {(projeto.camadas || []).length > 0 && podeEnviar && (
+                            <button type="button" className="studio-add-layer" onClick={() => setChoiceModalOpen(true)}>
+                                <Mic size={16} /> Adicionar camada
+                            </button>
+                        )}
+
+                        <WaveformTrack
+                            engine={engine}
+                            audioUrl={projeto.audio_guia}
+                            nome="Áudio Guia"
+                            autor={projeto.autor?.nome_completo}
+                            layerId="__guide__"
+                            delayOffset={0}
+                            volume={1.0}
+                            colorIndex={0}
+                            isGuia={true}
+                        />
 
                         {(projeto.camadas || []).map((camada: Camada, index: number) => (
                             <WaveformTrack
@@ -410,6 +434,14 @@ function Studio() {
                 onLayerCreated={() => { setCreateLayerOpen(false); refetchProjeto(); }}
             />
 
+            <GuideEditorModal
+                projetoId={id || ''}
+                audioUrl={projeto.audio_guia ?? ''}
+                isOpen={guideEditorOpen}
+                onClose={() => setGuideEditorOpen(false)}
+                onSaved={refetchProjeto}
+            />
+
             <DeleteProjectModal
                 projetoId={id || ''}
                 isOpen={deleteModalOpen}
@@ -433,7 +465,8 @@ function Studio() {
                 <LayerEditorModal
                     layerId={editLayerTarget.id}
                     audioUrl={editLayerTarget.audioUrl}
-                    nomeTrilha={editLayerTarget.nome}
+                    nomeTrilha={editLayerTarget.nomeTrilha}
+                    instrumentoTag={editLayerTarget.instrumentoTag}
                     isOpen={!!editLayerTarget}
                     onClose={() => setEditLayerTarget(null)}
                     onVersionCreated={handleLayerVersionCreated}

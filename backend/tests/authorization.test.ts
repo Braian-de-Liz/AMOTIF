@@ -15,6 +15,7 @@ import { delete_layer } from "../src/routers/layers/delete_layer.js";
 import { patch_layer_status } from "../src/routers/layers/autorizar_layer.js";
 import { rollback_route } from "../src/routers/versions/manage_branches.js";
 import { post_project } from "../src/routers/projetos/create_project.js";
+import { Update_project } from "../src/routers/projetos/update_project.js";
 import { del_project } from "../src/routers/projetos/delete_project.js";
 import { Deletar_user } from "../src/routers/user/delete_user.js";
 import { Delete_Colab } from "../src/routers/colaboration/delete_colab.js";
@@ -53,6 +54,7 @@ type Camada = {
 
 let camada: Camada;
 let camadaUpdates: any[];
+let projetoUpdates: any[];
 let camadaCreates: any[];
 let deletedPaths: string[];
 let colabPapel: string; // papel do COLAB no PROJETO
@@ -64,6 +66,7 @@ function resetState() {
         versions: [{ audio_url: AUDIO_AUTOR, autorId: AUTOR }],
     };
     camadaUpdates = [];
+    projetoUpdates = [];
     camadaCreates = [];
     deletedPaths = [];
     colabPapel = "MUSICO";
@@ -135,7 +138,10 @@ const mockPrisma: any = {
             return lista.filter((p) => (where.userId ? p.userId === where.userId : true) && (!exigeAtivo || !p.deletedAt));
         },
         create: async ({ data }: any) => ({ id: PROJETO, ...data, createdAt: new Date(), updatedAt: new Date() }),
-        update: async () => ({}),
+        update: async ({ data }: any) => {
+            projetoUpdates.push(data);
+            return { id: PROJETO, titulo: "Samba", genero: "SAMBA", status: "IDEIA", bpm: 100, descricao: null, escala: null, updatedAt: new Date() };
+        },
     },
     user: {
         findUnique: async ({ where }: any) => ({
@@ -207,7 +213,7 @@ beforeAll(async () => {
     app.register(infraMock);
     app.setErrorHandler(globalErrorHandler);
     for (const plugin of [
-        create_Layer, update_layer, delete_layer, rollback_route, post_project, del_project, Deletar_user,
+        create_Layer, update_layer, delete_layer, rollback_route, post_project, Update_project, del_project, Deletar_user,
         Delete_Colab, list_invite, colaborators, Get_user_with_counts, Get_a_project, search_project,
         Get_projects_user, criar_sugestao, listar_sugestoes, Create_like, Toggle_favorite, cleanup_route, patch_layer_status,
     ]) {
@@ -251,6 +257,17 @@ describe("Storage - validação de audio_url/audio_guia na entrada", () => {
         expect(bom.statusCode).toBe(201);
     });
 
+    it("trocar audio_guia: só o dono, e só com arquivo enviado por ele", async () => {
+        const novo = audioUrlFor(DONO, "guia2.mp3");
+        const colab = await http({ method: "PATCH", url: `/api/projetos/${PROJETO}`, headers: auth(COLAB), payload: { audio_guia: audioUrlFor(COLAB, "g.mp3") } });
+        expect(colab.statusCode).toBe(403);
+        const alheio = await http({ method: "PATCH", url: `/api/projetos/${PROJETO}`, headers: auth(DONO), payload: { audio_guia: AUDIO_AUTOR } });
+        expect(alheio.statusCode).toBe(400);
+        const ok = await http({ method: "PATCH", url: `/api/projetos/${PROJETO}`, headers: auth(DONO), payload: { audio_guia: novo } });
+        expect(ok.statusCode).toBe(200);
+        expect(projetoUpdates).toEqual([{ audio_guia: novo }]);
+    });
+
     it("resolveSafeExtension ignora filenames maliciosos", () => {
         expect(resolveSafeExtension("../../x.mp3/../../evil.html", "audio/mpeg")).toBe(".mp3");
         expect(resolveSafeExtension("song.WAV", "audio/mpeg")).toBe(".wav");
@@ -292,9 +309,9 @@ describe("Layers - quem pode editar/apagar", () => {
         expect(res.statusCode).toBe(403);
     });
 
-    it("dono do projeto (não autor) edita → 403", async () => {
+    it("dono do projeto (não autor) edita → 200", async () => {
         const res = await http({ method: "PUT", url: `/api/layer/${CAMADA}`, headers: auth(DONO), payload: layerBody() });
-        expect(res.statusCode).toBe(403);
+        expect(res.statusCode).toBe(200);
     });
 
     it("autor edita → 200", async () => {

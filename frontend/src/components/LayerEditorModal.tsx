@@ -9,12 +9,13 @@ interface LayerEditorModalProps {
     layerId: string
     audioUrl: string
     nomeTrilha: string
+    instrumentoTag: string
     isOpen: boolean
     onClose: () => void
     onVersionCreated: () => void
 }
 
-function LayerEditorModal({ layerId, audioUrl, nomeTrilha, isOpen, onClose, onVersionCreated }: LayerEditorModalProps) {
+function LayerEditorModal({ layerId, audioUrl, nomeTrilha, instrumentoTag, isOpen, onClose, onVersionCreated }: LayerEditorModalProps) {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [editedBlob, setEditedBlob] = useState<Blob | null>(null);
@@ -53,6 +54,7 @@ function LayerEditorModal({ layerId, audioUrl, nomeTrilha, isOpen, onClose, onVe
                 body: JSON.stringify({
                     audio_url: fileUrl,
                     nome_trilha: nomeTrilha,
+                    instrumento_tag: instrumentoTag,
                     tag: tag || undefined,
                 })
             });

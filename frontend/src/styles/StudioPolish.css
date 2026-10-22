@@ -453,3 +453,26 @@
 .speed-slider {
     width: 90px;
 }
+
+/* Atalho para adicionar camada, no topo da lista */
+.studio-add-layer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 1px dashed var(--borda, rgba(0, 0, 0, 0.25));
+    border-radius: 10px;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.studio-add-layer:hover,
+.studio-add-layer:focus-visible {
+    border-style: solid;
+    background: rgba(127, 127, 127, 0.08);
+}

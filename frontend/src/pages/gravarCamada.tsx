@@ -1,6 +1,6 @@
-import { useState, useCallback } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { Mic, Scissors, Send, Check, Music } from 'lucide-react';
+import { useState, useCallback, useEffect } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { Mic, Scissors, Send, Check, Music, ArrowLeft } from 'lucide-react';
 import { AudioRecorder } from '../components/AudioRecorder';
 import { AudioEditor } from '../components/AudioEditor';
 import { URL_API_TESTE } from '../utility/url_apis';
@@ -25,6 +25,21 @@ function GravarCamada() {
     const [tag, setTag] = useState('');
     const [loading, setLoading] = useState(false);
     const [submitError, setSubmitError] = useState<string | null>(null);
+    const [projeto, setProjeto] = useState<{ titulo: string; bpm?: number } | null>(null);
+
+    // O título do projeto deixa claro onde a camada vai entrar.
+    useEffect(() => {
+        if (!id) return;
+        let cancelled = false;
+        fetch(`${URL_API_TESTE}/projetos/${id}`, { credentials: 'include' })
+            .then(res => (res.ok ? res.json() : null))
+            .then(data => {
+                const p = data?.projeto || data;
+                if (!cancelled && p?.titulo) setProjeto({ titulo: p.titulo, bpm: p.bpm });
+            })
+            .catch(() => {});
+        return () => { cancelled = true; };
+    }, [id]);
 
     const handleRecordingComplete = useCallback((blob: Blob, duration: number) => {
         setRecordedBlob(blob);
@@ -98,7 +113,7 @@ function GravarCamada() {
     return (
         <div className="novo-studio-page">
             <SEOHead
-                title="Gravar Camada"
+                title={projeto ? `Gravar camada: ${projeto.titulo}` : 'Gravar Camada'}
                 description="Grave, edite e envie uma nova camada para o projeto."
                 url={`/studio/${id}/gravar`}
             />
@@ -106,6 +121,12 @@ function GravarCamada() {
             <header className="user-header">
                 <h1>Gravar Camada</h1>
                 <p>Grave, edite e envie uma nova camada para o projeto</p>
+                <Link to={`/studio/${id}`} className="gravar-projeto-link" title="Voltar ao estúdio do projeto">
+                    <ArrowLeft size={14} />
+                    <span>Projeto:</span>
+                    <strong>{projeto ? projeto.titulo : 'carregando…'}</strong>
+                    {projeto?.bpm ? <small>{projeto.bpm} BPM</small> : null}
+                </Link>
             </header>
 
             <div className="studio-stepper">
@@ -158,7 +179,7 @@ function GravarCamada() {
                         </div>
                         <div className="publish-audio-info">
                             <h4>Áudio gravado e editado</h4>
-                            <p>Duração: {Math.floor(recordedDuration)}s</p>
+                            <p>Duração: {Math.floor(recordedDuration)}s{projeto ? <> · será adicionada ao projeto <strong>{projeto.titulo}</strong></> : null}</p>
                         </div>
                     </div>
 
@@ -206,7 +227,7 @@ function GravarCamada() {
                                 Voltar
                             </button>
                             <button type="submit" className="btn-confirm" disabled={loading}>
-                                {loading ? 'Enviando...' : 'Enviar Camada'}
+                                {loading ? 'Enviando...' : projeto ? `Enviar para ${projeto.titulo}` : 'Enviar Camada'}
                             </button>
                         </div>
                     </form>
