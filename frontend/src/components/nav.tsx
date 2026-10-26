@@ -1,12 +1,12 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, User, Heart, Mail, LogOut, Mic } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Home, User, Bookmark, Mail, LogOut, Mic } from 'lucide-react';
 import { Notificacoes } from './pull_notifications';
-import { URL_API_TESTE } from '../utility/url_apis';
+import { useLogout } from '../hooks/useLogout';
 import '../styles/Navbar.css';
 
 function Nav() {
     const location = useLocation();
-    const navigate = useNavigate();
+    const handleLogout = useLogout();
 
     const isActive = (path: string) => {
         if (path === '/home') return location.pathname === '/home';
@@ -16,19 +16,6 @@ function Nav() {
         if (path === '/favoritos') return location.pathname === '/favoritos';
         return false;
     };
-
-    async function handleLogout() {
-        try {
-            await fetch(`${URL_API_TESTE}/usuario/logout`, {
-                method: 'POST',
-                credentials: 'include'
-            });
-        } catch {
-        }
-        finally {
-            navigate('/');
-        }
-    }
 
     return (
         <nav className="nav-container">
@@ -70,7 +57,7 @@ function Nav() {
 
                 <li className={isActive('/favoritos') ? 'active' : ''}>
                     <Link to="/favoritos">
-                        <Heart size={24} className="nav-icon" />
+                        <Bookmark size={24} className="nav-icon" />
                         <span>Favoritos</span>
                     </Link>
                 </li>

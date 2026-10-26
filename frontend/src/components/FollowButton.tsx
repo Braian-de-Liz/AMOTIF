@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { URL_API_TESTE } from '../utility/url_apis'
+import { useFeedback } from '../contexts/FeedbackContext'
 
 interface FollowButtonProps {
     targetUserId: string
@@ -11,7 +12,7 @@ interface FollowButtonProps {
 function FollowButton({ targetUserId, initialFollowing = false, onToggle, className = '' }: FollowButtonProps) {
     const [isFollowing, setIsFollowing] = useState(initialFollowing)
     const [loading, setLoading] = useState(false)
-    const [erro, setErro] = useState<string | null>(null)
+    const feedback = useFeedback()
 
     async function handleClick(e: React.MouseEvent) {
         e.stopPropagation()
@@ -28,33 +29,29 @@ function FollowButton({ targetUserId, initialFollowing = false, onToggle, classN
                 const data = await response.json()
                 setIsFollowing(data.seguindo)
                 onToggle?.(data.seguindo)
-                setErro(null)
             } else {
-                const data = await response.json()
-                setErro(data.mensagem || "Erro ao seguir.")
-                setTimeout(() => setErro(null), 3000)
+                const data = await response.json().catch(() => ({}))
+                feedback.error(data.mensagem || "Erro ao seguir.")
             }
         } catch {
-            setErro("Erro de conexão.")
-            setTimeout(() => setErro(null), 3000)
+            feedback.error("Erro de conexão ao seguir.")
         } finally {
             setLoading(false)
         }
     }
 
     return (
-        <>
-            <button
-                className={`btn-follow ${isFollowing ? 'following' : ''} ${className}`}
-                onClick={handleClick}
-                disabled={loading}
-                aria-pressed={isFollowing}
-                aria-label={isFollowing ? "Deixar de seguir" : "Seguir"}
-            >
-                {loading ? '...' : isFollowing ? 'Seguindo' : 'Seguir'}
-            </button>
-            {erro && <small style={{ color: 'var(--erro-texto)', display: 'block', marginTop: '0.25rem' }}>{erro}</small>}
-        </>
+        <button
+            className={`btn-follow ${isFollowing ? 'following' : ''} ${className}`}
+            onClick={handleClick}
+            disabled={loading}
+            aria-busy={loading}
+            aria-pressed={isFollowing}
+            aria-label={isFollowing ? "Deixar de seguir" : "Seguir"}
+        >
+            {/* O rótulo fica durante a requisição: o botão não muda de largura. */}
+            {isFollowing ? 'Seguindo' : 'Seguir'}
+        </button>
     )
 }
 

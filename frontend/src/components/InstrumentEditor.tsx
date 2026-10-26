@@ -29,12 +29,10 @@ function InstrumentEditor() {
         if (!valor) return;
         if (instrumentos.includes(valor)) {
             setError("Este instrumento já foi adicionado.");
-            setTimeout(() => setError(null), 3000);
             return;
         }
         if (instrumentos.length >= 10) {
             setError("Máximo de 10 instrumentos.");
-            setTimeout(() => setError(null), 3000);
             return;
         }
         setInstrumentos(prev => [...prev, valor]);
@@ -176,7 +174,7 @@ function InstrumentEditor() {
                             </button>
                         </div>
                     </div>
-                    {error && <p className="error-msg">{error}</p>}
+                    {error && <p className="error-msg" role="alert">{error}</p>}
                 </div>
             )}
         </div>

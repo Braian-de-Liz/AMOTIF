@@ -8,12 +8,14 @@ import { InstrumentEditor } from '../components/InstrumentEditor';
 import { ChangePassword } from '../components/ChangePassword';
 import { DeleteAccountModal } from '../components/DeleteAccountModal';
 import { useUserData } from '../contexts/UserDataContext';
-import { Lock, Trash2, Mic } from 'lucide-react';
+import { Lock, Trash2, Mic, LogOut } from 'lucide-react';
+import { useLogout } from '../hooks/useLogout';
 import '../styles/User.css';
 import { SEOHead } from '../components/SEOHead';
 
 function UserPage() {
     const navigate = useNavigate();
+    const logout = useLogout();
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [refreshKey, setRefreshKey] = useState(0);
     const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -77,6 +79,14 @@ function UserPage() {
                     >
                         <Lock size={18} />
                         Trocar Senha
+                    </button>
+                    {/* No celular a barra de navegação não tem "Sair": a saída fica aqui. */}
+                    <button
+                        className="btn-account-action"
+                        onClick={logout}
+                    >
+                        <LogOut size={18} />
+                        Sair da conta
                     </button>
                     <button
                         className="btn-account-action btn-danger-outline"

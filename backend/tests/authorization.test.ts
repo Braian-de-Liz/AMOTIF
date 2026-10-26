@@ -30,6 +30,7 @@ import { listar_sugestoes } from "../src/routers/sugestoes/listar_sugestoes.js";
 import { Create_like } from "../src/routers/likes/like_create.js";
 import { Toggle_favorite } from "../src/routers/projetos/togle_favorites.js";
 import { cleanup_route } from "../src/routers/cleanup/cleanup.js";
+import { notiTypeMock } from "./helpers/noti_type.js";
 
 // ---------- IDs ----------
 const AUTOR = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa";   // autor da camada
@@ -160,6 +161,7 @@ const mockPrisma: any = {
         delete: async () => ({}),
     },
     convite: { findMany: async () => [], deleteMany: async () => ({ count: 0 }) },
+    refreshToken: { deleteMany: async () => ({ count: 0 }) },
     sugestao: {
         create: async ({ data }: any) => ({ id: "66666666-6666-4666-8666-666666666666", ...data, status: "ABERTA", createdAt: new Date(), autor: { id: data.autorId, nome_completo: "X", avatar_url: null } }),
         findMany: async () => [],
@@ -174,14 +176,11 @@ const mockPrisma: any = {
 
 const infraMock = fp(async (fastify: FastifyInstance) => {
     fastify.decorate("prisma", mockPrisma as unknown as PrismaClient);
-    fastify.decorate("notiType", {
-        INVITE_RECEIVED: "INVITE_RECEIVED", INVITE_ACCEPTED: "INVITE_ACCEPTED", NEW_LAYER: "NEW_LAYER",
-        LAYER_APPROVED: "LAYER_APPROVED", PROJECT_REJECT: "PROJECT_REJECT", NEW_FOLLOWER: "NEW_FOLLOWER",
-        PROJECT_RELEASED: "PROJECT_RELEASED", NEW_LIKE: "NEW_LIKE",
-    } as any);
+    fastify.decorate("notiType", notiTypeMock);
     fastify.decorate("storage", {
         uploadAudio: async () => ({ fileUrl: "", path: "" }),
         deleteAudio: async (path: string) => { deletedPaths.push(path); },
+        signUrls: async (urls: string[]) => new Map(urls.map(u => [u, u])),
     });
 });
 

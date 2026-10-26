@@ -34,6 +34,12 @@ describe('refreshAccessToken', () => {
     expect(result).toBe(false)
   })
 
+  it('deve retornar true em 409 (outra aba renovou) para repetir a requisicao', async () => {
+    mockFetch.mockResolvedValue({ ok: false, status: 409 })
+    const result = await refreshAccessToken()
+    expect(result).toBe(true)
+  })
+
   it('deve deduplicar chamadas simultaneas', async () => {
     mockFetch.mockResolvedValue({ ok: true, status: 200 })
     const [r1, r2, r3] = await Promise.all([

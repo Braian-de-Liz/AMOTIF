@@ -13,11 +13,24 @@
  *   bun run scripts/reencrypt_cpf.ts            # aplica
  *   bun run scripts/reencrypt_cpf.ts --dry-run  # só relata
  *
- * IMPORTANTE: rode com o MESMO JWT_PASSWORD/CPF_ENCRYPTION_SALT usado
- * quando os CPFs foram gravados, senão a decifragem falha.
+ * Migração de chave: CPFs antigos foram cifrados com a chave derivada de JWT_PASSWORD.
+ * Rode com CPF_ENCRYPTION_KEY e CPF_INDEX_SECRET (novos) definidos e com o JWT_PASSWORD e
+ * CPF_ENCRYPTION_SALT ORIGINAIS ainda no ambiente. O script lê com a chave nova e, se falhar,
+ * com a antiga, e regrava tudo com a nova. Só depois disso troque/rotacione JWT_PASSWORD.
  */
 import { PrismaClient } from '@prisma/client';
-import { encryptCPF, decryptCPF, hashCPF } from '../src/lib/cpf.js';
+import { encryptCPF, decryptCPF, decryptCPFLegacy, hashCPF, assertCpfConfig } from '../src/lib/cpf.js';
+
+assertCpfConfig();
+
+/** Tenta a chave nova; se falhar (GCM rejeita a tag), cai para a chave antiga derivada de JWT_PASSWORD. */
+function decifrar(cpf: string): string {
+    try {
+        return decryptCPF(cpf);
+    } catch {
+        return decryptCPFLegacy(cpf);
+    }
+}
 
 const prisma = new PrismaClient();
 const DRY_RUN = process.argv.includes('--dry-run');
@@ -35,7 +48,7 @@ async function main() {
 
     for (const user of users) {
         try {
-            const cpfPlano = decryptCPF(user.cpf);
+            const cpfPlano = decifrar(user.cpf);
             const novoHash = hashCPF(cpfPlano);
 
             // Já migrado: hash presente e correto. Ainda assim re-criptografamos
@@ -74,7 +87,7 @@ async function main() {
     console.log(`Falhas:    ${falhas}`);
 
     if (falhas > 0) {
-        console.error('\nHouve falhas. Verifique se JWT_PASSWORD/CPF_ENCRYPTION_SALT são os mesmos usados no cadastro original.');
+        console.error('\nHouve falhas. Verifique se JWT_PASSWORD/CPF_ENCRYPTION_SALT ainda são os usados no cadastro original.');
         process.exitCode = 1;
     }
 }

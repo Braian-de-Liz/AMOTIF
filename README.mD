@@ -182,7 +182,7 @@ Detalhes: [documents/typebox-fastify-bun.md](./documents/typebox-fastify-bun.md)
 
 ```
 AMOTIF/
-├── back_end/
+├── backend/
 │   ├── src/
 │   │   ├── server.ts              # Entrypoint do servidor
 │   │   ├── hooks/                 # Middlewares (JWT, verificacao de dono)
@@ -202,7 +202,7 @@ AMOTIF/
 │   │   ├── schema.prisma          # Modelo de dados
 │   │   └── migrations/            # Migrations versionadas
 │   └── tests/                     # Testes de integracao (Bun test)
-├── front_end/
+├── frontend/
 │   ├── src/
 │   │   ├── pages/                 # Paginas da aplicacao
 │   │   ├── components/            # Componentes React
@@ -212,6 +212,42 @@ AMOTIF/
 │   └── public/                    # Assets estaticos
 └── documents/                     # Documentacao tecnica
 ```
+
+---
+
+## Configuracao e Execucao
+
+Requisitos: [Bun](https://bun.sh). Instale as dependencias com `bun run itl` na raiz.
+
+### Variaveis de ambiente (`backend/.env`)
+
+| Variavel | Obrigatoria | Uso |
+|----------|-------------|-----|
+| `DATABASE_URL` | sim | Conexao PostgreSQL (Neon) |
+| `JWT_PASSWORD` | sim | Assinatura do JWT. Nao e usada para mais nada |
+| `COOKIE_SECRET` | sim | Assinatura dos cookies. Deve ser diferente do JWT |
+| `CPF_ENCRYPTION_KEY` | sim | Chave AES-256-GCM do CPF. **Perdida, os CPFs nao podem mais ser lidos** |
+| `CPF_INDEX_SECRET` | sim | Chave do HMAC usado na busca por CPF (`cpf_hash`) |
+| `CPF_ENCRYPTION_SALT` | nao | Salt da derivacao da chave do CPF |
+| `SUPABASE_URL`, `SUPABASE_KEY`, `SUPABASE_BUCKET` | sim | Storage de audio |
+| `STATE_APP` | nao | `DEV` desativa cookies `secure`, rate limit e proxy confiavel |
+| `CLEANUP_SECRET` | nao | Habilita `POST /api/cleanup` |
+
+O servidor nao sobe se `JWT_PASSWORD`, `COOKIE_SECRET`, `CPF_ENCRYPTION_KEY` ou `CPF_INDEX_SECRET` estiverem ausentes.
+
+### Comandos
+
+```bash
+cd backend  && bun run dev      # API em http://localhost:3333
+cd frontend && bun run dev      # App em http://localhost:5173
+cd backend  && bun run teste    # Testes do backend (Prisma mockado)
+cd backend  && bun run check    # Checagem de tipos
+cd frontend && bun run test     # Testes do frontend
+```
+
+### Sessao
+
+O access token dura 4 horas e o refresh token 7 dias. O refresh token e rotacionado a cada uso, entao a sessao se estende enquanto o usuario voltar ao menos uma vez a cada 7 dias. Reapresentar um token ja rotacionado (fora de uma janela de 10s para corridas entre abas) encerra todas as sessoes do usuario. A chamada periodica a `POST /api/cleanup` tambem remove refresh tokens expirados.
 
 ---
 

@@ -76,7 +76,7 @@
 }
 
 .btn-create-proj:hover {
-  background: #506b3a;
+  background: var(--verde-musgo-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(92, 122, 68, 0.3);
 }
@@ -126,6 +126,7 @@
 .custom-select:focus {
   outline: none;
   border-color: var(--verde-medio);
+  box-shadow: 0 0 0 3px rgba(92, 122, 68, 0.18);
 }
 
 .modal-content label {
@@ -134,7 +135,7 @@
 
 .modal-title {
     color: var(--verde-tinta);
-    font-size: 1.35rem;
+    font-size: var(--text-xl);
     margin-bottom: 1.25rem;
     text-align: center;
 }
@@ -179,7 +180,7 @@
 }
 
 .btn-modal-submit:hover:not(:disabled) {
-    background: #506b3a;
+    background: var(--verde-musgo-hover);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(92, 122, 68, 0.3);
 }
@@ -282,6 +283,7 @@
 .modal-textarea:focus {
   outline: none;
   border-color: var(--verde-medio);
+  box-shadow: 0 0 0 3px rgba(92, 122, 68, 0.18);
   background-color: var(--branco);
 }
 
@@ -293,7 +295,7 @@
 /* RESPONSIVIDADE */
 @media (max-width: 768px) {
   .user-header h1 {
-    font-size: 1.5rem;
+    font-size: var(--text-2xl);
   }
 
   .section-header {
@@ -321,7 +323,7 @@
 }
 
 .user-stats .stat-value {
-  font-size: 1.35rem;
+  font-size: var(--text-xl);
   font-weight: 700;
   color: var(--texto);
 }
@@ -499,8 +501,8 @@
   font-size: var(--text-sm);
 }
 
-.heart-icon {
-  color: var(--cor-like);
+.favorite-icon {
+  color: var(--cor-favorito);
 }
 
 /* Profile Page */
@@ -557,7 +559,7 @@
 }
 
 .profile-stats .stat-value {
-  font-size: 1.35rem;
+  font-size: var(--text-xl);
   font-weight: 700;
   color: var(--texto);
 }
@@ -581,7 +583,7 @@
 }
 
 .btn-follow-profile:hover {
-  background: #506b3a;
+  background: var(--verde-musgo-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(92, 122, 68, 0.3);
 }
@@ -816,6 +818,7 @@
 .bio-textarea:focus {
   outline: none;
   border-color: var(--verde-medio);
+  box-shadow: 0 0 0 3px rgba(92, 122, 68, 0.18);
   background-color: var(--branco);
 }
 
@@ -940,6 +943,7 @@
 .instrument-input:focus {
   outline: none;
   border-color: var(--verde-medio);
+  box-shadow: 0 0 0 3px rgba(92, 122, 68, 0.18);
   background-color: var(--branco);
 }
 
@@ -958,7 +962,7 @@
 }
 
 .btn-add-instrument:hover:not(:disabled) {
-  background: #506b3a;
+  background: var(--verde-musgo-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(92, 122, 68, 0.3);
 }

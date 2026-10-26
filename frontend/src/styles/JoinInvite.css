@@ -17,7 +17,7 @@
 }
 
 .join-invite-eyebrow {
-    font-size: 0.8rem;
+    font-size: var(--text-sm);
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--texto-secundario);
@@ -26,7 +26,7 @@
 
 .join-invite-card h1 {
     font-family: var(--font-display);
-    font-size: 1.75rem;
+    font-size: var(--text-3xl);
     color: var(--verde-tinta);
     margin-bottom: 12px;
 }
@@ -43,7 +43,7 @@
     border-radius: 999px;
     background: var(--verde-pastel);
     color: var(--verde-tinta);
-    font-size: 0.85rem;
+    font-size: var(--text-sm);
     font-weight: 500;
 }
 
@@ -54,7 +54,7 @@
     border-radius: 10px;
     background: var(--verde-musgo);
     color: var(--branco);
-    font-size: 1rem;
+    font-size: var(--text-base);
     font-weight: 600;
     cursor: pointer;
 }
@@ -79,7 +79,7 @@
     border-radius: 8px;
     background: var(--erro-bg);
     color: var(--erro-texto);
-    font-size: 0.9rem;
+    font-size: var(--text-base);
 }
 
 .join-invite-back {

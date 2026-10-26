@@ -9,6 +9,7 @@ import { Get_a_project } from "../src/routers/projetos/get_project_details.js";
 import { create_Layer } from "../src/routers/layers/create_layer.js";
 import { update_layer } from "../src/routers/layers/update_layers.js";
 import { globalErrorHandler } from "../src/lib/global_Error.js";
+import { notiTypeMock } from "./helpers/noti_type.js";
 
 const UUID = "123e4567-e89b-12d3-a456-426614174000";
 const USER = "test-user-id";
@@ -93,7 +94,7 @@ const mockPrisma: any = {
 
 const plugin = fp(async (fastify: FastifyInstance) => {
   fastify.decorate("prisma", mockPrisma as unknown as PrismaClient);
-  fastify.decorate("notiType", { NEW_LAYER: "NEW_LAYER" });
+  fastify.decorate("notiType", notiTypeMock);
   fastify.decorate("storage", {
     uploadAudio: async () => ({ fileUrl: GUIA, path: "x" }),
     deleteAudio: async () => {},

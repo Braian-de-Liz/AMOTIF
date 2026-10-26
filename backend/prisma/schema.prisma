@@ -48,10 +48,12 @@ model RefreshToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expiresAt DateTime
   used      Boolean  @default(false)
+  usedAt    DateTime?
   createdAt DateTime @default(now())
 
   @@index([userId])
   @@index([token])
+  @@index([expiresAt])
 }
 
 model Follows {

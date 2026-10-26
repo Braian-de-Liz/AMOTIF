@@ -14,6 +14,7 @@
   --verde-claro: #b8d0b0;
   --verde-medio: #7a9f6a;
   --verde-musgo: #5c7a44;
+  --verde-musgo-hover: #506b3a;
   --verde-tinta: #1f2b1a;
 
   /* Accent de assinatura — uso pontual */
@@ -263,10 +264,45 @@ button:disabled,
   cursor: not-allowed;
 }
 
+/* Waveform de assinatura (WaveArt): loading, estado vazio e divisor em qualquer tela */
+.wave-art {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+  height: 56px;
+  overflow: hidden;
+}
+
+.wave-art > span {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 6px;
+  background: var(--verde-claro);
+  border-radius: 3px;
+}
+
+.wave-art-skeleton > span {
+  background: var(--verde-medio);
+  opacity: 0.35;
+  transform-origin: center;
+  animation: wave-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes wave-pulse {
+  0%, 100% { transform: scaleY(0.45); opacity: 0.3; }
+  50% { transform: scaleY(1); opacity: 0.75; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wave-art-skeleton > span { animation: none; opacity: 0.5; }
+}
+
 /* Estado vazio padronizado */
 .empty-state {
+  grid-column: 1 / -1;
   text-align: center;
-  padding: var(--space-4xl) var(--space-3xl);
+  padding: var(--space-3xl);
   color: var(--texto-secundario);
   background-color: var(--fundo-secundario);
   border-radius: var(--radius-xl);
@@ -345,7 +381,7 @@ button:disabled,
 
 .btn-submit:hover:not(:disabled),
 .btn-primary:hover:not(:disabled) {
-  background: #506b3a;
+  background: var(--verde-musgo-hover);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(92, 122, 68, 0.3);
 }

@@ -7,11 +7,13 @@ const sameSite_state = isProduction ? ('none' as const) : ('lax' as const);
 const trust_proxy = Bun.env.TRUST_PROXY ? Bun.env.TRUST_PROXY === "true" : isProduction;
 
 const JWT_SECRET = Bun.env.JWT_PASSWORD || '';
-const COOKIE_SECRET: string = Bun.env.COOKIE_SECRET || JWT_SECRET;
 
-if (COOKIE_SECRET === JWT_SECRET && !Bun.env.COOKIE_SECRET) {
-    console.warn("AVISO: COOKIE_SECRET não definido. Usando JWT_PASSWORD como fallback. Defina COOKIE_SECRET em produção.");
+// Segredos independentes: vazar ou rotacionar um não pode afetar o outro.
+if (!Bun.env.COOKIE_SECRET) {
+    console.error("ERRO FATAL: COOKIE_SECRET não definido (não reutiliza mais JWT_PASSWORD).");
+    process.exit(1);
 }
+const COOKIE_SECRET: string = Bun.env.COOKIE_SECRET;
 
 const SMTP_HOST = Bun.env.SMTP_HOST || '';
 const SMTP_PORT = Number(Bun.env.SMTP_PORT) || 587;

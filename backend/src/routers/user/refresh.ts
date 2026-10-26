@@ -2,6 +2,10 @@ import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { schema_refresh } from '../../schemas/user_schema/schema_refresh.js';
 import { rotateRefreshToken } from '../../services/refreshToken.js';
 import { secure_state, sameSite_state } from '../../lib/config.enviriment.js';
+import { limite_refresh } from '../../lib/rate_limits.js';
+
+const ACCESS_TOKEN_MAX_AGE = 4 * 60 * 60;
+const REFRESH_TOKEN_MAX_AGE = 7 * 24 * 60 * 60;
 
 const COOKIE_OPTIONS = {
     secure: secure_state,
@@ -12,7 +16,7 @@ const COOKIE_OPTIONS = {
 
 const refresh_token: FastifyPluginAsyncTypebox = async (Fastify) => {
 
-    Fastify.post("/usuario/refresh", schema_refresh, async (request, reply) => {
+    Fastify.post("/usuario/refresh", { ...schema_refresh, config: limite_refresh }, async (request, reply) => {
 
         const refreshToken = request.cookies?.refresh_token;
 
@@ -25,7 +29,16 @@ const refresh_token: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         const result = await rotateRefreshToken(Fastify, refreshToken);
 
-        if (!result) {
+        if (result.kind === 'concurrent') {
+            // Outra requisição (ex.: outra aba) acabou de rotacionar este token e vai definir os cookies novos.
+            // Não limpamos os cookies aqui para não sobrescrever os que o vencedor da corrida enviou.
+            return reply.status(409).send({
+                status: "erro",
+                mensagem: "Renovação já em andamento"
+            });
+        }
+
+        if (result.kind === 'invalid') {
             reply.clearCookie('refresh_token', { path: '/' });
             reply.clearCookie('token', { path: '/' });
 
@@ -43,12 +56,12 @@ const refresh_token: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         reply.setCookie('token', newAccessToken, {
             ...COOKIE_OPTIONS,
-            maxAge: 4 * 60 * 60
+            maxAge: ACCESS_TOKEN_MAX_AGE
         });
 
         reply.setCookie('refresh_token', result.token, {
             ...COOKIE_OPTIONS,
-            maxAge: 7 * 24 * 60 * 60
+            maxAge: REFRESH_TOKEN_MAX_AGE
         });
 
         return reply.status(200).send({

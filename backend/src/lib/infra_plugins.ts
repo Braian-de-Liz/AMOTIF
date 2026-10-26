@@ -13,6 +13,7 @@ import { Dados_route } from '../routers/health/dados.js';
 import { prisma_plugin, prisma, notiType } from './prisma.js';
 import { Upload_Service, MAX_FILE_SIZE } from './upload.js';
 import { globalErrorHandler } from './global_Error.js';
+import { assertCpfConfig } from './cpf.js';
 import { Plugin_Routes } from "../routers/plugin_routes.js";
 
 if (!Bun.env.JWT_PASSWORD) {
@@ -21,6 +22,13 @@ if (!Bun.env.JWT_PASSWORD) {
 }
 
 const JWT_SECRET: string = Bun.env.JWT_PASSWORD;
+
+try {
+    assertCpfConfig();
+} catch (err) {
+    console.error(`ERRO FATAL: ${(err as Error).message}`);
+    process.exit(1);
+}
 
 
 const InfraPlugin: FastifyPluginAsync = async (Fastify) => {

@@ -19,17 +19,24 @@ export const handlers = [
   }),
 
   http.get(`${BASE_URL}/projetos/feed`, () => {
-    return HttpResponse.json([
-      {
-        id: 'proj-1',
-        titulo: 'Projeto Teste',
-        genero: 'ROCK',
-        bpm: 120,
-        descricao: 'Um projeto de teste',
-        autor: { id: 'user-1', nome_completo: 'Teste User', avatar_url: null },
-        _count: { likes: 5, favoritos: 2, camadas: 3 },
-      },
-    ])
+    return HttpResponse.json({
+      status: 'sucesso',
+      nextCursor: null,
+      projetos: [
+        {
+          id: 'proj-1',
+          titulo: 'Projeto Teste',
+          genero: 'ROCK',
+          bpm: 120,
+          descricao: 'Um projeto de teste',
+          audio_guia: 'https://example.com/guia.mp3',
+          autor: { id: 'user-1', nome_completo: 'Teste User', avatar_url: null },
+          _count: { likes: 5, camadas: 3 },
+          userHasLiked: false,
+          userHasFavorited: false,
+        },
+      ],
+    })
   }),
 
   http.get(`${BASE_URL}/projetos/:id`, ({ params }) => {

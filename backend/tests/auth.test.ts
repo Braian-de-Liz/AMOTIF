@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from "bun:test";
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from "bun:test";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
 import fastifyJwt from "@fastify/jwt";
@@ -9,8 +9,14 @@ import { PrismaClient } from "@prisma/client";
 import { refresh_token } from "../src/routers/user/refresh.js";
 import { logout_user } from "../src/routers/user/logout.js";
 import { globalErrorHandler } from "../src/lib/global_Error.js";
+import { notiTypeMock } from "./helpers/noti_type.js";
 
 const VALID_UUID = "123e4567-e89b-12d3-a456-426614174000";
+
+// Estado do token usado nos testes de rotação; cada teste redefine o que precisa.
+let tokenEstado: { used: boolean; usedAt: Date | null } = { used: false, usedAt: null };
+let claimCount = 1;
+let deleteManyCalls: any[] = [];
 
 const mockPrisma: any = {
   $transaction: async (arg: any) => (typeof arg === "function" ? arg(mockPrisma) : Promise.all(arg)),
@@ -21,7 +27,8 @@ const mockPrisma: any = {
           id: "token-id",
           token: "valid-refresh-token",
           userId: VALID_UUID,
-          used: false,
+          used: tokenEstado.used,
+          usedAt: tokenEstado.usedAt,
           expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           user: { id: VALID_UUID, nome_completo: "Test User", email: "test@example.com" },
         };
@@ -29,15 +36,16 @@ const mockPrisma: any = {
       return null;
     },
     update: async () => ({}),
+    updateMany: async () => ({ count: claimCount }),
     create: async (args: any) => ({ id: "new-token-id", ...args.data }),
     delete: async () => ({}),
-    deleteMany: async () => ({}),
+    deleteMany: async (args: any) => { deleteManyCalls.push(args); return {}; },
   },
 };
 
 const prismaPlugin = fp(async (fastify: FastifyInstance) => {
   fastify.decorate("prisma", mockPrisma as unknown as PrismaClient);
-  fastify.decorate("notiType", {});
+  fastify.decorate("notiType", notiTypeMock);
 });
 
 async function buildApp(): Promise<FastifyInstance> {
@@ -100,6 +108,43 @@ describe("Auth - POST /api/usuario/refresh", () => {
     expect(body.usuario).toHaveProperty("id");
     expect(body.usuario).toHaveProperty("nome");
     expect(body.usuario).toHaveProperty("email");
+  });
+
+  describe("rotação e reuso", () => {
+    const refreshComToken = () => app.inject({
+      method: "POST",
+      url: "/api/usuario/refresh",
+      headers: { cookie: cookieHeader("refresh_token", "valid-refresh-token") },
+    });
+
+    beforeEach(() => {
+      tokenEstado = { used: false, usedAt: null };
+      claimCount = 1;
+      deleteManyCalls = [];
+    });
+
+    it("perdeu a corrida pela reivindicação atômica → 409 sem limpar cookies", async () => {
+      claimCount = 0;
+      const res = await refreshComToken();
+      expect(res.statusCode).toBe(409);
+      expect(res.headers["set-cookie"]).toBeUndefined();
+      expect(deleteManyCalls).toHaveLength(0);
+    });
+
+    it("token já usado há poucos segundos (outra aba) → 409 sem derrubar sessões", async () => {
+      tokenEstado = { used: true, usedAt: new Date(Date.now() - 2_000) };
+      const res = await refreshComToken();
+      expect(res.statusCode).toBe(409);
+      expect(res.headers["set-cookie"]).toBeUndefined();
+      expect(deleteManyCalls).toHaveLength(0);
+    });
+
+    it("token já usado fora da janela (reuso) → 401 e apaga todas as sessões do usuário", async () => {
+      tokenEstado = { used: true, usedAt: new Date(Date.now() - 60_000) };
+      const res = await refreshComToken();
+      expect(res.statusCode).toBe(401);
+      expect(deleteManyCalls).toEqual([{ where: { userId: VALID_UUID } }]);
+    });
   });
 });
 

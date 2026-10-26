@@ -2,6 +2,7 @@ import { MusicGenre, StatusProjeto } from "@prisma/client";
 import { FastifyPluginAsyncTypebox } from '@fastify/type-provider-typebox';
 import { autenticarJWT } from "../../hooks/JWT_verific.js";
 import { get_feed_schema } from "../../schemas/projetos/get_explorer.js";
+import { audioSigner } from "../../lib/signed_urls.js";
 
 const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
     Fastify.addHook("onRequest", autenticarJWT);
@@ -18,7 +19,8 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
                 ...(instrumentoFaltante && {
                     camadas: {
                         none: {
-                            instrumento_tag: instrumentoFaltante,
+                            // A tag é texto livre: "baixo" e "Baixo" são o mesmo instrumento.
+                            instrumento_tag: { equals: instrumentoFaltante, mode: 'insensitive' },
                             esta_aprovada: true
                         }
                     }
@@ -38,10 +40,13 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
                 escala: true,
                 descricao: true,
                 status: true,
+                audio_guia: true,
                 createdAt: true,
                 autor: {
                     select: {
+                        id: true,
                         nome_completo: true,
+                        avatar_url: true,
                         instrumentos: true
                     }
                 },
@@ -57,7 +62,7 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
 
         const projetoIds = projetosRaw.map(p => p.id);
 
-        const [userLikes, userFavorites] = await Promise.all([
+        const [userLikes, userFavorites, sign] = await Promise.all([
             Fastify.prisma.like.findMany({
                 where: { userId, projetoId: { in: projetoIds } },
                 select: { projetoId: true }
@@ -65,14 +70,17 @@ const searth_feed: FastifyPluginAsyncTypebox = async (Fastify) => {
             Fastify.prisma.favorite.findMany({
                 where: { userId, projetoId: { in: projetoIds } },
                 select: { projetoId: true }
-            })
+            }),
+            // Prévia de áudio no card: o guia precisa sair assinado, como no detalhe do projeto.
+            audioSigner(Fastify.storage, projetosRaw.map(p => p.audio_guia))
         ]);
 
         const likedSet = new Set(userLikes.map(l => l.projetoId));
         const favoritedSet = new Set(userFavorites.map(f => f.projetoId));
 
-        const projetos = projetosRaw.map(({ id, titulo, genero, bpm, escala, descricao, status, createdAt, autor, _count }) => ({
+        const projetos = projetosRaw.map(({ id, titulo, genero, bpm, escala, descricao, status, audio_guia, createdAt, autor, _count }) => ({
             id, titulo, genero, bpm, escala, descricao, status,
+            audio_guia: sign(audio_guia),
             createdAt: createdAt.toISOString(),
             autor, _count,
             userHasLiked: likedSet.has(id),

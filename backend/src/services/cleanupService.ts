@@ -27,7 +27,7 @@ async function limparNotificacoesLidas(prisma: PrismaClient) {
 }
 
 async function executarLimpeza(prisma: PrismaClient) {
-    const [convitesRemovidos, notificacoesRemovidas] = await prisma.$transaction([
+    const [convitesRemovidos, notificacoesRemovidas, tokensRemovidos] = await prisma.$transaction([
         prisma.convite.deleteMany({
             where: { expira_em: { lt: new Date() } }
         }),
@@ -36,12 +36,17 @@ async function executarLimpeza(prisma: PrismaClient) {
                 lida: true,
                 createdAt: { lt: (() => { const d = new Date(); d.setDate(d.getDate() - NOTIFICATION_TTL_DAYS); return d; })() }
             }
+        }),
+        // Tokens expirados (inclusive os já rotacionados, mantidos até aqui para detectar reuso).
+        prisma.refreshToken.deleteMany({
+            where: { expiresAt: { lt: new Date() } }
         })
     ]);
 
     return {
         convitesRemovidos: convitesRemovidos.count,
-        notificacoesRemovidas: notificacoesRemovidas.count
+        notificacoesRemovidas: notificacoesRemovidas.count,
+        tokensRemovidos: tokensRemovidos.count
     };
 }
 

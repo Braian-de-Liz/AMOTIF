@@ -7,6 +7,8 @@ import '../styles/Shared.css';
 import { ProjectCard } from './project_Card';
 import type { Project, User, SearchResults } from '../types';
 import { STATUS_PROJETO } from "../utility/papeis";
+import { WaveArt } from "./WaveArt";
+import { previewPlayer } from "../utility/previewPlayer";
 
 interface UserWithFollowing extends User {
     isFollowing?: boolean
@@ -34,9 +36,29 @@ const GENEROS_FEED = [
     { value: 'REGGAE', label: 'Reggae' },
 ];
 
+// O filtro casa com a tag da camada sem diferenciar maiúsculas (backend: mode insensitive).
+const INSTRUMENTOS_FEED = ['Baixo', 'Guitarra', 'Violão', 'Bateria', 'Teclado', 'Vocal', 'Percussão', 'Sopros'];
+
+function FeedSkeleton() {
+    return (
+        <div className="feed-grid" role="status" aria-label="Carregando projetos">
+            {Array.from({ length: 6 }, (_, i) => (
+                <div key={i} className="feed-card feed-card-skeleton" aria-hidden="true">
+                    <span className="skeleton-line skeleton-title" />
+                    <span className="skeleton-line" />
+                    <span className="skeleton-line skeleton-short" />
+                    <WaveArt variant="skeleton" bars={32} />
+                </div>
+            ))}
+        </div>
+    );
+}
+
 function Feed() {
     const [projetos, setProjetos] = useState<Project[]>([]);
+    const [nextCursor, setNextCursor] = useState<string | null>(null);
     const [loading, setLoading] = useState(true);
+    const [loadingMore, setLoadingMore] = useState(false);
     const [erro, setErro] = useState<string | null>(null);
     const [filtroInstrumento, setFiltroInstrumento] = useState("");
     const [filtroGenero, setFiltroGenero] = useState("");
@@ -46,7 +68,10 @@ function Feed() {
     const abortControllerRef = useRef<AbortController | null>(null);
     const navigate = useNavigate();
 
-    const carregarFeed = useCallback(async () => {
+    const filtrosAtivos = Boolean(filtroInstrumento || filtroGenero || filtroStatus);
+
+    /** Sem cursor recarrega do início; com cursor acrescenta a próxima página. */
+    const carregarFeed = useCallback(async (cursor?: string) => {
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
         }
@@ -54,7 +79,10 @@ function Feed() {
         abortControllerRef.current = new AbortController();
         const signal = abortControllerRef.current.signal;
 
-        setLoading(true);
+        if (cursor) setLoadingMore(true);
+        else setLoading(true);
+        setErro(null);
+
         try {
             const url = new URL(`${URL_API_TESTE}/projetos/feed`);
 
@@ -67,6 +95,9 @@ function Feed() {
             if (filtroStatus) {
                 url.searchParams.append("status", filtroStatus);
             }
+            if (cursor) {
+                url.searchParams.append("cursor", cursor);
+            }
 
             const response = await fetch(url, {
                 signal,
@@ -75,7 +106,9 @@ function Feed() {
 
             const data = await response.json();
             if (response.ok) {
-                setProjetos(data.projetos || []);
+                const novos: Project[] = data.projetos || [];
+                setProjetos(prev => cursor ? [...prev, ...novos] : novos);
+                setNextCursor(data.nextCursor ?? null);
             } else {
                 setErro(data.mensagem);
             }
@@ -86,6 +119,7 @@ function Feed() {
         } finally {
             if (!signal.aborted) {
                 setLoading(false);
+                setLoadingMore(false);
             }
         }
     }, [filtroInstrumento, filtroGenero, filtroStatus]);
@@ -100,6 +134,9 @@ function Feed() {
         };
     }, [carregarFeed]);
 
+    // A prévia não continua tocando depois de sair do feed (ex.: ao entrar no Studio).
+    useEffect(() => () => previewPlayer.stop(), []);
+
     const handleSearchResults = (results: SearchResults | null) => {
         setSearchResults(results);
     };
@@ -108,7 +145,11 @@ function Feed() {
         navigate(`/usuario/${userId}`);
     };
 
-    if (loading && projetos.length === 0) return <div>Carregando...</div>;
+    const limparFiltros = () => {
+        setFiltroInstrumento("");
+        setFiltroGenero("");
+        setFiltroStatus("");
+    };
 
     return (
         <div className="feed-container">
@@ -159,16 +200,20 @@ function Feed() {
                         <div className="feed-filters">
                             <select
                                 className="filter-select"
+                                aria-label="Instrumento que falta"
+                                value={filtroInstrumento}
                                 onChange={(e) => setFiltroInstrumento(e.target.value)}
                             >
                                 <option value="">Todos os instrumentos</option>
-                                <option value="Baixo">Precisando de Baixo</option>
-                                <option value="Guitarra">Precisando de Guitarra</option>
-                                <option value="Vocal">Precisando de Vocal</option>
+                                {INSTRUMENTOS_FEED.map(i => (
+                                    <option key={i} value={i}>Precisando de {i}</option>
+                                ))}
                             </select>
 
                             <select
                                 className="filter-select"
+                                aria-label="Gênero"
+                                value={filtroGenero}
                                 onChange={(e) => setFiltroGenero(e.target.value)}
                             >
                                 {GENEROS_FEED.map(g => (
@@ -179,6 +224,7 @@ function Feed() {
                             <select
                                 className="filter-select"
                                 aria-label="Etapa do projeto"
+                                value={filtroStatus}
                                 onChange={(e) => setFiltroStatus(e.target.value)}
                             >
                                 <option value="">Todas as etapas</option>
@@ -186,19 +232,65 @@ function Feed() {
                                     <option key={s.value} value={s.value}>{s.label}</option>
                                 ))}
                             </select>
+
+                            {filtrosAtivos && (
+                                <button type="button" className="feed-clear-filters" onClick={limparFiltros}>
+                                    Limpar filtros
+                                </button>
+                            )}
                         </div>
                     </header>
 
-                    {erro && <div className="error-msg">{erro}</div>}
+                    {erro && (
+                        <div className="error-msg feed-error" role="alert">
+                            <span>{erro}</span>
+                            <button type="button" className="btn-small" onClick={() => carregarFeed()}>
+                                Tentar de novo
+                            </button>
+                        </div>
+                    )}
 
-                    {projetos.length > 0 ? (
-                        <div className="feed-grid">
+                    {loading && projetos.length === 0 ? (
+                        <FeedSkeleton />
+                    ) : projetos.length > 0 ? (
+                        <div className={`feed-grid${loading ? ' is-loading' : ''}`} aria-busy={loading}>
                             {projetos.map(proj => (
                                 <ProjectCard key={proj.id} proj={proj} />
                             ))}
                         </div>
-                    ) : (
-                        <p className="empty-state">Nenhum projeto encontrado{filtroGenero ? ` no gênero selecionado` : ''}{filtroStatus ? ` nesta etapa` : ''}{filtroInstrumento ? ` precisando de ${filtroInstrumento}` : ''}.</p>
+                    ) : !erro && (
+                        <div className="feed-empty">
+                            <WaveArt bars={36} />
+                            <h3>{filtrosAtivos ? 'Nada com esses filtros' : 'Nenhum projeto ainda'}</h3>
+                            <p>
+                                {filtrosAtivos
+                                    ? `Nenhum projeto encontrado${filtroGenero ? ' no gênero selecionado' : ''}${filtroStatus ? ' nesta etapa' : ''}${filtroInstrumento ? ` precisando de ${filtroInstrumento}` : ''}. Que tal começar um?`
+                                    : 'Comece um projeto com a sua guia e deixe outros músicos tocarem por cima.'}
+                            </p>
+                            <div className="feed-empty-actions">
+                                {filtrosAtivos && (
+                                    <button type="button" className="btn-secondary-feed" onClick={limparFiltros}>
+                                        Limpar filtros
+                                    </button>
+                                )}
+                                <button type="button" className="feed-cta-button" onClick={() => navigate('/novo-studio')}>
+                                    Começar um projeto
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {nextCursor && projetos.length > 0 && (
+                        <div className="feed-more">
+                            <button
+                                type="button"
+                                className="btn-secondary-feed"
+                                onClick={() => carregarFeed(nextCursor)}
+                                disabled={loadingMore}
+                            >
+                                {loadingMore ? 'Carregando…' : 'Carregar mais'}
+                            </button>
+                        </div>
                     )}
 
                     {projetos.length > 0 && (

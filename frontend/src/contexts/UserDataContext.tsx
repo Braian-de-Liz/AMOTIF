@@ -9,6 +9,8 @@ interface UserDataContextValue {
     refetch: () => Promise<void>
     /** Atualiza campos do usuário em memória, sem recarregar (refetch desmonta a tela via loading). */
     updateUsuario: (changes: Partial<User>) => void
+    /** Esquece o usuário em memória (logout): rotas protegidas deixam de abrir pelo "voltar". */
+    clearUsuario: () => void
 }
 
 const UserDataContext = createContext<UserDataContextValue>({
@@ -16,7 +18,8 @@ const UserDataContext = createContext<UserDataContextValue>({
     loading: true,
     error: null,
     refetch: async () => { },
-    updateUsuario: () => { }
+    updateUsuario: () => { },
+    clearUsuario: () => { }
 });
 
 function UserDataProvider({ children }: { children: ReactNode }) {
@@ -49,12 +52,16 @@ function UserDataProvider({ children }: { children: ReactNode }) {
         setUsuario(prev => prev ? { ...prev, ...changes } : prev);
     };
 
+    const clearUsuario = () => {
+        setUsuario(null);
+    };
+
     useEffect(() => {
         fetchUser();
     }, []);
 
     return (
-        <UserDataContext.Provider value={{ usuario, loading, error, refetch: fetchUser, updateUsuario }}>
+        <UserDataContext.Provider value={{ usuario, loading, error, refetch: fetchUser, updateUsuario, clearUsuario }}>
             {children}
         </UserDataContext.Provider>
     );

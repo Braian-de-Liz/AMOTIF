@@ -11,6 +11,7 @@ import { delete_layer } from "../src/routers/layers/delete_layer.js";
 import { update_layer } from "../src/routers/layers/update_layers.js";
 import { patch_layer_status } from "../src/routers/layers/autorizar_layer.js";
 import { globalErrorHandler } from "../src/lib/global_Error.js";
+import { notiTypeMock } from "./helpers/noti_type.js";
 
 const VALID_UUID = "123e4567-e89b-12d3-a456-426614174000";
 
@@ -62,19 +63,11 @@ const mockPrisma: any = {
 
 const prismaPlugin = fp(async (fastify: FastifyInstance) => {
   fastify.decorate("prisma", mockPrisma as unknown as PrismaClient);
-  fastify.decorate("notiType", {
-    INVITE_RECEIVED: "INVITE_RECEIVED",
-    INVITE_ACCEPTED: "INVITE_ACCEPTED",
-    NEW_LAYER: "NEW_LAYER",
-    LAYER_APPROVED: "LAYER_APPROVED",
-    PROJECT_REJECT: "PROJECT_REJECT",
-    NEW_FOLLOWER: "NEW_FOLLOWER",
-    PROJECT_RELEASED: "PROJECT_RELEASED",
-    NEW_LIKE: "NEW_LIKE",
-  });
+  fastify.decorate("notiType", notiTypeMock);
   fastify.decorate("storage", {
     uploadAudio: async () => ({ fileUrl: "https://example.com/audio.mp3", path: "test/file.mp3" }),
     deleteAudio: async () => {},
+      signUrls: async (urls: string[]) => new Map(urls.map(u => [u, u])),
   });
 });
 

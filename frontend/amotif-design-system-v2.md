@@ -31,6 +31,7 @@ a **waveform**.
 | `--verde-claro` | `#b8d0b0` | Bordas, hover states |
 | `--verde-medio` | `#7a9f6a` | Ícones ativos, follow buttons |
 | `--verde-musgo` | `#5c7a44` | **Cor principal** — CTA sólido, links, acentos |
+| `--verde-musgo-hover` | `#506b3a` | Hover de botões e superfícies em `--verde-musgo` (−6% de luz) |
 | `--verde-tinta` | `#1f2b1a` | Títulos, texto de alto contraste (substitui o antigo `--verde-escuro` como cor de título) |
  
 ### Accent de assinatura (novo — uso pontual, nunca estrutural)
@@ -120,7 +121,7 @@ porque o produto sincroniza camadas por offset em milissegundos.
  
 | Token | Tamanho | Face |
 |---|---|---|
-| `--text-xs` | 0.75rem (12px) | Plus Jakarta Sans / Mono — badges, timestamps |
+| `--text-xs` | 0.75rem (12px) | Plus Jakarta Sans / Mono — badges, timestamps. **Tamanho mínimo de texto** |
 | `--text-sm` | 0.8125rem (13px) | Plus Jakarta Sans — labels |
 | `--text-base` | 0.9375rem (15px) | Plus Jakarta Sans — corpo, inputs |
 | `--text-lg` | 1.0625rem (17px) | Plus Jakarta Sans — labels de formulário |
@@ -194,7 +195,7 @@ color: white;
 border-radius: var(--radius-base); /* 8px, não pill */
 box-shadow: 0 2px 8px rgba(92, 122, 68, 0.25);
 ```
-- Hover: `background: #506b3a` (verde-musgo -6% luz) + `translateY(-1px)`
+- Hover: `background: var(--verde-musgo-hover)` + `translateY(-1px)`
 - Active: `scale(0.98)`
 - **Sem gradiente. Sem shimmer.**
 ### Secundário (Outline)

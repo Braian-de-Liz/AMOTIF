@@ -6,26 +6,47 @@ const AUTH_TAG_LENGTH = 16;
 
 let cachedKey: Buffer | null = null;
 let cachedIndexKey: Buffer | null = null;
+let cachedLegacyKey: Buffer | null = null;
+
+function encryptionSalt(): string {
+    return Bun.env.CPF_ENCRYPTION_SALT || 'amotif-cpf-salt';
+}
+
+/** Falha cedo (no boot) se as chaves do CPF não estiverem definidas. Elas são independentes de JWT_PASSWORD. */
+export function assertCpfConfig(): void {
+    if (!Bun.env.CPF_ENCRYPTION_KEY) throw new Error("CPF_ENCRYPTION_KEY não definido");
+    if (!Bun.env.CPF_INDEX_SECRET) throw new Error("CPF_INDEX_SECRET não definido");
+}
 
 function deriveKey(): Buffer {
     if (cachedKey) return cachedKey;
 
-    const secret = Bun.env.JWT_PASSWORD;
-    if (!secret) throw new Error("JWT_PASSWORD não definido para criptografia de CPF");
+    const secret = Bun.env.CPF_ENCRYPTION_KEY;
+    if (!secret) throw new Error("CPF_ENCRYPTION_KEY não definido para criptografia de CPF");
 
-    const salt = Bun.env.CPF_ENCRYPTION_SALT || 'amotif-cpf-salt';
-    cachedKey = scryptSync(secret, salt, 32);
+    cachedKey = scryptSync(secret, encryptionSalt(), 32);
     return cachedKey;
 }
 
 function deriveIndexKey(): Buffer {
     if (cachedIndexKey) return cachedIndexKey;
 
-    const secret = Bun.env.CPF_INDEX_SECRET || Bun.env.JWT_PASSWORD;
-    if (!secret) throw new Error("CPF_INDEX_SECRET/JWT_PASSWORD não definido para o índice de CPF");
+    const secret = Bun.env.CPF_INDEX_SECRET;
+    if (!secret) throw new Error("CPF_INDEX_SECRET não definido para o índice de CPF");
 
     cachedIndexKey = scryptSync(secret, 'amotif-cpf-index-salt', 32);
     return cachedIndexKey;
+}
+
+/** Chave antiga (derivada de JWT_PASSWORD). Só existe para o script de migração ler dados legados. */
+function deriveLegacyKey(): Buffer {
+    if (cachedLegacyKey) return cachedLegacyKey;
+
+    const secret = Bun.env.JWT_PASSWORD;
+    if (!secret) throw new Error("JWT_PASSWORD não definido (necessário para ler CPFs legados)");
+
+    cachedLegacyKey = scryptSync(secret, encryptionSalt(), 32);
+    return cachedLegacyKey;
 }
 
 
@@ -48,7 +69,15 @@ export function encryptCPF(cpf: string): string {
 }
 
 export function decryptCPF(encryptedCPF: string): string {
-    const key = deriveKey();
+    return decryptWithKey(encryptedCPF, deriveKey());
+}
+
+/** Somente para o script de migração: decifra um CPF gravado com a chave antiga (JWT_PASSWORD). */
+export function decryptCPFLegacy(encryptedCPF: string): string {
+    return decryptWithKey(encryptedCPF, deriveLegacyKey());
+}
+
+function decryptWithKey(encryptedCPF: string, key: Buffer): string {
     const combined = Buffer.from(encryptedCPF, 'base64');
 
     const iv = combined.subarray(0, IV_LENGTH);

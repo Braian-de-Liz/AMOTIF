@@ -34,7 +34,7 @@ nav ul {
   align-items: center;
   gap: 0.5rem;
   font-weight: 700;
-  font-size: 1rem;
+  font-size: var(--text-base);
   color: var(--verde-musgo) !important;
   text-decoration: none !important;
   letter-spacing: -0.03em;
@@ -133,7 +133,7 @@ nav ul li button:hover {
   }
 
   nav ul li a {
-    font-size: 0.75rem;
+    font-size: var(--text-xs);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -159,7 +159,7 @@ nav ul li button:hover {
   }
 
   nav ul li a span {
-    font-size: 0.65rem;
+    font-size: var(--text-xs);
     font-weight: 500;
   }
 

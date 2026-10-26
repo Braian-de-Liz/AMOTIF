@@ -14,6 +14,7 @@ import { searth_feed } from "../src/routers/projetos/get_feed.js";
 import { mural_project } from "../src/routers/projetos/mural_project.js";
 import { get_mural } from "../src/routers/projetos/get_mural.js";
 import { globalErrorHandler } from "../src/lib/global_Error.js";
+import { notiTypeMock } from "./helpers/noti_type.js";
 
 const mockPrisma: any = {
   $queryRaw: async () => [],
@@ -76,16 +77,7 @@ const mockPrisma: any = {
 
 const prismaPlugin = fp(async (fastify: FastifyInstance) => {
   fastify.decorate("prisma", mockPrisma as unknown as PrismaClient);
-  fastify.decorate("notiType", {
-    INVITE_RECEIVED: "INVITE_RECEIVED",
-    INVITE_ACCEPTED: "INVITE_ACCEPTED",
-    NEW_LAYER: "NEW_LAYER",
-    LAYER_APPROVED: "LAYER_APPROVED",
-    PROJECT_REJECT: "PROJECT_REJECT",
-    NEW_FOLLOWER: "NEW_FOLLOWER",
-    PROJECT_RELEASED: "PROJECT_RELEASED",
-    NEW_LIKE: "NEW_LIKE",
-  });
+  fastify.decorate("notiType", notiTypeMock);
 });
 
 async function buildApp(): Promise<FastifyInstance> {
@@ -317,6 +309,58 @@ describe("Projetos Routes - GET /api/projetos/feed", () => {
     });
 
     expect(res.statusCode).toBe(200);
+  });
+
+  it("deve devolver audio_guia e o id do autor para a prévia no card", async () => {
+    const original = mockPrisma.projeto.findMany;
+    mockPrisma.projeto.findMany = async () => [{
+      id: "123e4567-e89b-12d3-a456-426614174000",
+      titulo: "Projeto Teste",
+      genero: "ROCK",
+      bpm: 120,
+      escala: null,
+      descricao: null,
+      status: "IDEIA",
+      audio_guia: "https://example.com/audio.mp3",
+      createdAt: new Date(),
+      autor: { id: "autor-id", nome_completo: "Test User", avatar_url: null, instrumentos: [] },
+      _count: { likes: 0, camadas: 0, colaboradores: 0 },
+    }];
+
+    try {
+      const res = await app.inject({
+        method: "GET",
+        url: "/api/projetos/feed",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      expect(res.statusCode).toBe(200);
+      const [projeto] = res.json().projetos;
+      expect(projeto.audio_guia).toBe("https://example.com/audio.mp3");
+      expect(projeto.autor.id).toBe("autor-id");
+      expect(projeto.autor.avatar_url).toBeNull();
+    } finally {
+      mockPrisma.projeto.findMany = original;
+    }
+  });
+
+  it("deve filtrar instrumento faltante sem diferenciar maiúsculas", async () => {
+    const original = mockPrisma.projeto.findMany;
+    let where: any;
+    mockPrisma.projeto.findMany = async (args: any) => { where = args.where; return []; };
+
+    try {
+      const res = await app.inject({
+        method: "GET",
+        url: "/api/projetos/feed?instrumentoFaltante=baixo",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      expect(res.statusCode).toBe(200);
+      expect(where.camadas.none.instrumento_tag).toEqual({ equals: "baixo", mode: "insensitive" });
+    } finally {
+      mockPrisma.projeto.findMany = original;
+    }
   });
 
   it("deve retornar 200 ao buscar feed com filtro de gênero", async () => {

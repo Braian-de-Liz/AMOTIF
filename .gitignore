@@ -57,3 +57,6 @@ ehthumbs.db
 # Visual Studio / local Claude settings
 .vs/
 .claude/settings.local.json
+
+# Visual Studio
+.vs/

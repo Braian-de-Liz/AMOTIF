@@ -7,6 +7,7 @@ import fp from "fastify-plugin";
 import { PrismaClient } from "@prisma/client";
 import { Deletar_Comentario } from "../src/routers/projetos/mural_delete.js";
 import { globalErrorHandler } from "../src/lib/global_Error.js";
+import { notiTypeMock } from "./helpers/noti_type.js";
 
 const VALID_UUID = "123e4567-e89b-12d3-a456-426614174000";
 const OTHER_UUID = "223e4567-e89b-12d3-a456-426614174001";
@@ -33,14 +34,7 @@ const mockPrisma = {
 
 const prismaPlugin = fp(async (fastify: FastifyInstance) => {
   fastify.decorate("prisma", mockPrisma as unknown as PrismaClient);
-  fastify.decorate("notiType", {
-    INVITE_RECEIVED: "INVITE_RECEIVED",
-    NEW_LAYER: "NEW_LAYER",
-    LAYER_APPROVED: "LAYER_APPROVED",
-    NEW_FOLLOWER: "NEW_FOLLOWER",
-    PROJECT_RELEASED: "PROJECT_RELEASED",
-    NEW_LIKE: "NEW_LIKE",
-  });
+  fastify.decorate("notiType", notiTypeMock);
 });
 
 async function buildApp(): Promise<FastifyInstance> {
@@ -127,7 +121,7 @@ describe("Mural Delete - DELETE /api/projetos/:projetoId/mural/:comentarioId", (
     appOther.register(
       fp(async (fastify: FastifyInstance) => {
         fastify.decorate("prisma", mockPrismaOther as unknown as PrismaClient);
-        fastify.decorate("notiType", {});
+        fastify.decorate("notiType", notiTypeMock);
       })
     );
     appOther.setErrorHandler(globalErrorHandler);

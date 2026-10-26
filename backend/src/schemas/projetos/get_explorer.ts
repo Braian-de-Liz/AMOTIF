@@ -26,9 +26,12 @@ const get_feed_schema = {
                     escala: Type.Union([Type.String(), Type.Null()]),
                     descricao: Type.Union([Type.String(), Type.Null()]),
                     status: Type.String(),
+                    audio_guia: Type.String(),
                     createdAt: Type.String({ format: 'date-time' }),
                     autor: Type.Object({
+                        id: Type.String(),
                         nome_completo: Type.String({ minLength: 6 }),
+                        avatar_url: Type.Union([Type.String(), Type.Null()]),
                         instrumentos: Type.Array(Type.String())
                     }),
                     _count: Type.Object({

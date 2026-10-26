@@ -12,6 +12,7 @@ import { list_invite } from "../src/routers/colaboration/list_invite.js";
 import { Delete_Colab } from "../src/routers/colaboration/delete_colab.js";
 import { Reject_Invite } from "../src/routers/colaboration/reject_invite.js";
 import { globalErrorHandler } from "../src/lib/global_Error.js";
+import { notiTypeMock } from "./helpers/noti_type.js";
 
 const VALID_UUID = "123e4567-e89b-12d3-a456-426614174000";
 
@@ -40,16 +41,7 @@ const mockPrisma = {
 
 const prismaPlugin = fp(async (fastify: FastifyInstance) => {
   fastify.decorate("prisma", mockPrisma as unknown as PrismaClient);
-  fastify.decorate("notiType", {
-    INVITE_RECEIVED: "INVITE_RECEIVED",
-    INVITE_ACCEPTED: "INVITE_ACCEPTED",
-    NEW_LAYER: "NEW_LAYER",
-    LAYER_APPROVED: "LAYER_APPROVED",
-    PROJECT_REJECT: "PROJECT_REJECT",
-    NEW_FOLLOWER: "NEW_FOLLOWER",
-    PROJECT_RELEASED: "PROJECT_RELEASED",
-    NEW_LIKE: "NEW_LIKE",
-  });
+  fastify.decorate("notiType", notiTypeMock);
 });
 
 async function buildApp(): Promise<FastifyInstance> {

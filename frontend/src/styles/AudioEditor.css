@@ -84,7 +84,7 @@
 }
 
 .editor-icon-btn.primary:hover:not(:disabled) {
-    background: #506b3a;
+    background: var(--verde-musgo-hover);
 }
 
 .editor-icon-btn.active {
@@ -127,7 +127,7 @@
     border: 1px solid var(--borda);
     border-radius: 4px;
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: var(--text-xs);
 }
 
 .editor-mode {

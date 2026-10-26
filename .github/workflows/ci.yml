@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    # Segredos fictícios: os testes usam Prisma mockado e nunca tocam banco ou Storage reais.
+    env:
+      DATABASE_URL: postgresql://ci:ci@localhost:5432/ci
+      JWT_PASSWORD: ci-jwt-secret
+      COOKIE_SECRET: ci-cookie-secret
+      CPF_ENCRYPTION_KEY: ci-cpf-encryption-key
+      CPF_INDEX_SECRET: ci-cpf-index-secret
+      SUPABASE_URL: https://ci.supabase.co
+      SUPABASE_KEY: ci-supabase-key
+      STATE_APP: DEV
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun x prisma generate
+      - name: Checagem de tipos
+        run: bun run check
+      - name: Testes
+        run: bun run teste
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - name: Testes
+        run: bun x vitest run
+      - name: Build
+        run: bun run build
+      # Ainda não passam: tornar bloqueantes assim que os erros existentes forem corrigidos.
+      - name: Checagem de tipos
+        continue-on-error: true
+        run: bun x tsc --noEmit -p .
+      - name: Lint
+        continue-on-error: true
+        run: bun run lint

@@ -14,7 +14,8 @@ const cleanup_route: FastifyPluginAsyncTypebox = async (Fastify) => {
             status: "sucesso",
             mensagem: "Limpeza executada com sucesso",
             convitesRemovidos: resultado.convitesRemovidos,
-            notificacoesRemovidas: resultado.notificacoesRemovidas
+            notificacoesRemovidas: resultado.notificacoesRemovidas,
+            tokensRemovidos: resultado.tokensRemovidos
         });
     });
 };

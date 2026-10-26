@@ -2,7 +2,7 @@ import { URL_API_TESTE } from './url_apis';
 import { refreshAccessToken } from './refreshToken';
 
 export async function apiClient<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const makeRequest = async (): Promise<T> => {
+    const makeRequest = async (retried = false): Promise<T> => {
         const res = await fetch(`${URL_API_TESTE}${endpoint}`, {
             ...options,
             credentials: 'include',
@@ -15,9 +15,10 @@ export async function apiClient<T>(endpoint: string, options: RequestInit = {}):
         });
 
         if (res.status === 401) {
-            const refreshed = await refreshAccessToken();
+            // Renova e repete no máximo uma vez: um 401 persistente depois do refresh é sessão inválida.
+            const refreshed = retried ? false : await refreshAccessToken();
             if (refreshed) {
-                return makeRequest();
+                return makeRequest(true);
             }
 
             window.location.href = '/';
