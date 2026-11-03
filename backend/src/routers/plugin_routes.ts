@@ -1,5 +1,6 @@
 // back_end\src\schemas
 import { FastifyPluginAsync } from "fastify";
+import { createFeedCache } from "../lib/feed_cache.js";
 
 import { Get_me } from "./user/get_me.js";
 import { User_register } from "./user/cadastro.js";
@@ -74,7 +75,18 @@ import { upload_audio } from "./upload/upload_point.js";
 
 import { cleanup_route } from "./cleanup/cleanup.js";
 
+// Escritas que não alteram o feed: não invalidam o cache.
+const ROTAS_SEM_IMPACTO_NO_FEED = /\/(notifications|comentarios|mural|sugestoes|upload|usuario\/(login|refresh|logout))(\/|\?|$)/;
+
 const Plugin_Routes: FastifyPluginAsync = async (Fastify) => {
+
+    // Cache do feed por processo. Qualquer escrita bem-sucedida que possa mudar o feed o esvazia.
+    Fastify.decorate("feedCache", createFeedCache<unknown>());
+    Fastify.addHook("onResponse", async (request, reply) => {
+        if (request.method === "GET" || reply.statusCode >= 400) return;
+        if (ROTAS_SEM_IMPACTO_NO_FEED.test(request.url)) return;
+        (Fastify as any).feedCache.clear();
+    });
 
     Fastify.register(Get_me);
     Fastify.register(User_register);

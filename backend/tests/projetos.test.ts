@@ -328,9 +328,10 @@ describe("Projetos Routes - GET /api/projetos/feed", () => {
     }];
 
     try {
+      // Filtro próprio: a chave padrão já está no cache do feed, preenchida pelos testes acima.
       const res = await app.inject({
         method: "GET",
-        url: "/api/projetos/feed",
+        url: "/api/projetos/feed?genero=POP",
         headers: { Authorization: `Bearer ${token}` },
       });
 
