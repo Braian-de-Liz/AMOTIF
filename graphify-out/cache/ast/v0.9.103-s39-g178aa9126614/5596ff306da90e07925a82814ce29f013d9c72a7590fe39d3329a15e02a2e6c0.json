@@ -1,0 +1,1 @@
+{"nodes": [{"id": "$graphify-root$_backend_prisma_migrations_20260817000000_add_refresh_token_migration_sql", "label": "migration.sql", "file_type": "code", "source_file": "backend/prisma/migrations/20260817000000_add_refresh_token/migration.sql", "source_location": null}], "edges": []}
